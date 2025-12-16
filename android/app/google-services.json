@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "445235194138",
+    "project_id": "yoinnapp",
+    "storage_bucket": "yoinnapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:445235194138:android:aa25d98513a4c2215ae4a3",
+        "android_client_info": {
+          "package_name": "com.example.yoinn_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCI6gODh5uEkcpIuQVrKvD9xR0lFlBwrns"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

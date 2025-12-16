@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Yoinn - Conecta y comparte experiencias.">
+
+  <!-- CORRECCIÓN 1: Etiquetas Mobile actualizadas -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Yoinn">
+  
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Yoinn</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- CONFIGURACIÓN DE GOOGLE SIGN IN -->
+  <!-- Reemplaza con tu CLIENT_ID real si cambió, pero usa el que ya tenías -->
+  <meta name="google-signin-client_id" content="61284761262-10cq58e09ct55o8fs8h53cavn20nrpq2.apps.googleusercontent.com">
+
+  <!-- CORRECCIÓN 2: Renderizador CanvasKit para mejor rendimiento -->
+  <script>
+    // Evita problemas de caché en navegadores
+    var serviceWorkerVersion = null;
+  </script>
+  
+  <!-- CORRECCIÓN 3: Scripts de Flutter -->
+  <script src="flutter.js" defer></script>
+</head>
+<body>
+  <script>
+    window.addEventListener('load', function(ev) {
+      // Descarga el main.dart.js
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

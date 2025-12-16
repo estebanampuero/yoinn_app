@@ -1,0 +1,58 @@
+# Uncomment this line to define a global platform for your project
+platform :ios, '15.0'
+
+# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+project 'Runner', {
+  'Debug' => :debug,
+  'Profile' => :release,
+  'Release' => :release,
+}
+
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get is executed first"
+  end
+
+  File.foreach(generated_xcode_build_settings_path) do |line|
+    matches = line.match(/FLUTTER_ROOT\=(.*)/)
+    return matches[1].strip if matches
+  end
+  raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Generated.xcconfig, then run flutter pub get"
+end
+
+require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+
+flutter_ios_podfile_setup
+
+# --- NO FORZAR GTMSessionFetcher ---
+# Dejamos que el downgrade de 'google_sign_in' en pubspec.yaml resuelva automáticamente la versión
+# -----------------------------------
+
+target 'Runner' do
+  use_frameworks!
+
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  target 'RunnerTests' do
+    inherit! :search_paths
+  end
+end
+
+# BLOQUE post_install FINAL Y CRÍTICO
+# Este bloque garantiza que la bandera ALLOW_NON_MODULAR_INCLUDES... sea 'YES'
+# para todos los Pods, sin importar la versión de GTMSessionFetcher que se use.
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    
+    # --- INICIO DEL CAMBIO ---
+    # Esto fuerza a todas las librerías a usar iOS 15.0 como mínimo
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+    end
+    # --- FIN DEL CAMBIO ---
+    
+  end
+end

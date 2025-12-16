@@ -1,0 +1,71 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "yoinnapp",
+          "appId": "1:445235194138:android:aa25d98513a4c2215ae4a3",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "yoinnapp",
+          "appId": "1:445235194138:ios:c23dd0a61cfe55855ae4a3",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "yoinnapp",
+          "appId": "1:445235194138:ios:20fe477fa80a7b7c5ae4a3",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "yoinnapp",
+          "configurations": {
+            "android": "1:445235194138:android:aa25d98513a4c2215ae4a3",
+            "ios": "1:445235194138:ios:c23dd0a61cfe55855ae4a3",
+            "macos": "1:445235194138:ios:20fe477fa80a7b7c5ae4a3",
+            "web": "1:445235194138:web:54f11d53ea0835b65ae4a3",
+            "windows": "1:445235194138:web:984b643fbda7fcd55ae4a3"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ]
+}
