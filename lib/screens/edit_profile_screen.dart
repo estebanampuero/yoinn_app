@@ -16,8 +16,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _bioController;
+  late TextEditingController _instaController; // <--- Controlador Instagram
   
-  // Lista de hobbies disponibles (igual que en tu web)
   final List<String> _allHobbies = [
     'art_galleries', 'board_games', 'cafes', 'coding', 'concerts', 
     'cooking', 'cycling', 'dancing', 'dogs', 'fitness', 
@@ -33,6 +33,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     _nameController = TextEditingController(text: widget.user.name);
     _bioController = TextEditingController(text: widget.user.bio);
+    // Cargamos el instagram actual o vacío
+    _instaController = TextEditingController(text: widget.user.instagramHandle ?? '');
     _selectedHobbies = List.from(widget.user.hobbies);
   }
 
@@ -40,6 +42,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void dispose() {
     _nameController.dispose();
     _bioController.dispose();
+    _instaController.dispose();
     super.dispose();
   }
 
@@ -49,9 +52,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => _isSaving = true);
 
     try {
+      // Limpiamos el input de Instagram (quitamos @ y espacios)
+      final cleanInsta = _instaController.text.trim().replaceAll('@', '').replaceAll(' ', '');
+
       final updatedData = {
         'name': _nameController.text.trim(),
         'bio': _bioController.text.trim(),
+        'instagramHandle': cleanInsta, // Guardamos el nuevo campo
         'hobbies': _selectedHobbies,
         'profileCompleted': true,
       };
@@ -95,7 +102,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // Foto (Placeholder por ahora)
             Center(
               child: CircleAvatar(
                 radius: 50,
@@ -118,6 +124,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               maxLines: 3,
               maxLength: 300,
             ),
+            const SizedBox(height: 16),
+
+            // --- CAMPO INSTAGRAM (Confianza) ---
+            TextFormField(
+              controller: _instaController,
+              decoration: const InputDecoration(
+                labelText: 'Usuario de Instagram (Opcional)', 
+                hintText: 'ej: usuario123',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.camera_alt, color: Colors.pink), // Icono visual
+                prefixText: '@', // Muestra la arroba fija
+              ),
+            ),
+            
             const SizedBox(height: 20),
 
             const Text("Intereses / Hobbies", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),

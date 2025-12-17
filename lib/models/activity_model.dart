@@ -12,6 +12,10 @@ class Activity {
   final int maxAttendees;
   final String imageUrl;
   final String hostUid;
+  
+  final int acceptedCount;
+  // --- NUEVO CAMPO ---
+  final List<String> participantImages; // Las últimas 3-4 fotos para mostrar en la tarjeta
 
   Activity({
     required this.id,
@@ -25,9 +29,10 @@ class Activity {
     required this.maxAttendees,
     required this.imageUrl,
     required this.hostUid,
+    this.acceptedCount = 0,
+    this.participantImages = const [],
   });
 
-  // Convierte un documento de Firebase a un objeto Activity
   factory Activity.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     
@@ -36,19 +41,19 @@ class Activity {
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       category: data['category'] ?? 'Other',
-      // Convierte Timestamp de Firebase a DateTime de Dart
       dateTime: (data['dateTime'] as Timestamp).toDate(), 
       location: data['location'] ?? '',
-      // Asegura que sean double (decimales)
       lat: (data['lat'] ?? 0.0).toDouble(),
       lng: (data['lng'] ?? 0.0).toDouble(),
-      maxAttendees: data['maxAttendees'] ?? 0,
+      maxAttendees: (data['maxAttendees'] ?? 0).toInt(),
       imageUrl: data['imageUrl'] ?? '',
       hostUid: data['hostUid'] ?? '',
+      acceptedCount: (data['acceptedCount'] ?? 0).toInt(),
+      // Mapeo seguro de la lista
+      participantImages: List<String>.from(data['participantImages'] ?? []),
     );
   }
 
-  // Convierte un objeto Activity a un Mapa para guardar en Firebase
   Map<String, dynamic> toMap() {
     return {
       'title': title,
@@ -61,6 +66,8 @@ class Activity {
       'maxAttendees': maxAttendees,
       'imageUrl': imageUrl,
       'hostUid': hostUid,
+      'acceptedCount': acceptedCount,
+      'participantImages': participantImages,
     };
   }
 }

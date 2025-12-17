@@ -16,12 +16,10 @@ class DataService with ChangeNotifier {
   List<Activity> get activities => _filteredActivities;
   bool get isLoading => _isLoading;
 
-  // Estado de los filtros
   String _searchQuery = '';
   String _selectedCategory = 'Todas';
-  DateTime? _selectedDate; // Nuevo filtro de fecha
+  DateTime? _selectedDate;
 
-  // Getter para saber si hay fecha seleccionada
   DateTime? get currentFilterDate => _selectedDate;
 
   DataService() {
@@ -29,7 +27,6 @@ class DataService with ChangeNotifier {
   }
 
   void _listenToActivities() {
-    // Escuchamos actividades desde hoy en adelante
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day); 
 
@@ -54,7 +51,6 @@ class DataService with ChangeNotifier {
     });
   }
 
-  // --- FILTROS ---
   void setSearchQuery(String query) {
     _searchQuery = query;
     _applyFilters();
@@ -67,7 +63,6 @@ class DataService with ChangeNotifier {
     notifyListeners();
   }
 
-  // Nuevo: Filtro de fecha
   void setDateFilter(DateTime? date) {
     _selectedDate = date;
     _applyFilters();
@@ -76,15 +71,12 @@ class DataService with ChangeNotifier {
 
   void _applyFilters() {
     _filteredActivities = _allActivities.where((activity) {
-      // 1. Texto (Título o Ubicación)
       final matchesSearch = activity.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
                             activity.location.toLowerCase().contains(_searchQuery.toLowerCase());
       
-      // 2. Categoría
       final matchesCategory = _selectedCategory == 'Todas' || 
                               activity.category == _selectedCategory;
 
-      // 3. Fecha (Si hay una seleccionada)
       bool matchesDate = true;
       if (_selectedDate != null) {
         final actDate = activity.dateTime;
@@ -97,7 +89,6 @@ class DataService with ChangeNotifier {
     }).toList();
   }
 
-  // --- USUARIOS ---
   Future<UserModel?> getUserProfile(String uid) async {
     try {
       DocumentSnapshot doc = await _db.collection('users').doc(uid).get();
@@ -142,11 +133,38 @@ class DataService with ChangeNotifier {
     }
   }
 
+  // --- SEGURIDAD: REPORTAR Y BLOQUEAR (NUEVO) ---
+  
+  Future<void> reportContent({
+    required String reporterUid,
+    required String reportedId, // ActivityId o UserId
+    required String type, // 'activity' o 'user'
+    required String reason
+  }) async {
+    await _db.collection('reports').add({
+      'reporterUid': reporterUid,
+      'reportedId': reportedId,
+      'type': type,
+      'reason': reason,
+      'timestamp': FieldValue.serverTimestamp(),
+      'status': 'pending_review'
+    });
+  }
+
+  Future<void> blockUser(String myUid, String userToBlockUid) async {
+    await _db.collection('users').doc(myUid).collection('blocked').doc(userToBlockUid).set({
+      'timestamp': FieldValue.serverTimestamp()
+    });
+    // Aquí podrías agregar lógica para ocultar sus actividades localmente
+    notifyListeners();
+  }
+
   // --- ACTIVIDADES ---
 
   Future<void> createActivity(Map<String, dynamic> activityData) async {
     try {
       activityData['createdAt'] = FieldValue.serverTimestamp();
+      activityData['acceptedCount'] = 0; // Inicializamos contador de asistentes
       await _db.collection('activities').add(activityData);
     } catch (e) {
       if (kDebugMode) print("Error creando actividad: $e");
@@ -154,7 +172,6 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // Nuevo: Editar Actividad
   Future<void> updateActivity(String activityId, Map<String, dynamic> newData) async {
     try {
       newData['lastUpdate'] = FieldValue.serverTimestamp();
@@ -166,7 +183,15 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // Nuevo: Obtener actividades creadas por un usuario (para el perfil)
+  Future<void> deleteActivity(String activityId) async {
+    try {
+      await _db.collection('activities').doc(activityId).delete();
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) print("Error borrando actividad: $e");
+    }
+  }
+
   Stream<QuerySnapshot> getUserActivitiesStream(String uid) {
     return _db.collection('activities')
         .where('hostUid', isEqualTo: uid)
@@ -174,7 +199,6 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
 
-  // --- SOLICITUDES ---
   Future<void> applyToActivity(String activityId, UserModel user) async {
     try {
       await _db.collection('applications').add({
@@ -219,9 +243,10 @@ class DataService with ChangeNotifier {
     await _db.collection('applications').doc(applicationId).update({
       'status': newStatus
     });
+    // Nota: El incremento de 'acceptedCount' idealmente se hace con Cloud Functions
+    // para seguridad, pero por ahora confiaremos en la lectura del modelo.
   }
 
-  // --- CHAT ---
   Future<void> sendMessage(String activityId, String text, UserModel sender) async {
     try {
       await _db.collection('activities').doc(activityId).collection('messages').add({
@@ -244,57 +269,33 @@ class DataService with ChangeNotifier {
         .orderBy('timestamp', descending: true)
         .snapshots();
   }
-  
-  Future<void> refresh() async {
-    notifyListeners();
-  }
-   // Borrar actividad
-  Future<void> deleteActivity(String activityId) async {
-    try {
-      await _db.collection('activities').doc(activityId).delete();
-      // Opcional: Borrar aplicaciones y subcolecciones (mensajes)
-      // En Firestore cliente no se puede borrar colecciones enteras fácil, 
-      // pero esto borra la actividad del feed.
-      notifyListeners();
-    } catch (e) {
-      if (kDebugMode) print("Error borrando actividad: $e");
-    }
-  }
 
-  // --- NOTIFICACIONES ---
-
-  // 1. Obtener conteo de no leídas para el badge del Home
-  Stream<int> getUnreadCount(String uid) {
-    return _db
-        .collection('users')
-        .doc(uid)
-        .collection('notifications')
-        .where('read', isEqualTo: false)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.length);
-  }
-
-  // 2. Obtener la lista de notificaciones para la pantalla
   Stream<QuerySnapshot> getUserNotifications(String uid) {
-    return _db
-        .collection('users')
+    return _db.collection('users')
         .doc(uid)
         .collection('notifications')
         .orderBy('timestamp', descending: true)
         .snapshots();
   }
 
-  // 3. Marcar una notificación como leída
-  Future<void> markNotificationAsRead(String uid, String notificationId) async {
-    try {
-      await _db
-          .collection('users')
-          .doc(uid)
-          .collection('notifications')
-          .doc(notificationId)
-          .update({'read': true});
-    } catch (e) {
-      if (kDebugMode) print("Error marcando notificación como leída: $e");
-    }
+  Future<void> markNotificationAsRead(String uid, String notifId) async {
+    await _db.collection('users')
+        .doc(uid)
+        .collection('notifications')
+        .doc(notifId)
+        .update({'read': true});
+  }
+  
+  Stream<int> getUnreadCount(String uid) {
+    return _db.collection('users')
+        .doc(uid)
+        .collection('notifications')
+        .where('read', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
+  }
+  
+  Future<void> refresh() async {
+    notifyListeners();
   }
 }
