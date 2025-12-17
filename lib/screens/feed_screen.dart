@@ -34,6 +34,18 @@ class _FeedScreenState extends State<FeedScreen> {
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2026),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF00BCD4), // Cian en calendario
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       dataService.setDateFilter(picked);
@@ -46,13 +58,13 @@ class _FeedScreenState extends State<FeedScreen> {
     final dataService = Provider.of<DataService>(context);
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9), 
+      backgroundColor: const Color(0xFFF0F8FA), // Fondo azul muy pálido
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
           "Yoinn",
-          style: TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.w800, fontSize: 24),
+          style: TextStyle(color: Color(0xFF00BCD4), fontWeight: FontWeight.w800, fontSize: 24),
         ),
         actions: [
           Padding(
@@ -69,7 +81,7 @@ class _FeedScreenState extends State<FeedScreen> {
               },
               child: CircleAvatar(
                 backgroundImage: NetworkImage(authService.currentUser?.profilePictureUrl ?? ''),
-                backgroundColor: Colors.grey[200],
+                backgroundColor: const Color(0xFFB2EBF2), // Fondo suave si no hay foto
               ),
             ),
           )
@@ -95,27 +107,36 @@ class _FeedScreenState extends State<FeedScreen> {
                           prefixIcon: const Icon(Icons.search, color: Colors.grey),
                           contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
                           filled: true,
-                          fillColor: Colors.grey[100],
+                          fillColor: const Color(0xFFE0F7FA), // Input ligeramente azulado
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30),
                             borderSide: BorderSide.none,
                           ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: const BorderSide(color: Color(0xFF00BCD4), width: 1.5),
+                          ),
                         ),
+                        cursorColor: const Color(0xFF00BCD4),
                       ),
                     ),
                     const SizedBox(width: 8),
+                    
+                    // Botón Filtro Fecha
                     GestureDetector(
                       onTap: () => _pickDateFilter(context, dataService),
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: dataService.currentFilterDate != null ? const Color(0xFFF97316) : Colors.grey[100],
+                          color: dataService.currentFilterDate != null 
+                              ? const Color(0xFF29B6F6) // Azul Brillante si activo
+                              : const Color(0xFFE0F7FA),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.calendar_today, 
                           size: 20, 
-                          color: dataService.currentFilterDate != null ? Colors.white : Colors.grey[600]
+                          color: dataService.currentFilterDate != null ? Colors.white : const Color(0xFF006064)
                         ),
                       ),
                     ),
@@ -129,6 +150,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
+                
                 SizedBox(
                   height: 32,
                   child: ListView.separated(
@@ -151,16 +173,17 @@ class _FeedScreenState extends State<FeedScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFFF97316) : Colors.transparent,
+                            // Fondo: Cian Profundo si seleccionado
+                            color: isSelected ? const Color(0xFF00BCD4) : Colors.transparent,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: isSelected ? const Color(0xFFF97316) : Colors.grey[300]!
+                              color: isSelected ? const Color(0xFF00BCD4) : const Color(0xFFB2EBF2)
                             ),
                           ),
                           child: Text(
                             category,
                             style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.grey[700],
+                              color: isSelected ? Colors.white : const Color(0xFF00838F),
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                               fontSize: 13,
                             ),
@@ -173,9 +196,10 @@ class _FeedScreenState extends State<FeedScreen> {
               ],
             ),
           ),
+          
           Expanded(
             child: dataService.isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator(color: Color(0xFF00BCD4)))
               : dataService.activities.isEmpty
                 ? Center(
                     child: SingleChildScrollView(
@@ -197,7 +221,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   )
                 : RefreshIndicator(
                     onRefresh: dataService.refresh,
-                    color: const Color(0xFFF97316),
+                    color: const Color(0xFF00BCD4),
                     child: ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
@@ -229,7 +253,7 @@ class _FeedScreenState extends State<FeedScreen> {
             MaterialPageRoute(builder: (context) => const CreateActivityScreen()),
           );
         },
-        backgroundColor: const Color(0xFFF97316),
+        backgroundColor: const Color(0xFF00BCD4), // Cian Oscuro
         child: const Icon(Icons.add, size: 30, color: Colors.white),
       ),
     );

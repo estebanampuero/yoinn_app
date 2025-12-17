@@ -23,9 +23,9 @@ class ActivityCard extends StatelessWidget {
         color: Colors.transparent,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: const Color(0xFF00BCD4).withOpacity(0.08), // Sombra cian muy sutil
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -35,8 +35,8 @@ class ActivityCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          splashColor: const Color(0xFFF97316).withOpacity(0.1),
-          highlightColor: const Color(0xFFF97316).withOpacity(0.05),
+          splashColor: const Color(0xFF00BCD4).withOpacity(0.1), // Onda cian
+          highlightColor: const Color(0xFF00BCD4).withOpacity(0.05),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -50,8 +50,8 @@ class ActivityCard extends StatelessWidget {
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Container(
                             height: 180,
-                            color: Colors.grey[100],
-                            child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                            color: const Color(0xFFE0F7FA),
+                            child: const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00BCD4))),
                           ),
                           errorWidget: (context, url, error) => Container(
                             height: 180,
@@ -73,13 +73,15 @@ class ActivityCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.95),
                         borderRadius: BorderRadius.circular(20),
+                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
                       ),
                       child: Text(
-                        activity.category,
+                        activity.category.toUpperCase(),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: Color(0xFFF97316),
+                          fontSize: 11,
+                          letterSpacing: 0.5,
+                          color: Color(0xFF29B6F6), // Azul Brillante para resaltar
                         ),
                       ),
                     ),
@@ -96,7 +98,7 @@ class ActivityCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1F2937),
+                        color: Color(0xFF006064), // Cian muy oscuro para texto
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -104,7 +106,7 @@ class ActivityCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.calendar_today, size: 14, color: Color(0xFFF97316)),
+                        const Icon(Icons.calendar_today, size: 14, color: Color(0xFF26C6DA)), // Turquesa
                         const SizedBox(width: 6),
                         Text("$dateStr • $timeStr", style: TextStyle(color: Colors.grey[600], fontSize: 13)),
                       ],
@@ -112,7 +114,7 @@ class ActivityCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.location_on, size: 14, color: Color(0xFFF97316)),
+                        const Icon(Icons.location_on, size: 14, color: Color(0xFF26C6DA)), // Turquesa
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
@@ -130,8 +132,8 @@ class ActivityCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  border: Border(top: BorderSide(color: Colors.grey[200]!)),
+                  color: const Color(0xFFE0F7FA).withOpacity(0.3), // Fondo super suave
+                  border: Border(top: BorderSide(color: const Color(0xFFE0F7FA))),
                 ),
                 child: FutureBuilder<UserModel?>(
                   future: Provider.of<DataService>(context, listen: false).getUserProfile(activity.hostUid),
@@ -143,9 +145,9 @@ class ActivityCard extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           radius: 12,
-                          backgroundColor: Colors.grey[300],
+                          backgroundColor: const Color(0xFFB2EBF2),
                           backgroundImage: hostPic != null ? NetworkImage(hostPic) : null,
-                          child: hostPic == null ? const Icon(Icons.person, size: 12, color: Colors.grey) : null,
+                          child: hostPic == null ? const Icon(Icons.person, size: 12, color: Colors.white) : null,
                         ),
                         const SizedBox(width: 8),
                         Text(

@@ -4,13 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cached_network_image/cached_network_image.dart'; // <--- Importante para caché
+import 'package:cached_network_image/cached_network_image.dart'; 
 import '../models/user_model.dart';
 import '../models/activity_model.dart';
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
 import 'edit_profile_screen.dart';
-import 'edit_activity_screen.dart'; // <--- Importante para editar actividades
+import 'edit_activity_screen.dart'; 
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
@@ -30,7 +30,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
-        // Optimización
         imageQuality: 80,
         maxWidth: 1080,
         maxHeight: 1080,
@@ -59,15 +58,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final dataService = Provider.of<DataService>(context, listen: false);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF0F8FA),
       appBar: AppBar(
         title: const Text("Perfil"),
         backgroundColor: Colors.white,
         elevation: 0,
-        foregroundColor: Colors.black,
+        foregroundColor: const Color(0xFF006064), // Texto oscuro cian
         actions: [
           if (isMe)
             IconButton(
-              icon: const Icon(Icons.logout, color: Colors.red),
+              icon: const Icon(Icons.logout, color: Colors.redAccent),
               onPressed: () {
                 Provider.of<AuthService>(context, listen: false).signOut();
                 Navigator.of(context).popUntil((route) => route.isFirst);
@@ -79,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         future: dataService.getUserProfile(widget.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: Color(0xFF00BCD4)));
           }
           if (!snapshot.hasData || snapshot.data == null) {
             return const Center(child: Text("Usuario no encontrado"));
@@ -88,25 +88,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final user = snapshot.data!;
 
           return SingleChildScrollView(
-            // Importante para que el scroll funcione siempre y se sienta nativo
             physics: const AlwaysScrollableScrollPhysics(), 
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
                 // Avatar
-                CircleAvatar(
-                  radius: 60,
-                  backgroundColor: Colors.grey[200],
-                  backgroundImage: user.profilePictureUrl.isNotEmpty
-                      ? CachedNetworkImageProvider(user.profilePictureUrl)
-                      : null,
-                  child: user.profilePictureUrl.isEmpty ? const Icon(Icons.person, size: 60) : null,
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFF26C6DA), width: 3), // Borde Turquesa
+                  ),
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundColor: const Color(0xFFB2EBF2),
+                    backgroundImage: user.profilePictureUrl.isNotEmpty
+                        ? CachedNetworkImageProvider(user.profilePictureUrl)
+                        : null,
+                    child: user.profilePictureUrl.isEmpty ? const Icon(Icons.person, size: 60, color: Colors.white) : null,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 
                 Text(
                   user.name,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF006064)),
                 ),
                 
                 if (user.bio.isNotEmpty) ...[
@@ -120,7 +126,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 20),
 
-                // Botón Editar Perfil
                 if (isMe)
                   OutlinedButton.icon(
                     onPressed: () async {
@@ -133,18 +138,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: const Icon(Icons.edit, size: 18),
                     label: const Text("Editar Perfil"),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFF97316),
-                      side: const BorderSide(color: Color(0xFFF97316)),
+                      foregroundColor: const Color(0xFF00BCD4),
+                      side: const BorderSide(color: Color(0xFF00BCD4)),
                     ),
                   ),
 
                 const SizedBox(height: 30),
 
-                // Intereses
                 if (user.hobbies.isNotEmpty) ...[
                   const Align(
                     alignment: Alignment.centerLeft,
-                    child: Text("Intereses", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    child: Text("Intereses", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00838F))),
                   ),
                   const SizedBox(height: 10),
                   Align(
@@ -154,8 +158,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       runSpacing: 8,
                       children: user.hobbies.map((hobby) => Chip(
                         label: Text(hobby.replaceAll('_', ' ').toUpperCase()),
-                        backgroundColor: const Color(0xFFF97316).withOpacity(0.1),
-                        labelStyle: const TextStyle(color: Color(0xFFF97316), fontSize: 12, fontWeight: FontWeight.bold),
+                        // Fondo Cian Muy Claro
+                        backgroundColor: const Color(0xFFB2EBF2),
+                        // Texto Cian Oscuro
+                        labelStyle: const TextStyle(color: Color(0xFF006064), fontSize: 11, fontWeight: FontWeight.bold),
                         side: BorderSide.none,
                       )).toList(),
                     ),
@@ -163,18 +169,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 30),
                 ],
 
-                // Galería
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Galería", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text("Galería", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00838F))),
                     if (isMe && user.galleryImages.length < 6)
                       if (_isUploading)
-                        const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00BCD4)))
                       else
                         IconButton(
                           onPressed: _pickAndUploadImage,
-                          icon: const Icon(Icons.add_a_photo, color: Color(0xFFF97316)),
+                          icon: const Icon(Icons.add_a_photo, color: Color(0xFF00BCD4)),
                           tooltip: "Agregar foto",
                         ),
                   ],
@@ -182,14 +187,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 10),
                 
                 if (user.galleryImages.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Text("Aún no hay fotos", style: TextStyle(color: Colors.grey)),
+                  Container(
+                     width: double.infinity,
+                     padding: const EdgeInsets.all(30),
+                     decoration: BoxDecoration(
+                       color: Colors.white,
+                       borderRadius: BorderRadius.circular(12),
+                       border: Border.all(color: Colors.grey[200]!)
+                     ),
+                     child: const Column(
+                       children: [
+                         Icon(Icons.photo_library_outlined, size: 40, color: Color(0xFFB2EBF2)),
+                         SizedBox(height: 10),
+                         Text("Aún no hay fotos", style: TextStyle(color: Colors.grey)),
+                       ],
+                     ),
                   )
                 else
                   GridView.builder(
                     shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(), // Scroll lo maneja el padre
+                    physics: const NeverScrollableScrollPhysics(),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 8,
@@ -203,7 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: CachedNetworkImage(
                           imageUrl: user.galleryImages[index],
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(color: Colors.grey[200]),
+                          placeholder: (context, url) => Container(color: const Color(0xFFE0F7FA)),
                           errorWidget: (context, url, error) => const Icon(Icons.error),
                         ),
                       );
@@ -214,19 +231,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Divider(),
                 const SizedBox(height: 20),
 
-                // --- MIS ACTIVIDADES ---
                 const Align(
                   alignment: Alignment.centerLeft,
-                  child: Text("Actividades Creadas", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: Text("Actividades Creadas", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00838F))),
                 ),
                 const SizedBox(height: 10),
 
-                // StreamBuilder para ver cambios en tiempo real (si edito, se actualiza solo)
                 StreamBuilder<QuerySnapshot>(
                   stream: dataService.getUserActivitiesStream(widget.uid),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator(color: Color(0xFF00BCD4)));
                     }
                     if (!snapshot.hasData) return const SizedBox();
 
@@ -235,13 +250,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     return ListView.builder(
                       shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(), // Scroll lo maneja el padre
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: docs.length,
                       itemBuilder: (context, index) {
                         final act = Activity.fromFirestore(docs[index]);
                         return Card(
                           margin: const EdgeInsets.only(bottom: 10),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          color: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(color: Colors.grey[200]!)
+                          ),
                           child: ListTile(
                             contentPadding: const EdgeInsets.all(8),
                             leading: ClipRRect(
@@ -250,17 +270,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 imageUrl: act.imageUrl.isNotEmpty ? act.imageUrl : 'https://via.placeholder.com/100',
                                 width: 60, height: 60, 
                                 fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(color: Colors.grey[200]),
+                                placeholder: (context, url) => Container(color: const Color(0xFFE0F7FA)),
                                 errorWidget: (context, url, error) => const Icon(Icons.broken_image, color: Colors.grey),
                               ),
                             ),
-                            title: Text(act.title, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                            subtitle: Text(DateFormat('dd MMM yyyy • HH:mm').format(act.dateTime)),
+                            title: Text(act.title, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF006064)), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            subtitle: Text(DateFormat('dd MMM yyyy • HH:mm').format(act.dateTime), style: TextStyle(color: Colors.grey[600])),
                             trailing: isMe 
                               ? IconButton(
-                                  icon: const Icon(Icons.edit, color: Color(0xFFF97316)),
+                                  icon: const Icon(Icons.edit, color: Color(0xFF26C6DA)),
                                   onPressed: () {
-                                    // Ir a la pantalla de edición
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(builder: (context) => EditActivityScreen(activity: act)),
@@ -268,10 +287,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   },
                                 )
                               : null,
-                            onTap: () {
-                              // Ir al detalle si no se quiere editar
-                              // (Opcional, pero buena práctica)
-                            },
                           ),
                         );
                       },

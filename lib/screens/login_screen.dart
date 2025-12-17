@@ -15,14 +15,15 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.location_on, size: 80, color: Color(0xFFF97316)),
+              // Icono Cian Oscuro
+              const Icon(Icons.location_on, size: 80, color: Color(0xFF00BCD4)),
               const SizedBox(height: 20),
               const Text(
                 "Yoinn",
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFF97316),
+                  color: Color(0xFF00BCD4), // Cian Oscuro
                 ),
               ),
               const SizedBox(height: 10),
@@ -42,8 +43,10 @@ class LoginScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   textStyle: const TextStyle(fontSize: 16),
                   backgroundColor: Colors.white,
-                  foregroundColor: Colors.black87,
+                  foregroundColor: const Color(0xFF0097A7), // Texto Cian más oscuro para contraste
                   elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  side: const BorderSide(color: Color(0xFF26C6DA)), // Borde Turquesa
                 ),
               ),
             ],

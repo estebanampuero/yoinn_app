@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/date_symbol_data_local.dart'; // Necesario para fechas en español
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'services/data_service.dart';
-import 'services/notification_service.dart'; // <--- NUEVO: Importar servicio de notificaciones
+import 'services/notification_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 
@@ -17,7 +17,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Inicializamos el formateo de fechas para español
   await initializeDateFormatting('es_ES', null);
 
   runApp(const MyApp());
@@ -37,12 +36,38 @@ class MyApp extends StatelessWidget {
         title: 'Yoinn',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          // --- NUEVA PALETA CIAN / AZUL ---
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFFF97316),
-            primary: const Color(0xFFF97316),
+            seedColor: const Color(0xFF00BCD4), // Deep Cyan (Principal)
+            primary: const Color(0xFF00BCD4),   // Deep Cyan
+            secondary: const Color(0xFF29B6F6), // Azul Brillante (Centro del círculo)
+            tertiary: const Color(0xFF26C6DA),  // Turquesa (Transición)
+            surfaceTint: const Color(0xFF4DD0E1), // Cian Claro
+            background: const Color(0xFFF0F8FA), // Fondo muy suave azulado
           ),
           useMaterial3: true,
-          scaffoldBackgroundColor: const Color(0xFFF1F5F9),
+          scaffoldBackgroundColor: const Color(0xFFF0F8FA), // Fondo global ligeramente azulado
+          
+          // Estilo global de botones
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00BCD4), // Deep Cyan
+              foregroundColor: Colors.white,
+            ),
+          ),
+          // Estilo global de botones flotantes
+          floatingActionButtonTheme: const FloatingActionButtonThemeData(
+            backgroundColor: Color(0xFF00BCD4),
+            foregroundColor: Colors.white,
+          ),
+          // Estilo de inputs
+          inputDecorationTheme: InputDecorationTheme(
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFF00BCD4), width: 2),
+            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          ),
         ),
         home: const AuthWrapper(),
       ),
@@ -50,7 +75,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Convertimos AuthWrapper a StatefulWidget para poder inicializar servicios
 class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
 
@@ -67,12 +91,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
     _checkAndInitNotifications();
   }
 
-  // Función para inicializar notificaciones si el usuario está logueado
   void _checkAndInitNotifications() {
     final authService = Provider.of<AuthService>(context, listen: false);
     
     if (authService.currentUser != null && !_notificationsInitialized) {
-      // Inicializar notificaciones push y registrar token
       NotificationService().init(authService);
       _notificationsInitialized = true;
     }
@@ -82,19 +104,16 @@ class _AuthWrapperState extends State<AuthWrapper> {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
 
-    // 1. Estado de carga
     if (authService.isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      // Loader color Cian
+      return const Scaffold(body: Center(child: CircularProgressIndicator(color: Color(0xFF00BCD4))));
     }
 
-    // 2. Usuario NO logueado -> Pantalla de Login
     if (authService.currentUser == null) {
-      // Reseteamos el flag por si hace logout
       _notificationsInitialized = false;
       return const LoginScreen();
     }
 
-    // 3. Usuario Logueado -> HomeScreen (que tiene Feed y Mapa)
     return const HomeScreen(); 
   }
 }
