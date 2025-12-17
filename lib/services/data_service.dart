@@ -257,7 +257,44 @@ class DataService with ChangeNotifier {
       // pero esto borra la actividad del feed.
       notifyListeners();
     } catch (e) {
-      print("Error borrando actividad: $e");
+      if (kDebugMode) print("Error borrando actividad: $e");
+    }
+  }
+
+  // --- NOTIFICACIONES ---
+
+  // 1. Obtener conteo de no leídas para el badge del Home
+  Stream<int> getUnreadCount(String uid) {
+    return _db
+        .collection('users')
+        .doc(uid)
+        .collection('notifications')
+        .where('read', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
+  }
+
+  // 2. Obtener la lista de notificaciones para la pantalla
+  Stream<QuerySnapshot> getUserNotifications(String uid) {
+    return _db
+        .collection('users')
+        .doc(uid)
+        .collection('notifications')
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+  }
+
+  // 3. Marcar una notificación como leída
+  Future<void> markNotificationAsRead(String uid, String notificationId) async {
+    try {
+      await _db
+          .collection('users')
+          .doc(uid)
+          .collection('notifications')
+          .doc(notificationId)
+          .update({'read': true});
+    } catch (e) {
+      if (kDebugMode) print("Error marcando notificación como leída: $e");
     }
   }
 }

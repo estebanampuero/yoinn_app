@@ -1,0 +1,721 @@
+Launching lib/main.dart on iPhone 16 Plus in debug mode...
+Running pod install...                                             25,7s
+Running Xcode build...                                          
+Xcode build done.                                           563,8s
+Failed to build iOS app
+Error output from Xcode build:
+↳
+    --- xcodebuild: WARNING: Using the first of multiple matching destinations:
+    { platform:iOS Simulator, arch:arm64, id:ED3F58E5-12C7-4882-B1F7-59F6044B23CA, OS:18.6, name:iPhone 16 Plus }
+    { platform:iOS Simulator, arch:x86_64, id:ED3F58E5-12C7-4882-B1F7-59F6044B23CA, OS:18.6, name:iPhone 16 Plus }
+    ** BUILD FAILED **
+
+
+Xcode's output:
+↳
+    Writing result bundle at path:
+    	/var/folders/xz/k0xzgy6d7f742n3r6zrbg6mw0000gn/T/flutter_tools.ggpF7w/flutter_ios_build_temp_dirFBtLmb/temporary_xcresult_bundle
+
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerImageUtil.m:120:71: warning: 'kUTTypeGIF' is deprecated: first deprecated in iOS 15.0 - Use UTTypeGIF or UTType.gif (swift) instead. [-Wdeprecated-declarations]
+      120 |   options[(NSString *)kCGImageSourceTypeIdentifierHint] = (NSString *)kUTTypeGIF;
+          |                                                                       ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerImageUtil.m:6:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:729:26: note: 'kUTTypeGIF' has been explicitly marked deprecated here
+      729 | extern const CFStringRef kUTTypeGIF                                  API_DEPRECATED("Use UTTypeGIF or UTType.gif (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/share_plus-12.0.1/ios/share_plus/Sources/share_plus/FPPSharePlusPlugin.m:25:46: warning: 'keyWindow' is deprecated: first deprecated in iOS 13.0 - Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes [-Wdeprecated-declarations]
+       25 |     return [UIApplication sharedApplication].keyWindow.rootViewController;
+          |                                              ^
+    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/share_plus/share_plus-prefix.pch:2:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: 'keyWindow' has been explicitly marked deprecated here
+      108 | @property(nullable, nonatomic,readonly) UIWindow *keyWindow API_DEPRECATED("Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes", ios(2.0, 13.0)) API_UNAVAILABLE(visionos, watchos);
+          |                                                   ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/share_plus-12.0.1/ios/share_plus/Sources/share_plus/FPPSharePlusPlugin.m:25:46: warning: 'keyWindow' is deprecated: first deprecated in iOS 13.0 - Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes [-Wdeprecated-declarations]
+       25 |     return [UIApplication sharedApplication].keyWindow.rootViewController;
+          |                                              ^
+    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/share_plus/share_plus-prefix.pch:2:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: 'keyWindow' has been explicitly marked deprecated here
+      108 | @property(nullable, nonatomic,readonly) UIWindow *keyWindow API_DEPRECATED("Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes", ios(2.0, 13.0)) API_UNAVAILABLE(visionos, watchos);
+          |                                                   ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerImageUtil.m:120:71: warning: 'kUTTypeGIF' is deprecated: first deprecated in iOS 15.0 - Use UTTypeGIF or UTType.gif (swift) instead. [-Wdeprecated-declarations]
+      120 |   options[(NSString *)kCGImageSourceTypeIdentifierHint] = (NSString *)kUTTypeGIF;
+          |                                                                       ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerImageUtil.m:6:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:729:26: note: 'kUTTypeGIF' has been explicitly marked deprecated here
+      729 | extern const CFStringRef kUTTypeGIF                                  API_DEPRECATED("Use UTTypeGIF or UTType.gif (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:70:64: warning: 'windows' is deprecated: first deprecated in iOS 15.0 - Use UIWindowScene.windows on a relevant window scene instead [-Wdeprecated-declarations]
+       70 |     for (UIWindow *window in [UIApplication sharedApplication].windows) {
+          |                                                                ^
+    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/image_picker_ios/image_picker_ios-prefix.pch:2:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:109:62: note: 'windows' has been explicitly marked deprecated here
+      109 | @property(nonatomic,readonly) NSArray<__kindof UIWindow *>  *windows API_DEPRECATED("Use UIWindowScene.windows on a relevant window scene instead", ios(2.0, 15.0), visionos(1.0, 1.0)) API_UNAVAILABLE(watchos);
+          |                                                              ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:128:39: warning: 'kUTTypeImage' is deprecated: first deprecated in iOS 15.0 - Use UTTypeImage or UTType.image (swift) instead. [-Wdeprecated-declarations]
+      128 |     [mediaTypes addObject:(NSString *)kUTTypeImage];
+          |                                       ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:9:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:725:26: note: 'kUTTypeImage' has been explicitly marked deprecated here
+      725 | extern const CFStringRef kUTTypeImage                                API_DEPRECATED("Use UTTypeImage or UTType.image (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:131:39: warning: 'kUTTypeMovie' is deprecated: first deprecated in iOS 15.0 - Use UTTypeMovie or UTType.movie (swift) instead. [-Wdeprecated-declarations]
+      131 |     [mediaTypes addObject:(NSString *)kUTTypeMovie];
+          |                                       ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:9:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:880:26: note: 'kUTTypeMovie' has been explicitly marked deprecated here
+      880 | extern const CFStringRef kUTTypeMovie                                API_DEPRECATED("Use UTTypeMovie or UTType.movie (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    3 warnings generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:102:56: warning: 'kUTTypeGIF' is deprecated: first deprecated in iOS 15.0 - Use UTTypeGIF or UTType.gif (swift) instead. [-Wdeprecated-declarations]
+      102 |       (__bridge CFURLRef)[NSURL fileURLWithPath:path], kUTTypeGIF, gifInfo.images.count, NULL);
+          |                                                        ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:9:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:729:26: note: 'kUTTypeGIF' has been explicitly marked deprecated here
+      729 | extern const CFStringRef kUTTypeGIF                                  API_DEPRECATED("Use UTTypeGIF or UTType.gif (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:40:31: warning: 'authorizationStatus' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
+       40 |     return [CLLocationManager authorizationStatus];
+          |                               ^~~~~~~~~~~~~~~~~~~
+          |                               authorizationStatus
+    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManager.h:231:1: note: 'authorizationStatus' has been explicitly marked deprecated here
+      231 | + (CLAuthorizationStatus)authorizationStatus API_DEPRECATED_WITH_REPLACEMENT("-authorizationStatus", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
+          | ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:47:65: warning: 'authorizationStatus' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
+       47 |   CLAuthorizationStatus authorizationStatus = CLLocationManager.authorizationStatus;
+          |                                                                 ^~~~~~~~~~~~~~~~~~~
+          |                                                                 authorizationStatus
+    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManager.h:231:1: note: 'authorizationStatus' has been explicitly marked deprecated here
+      231 | + (CLAuthorizationStatus)authorizationStatus API_DEPRECATED_WITH_REPLACEMENT("-authorizationStatus", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
+          | ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:47:65: warning: 'authorizationStatus' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
+       47 |   CLAuthorizationStatus authorizationStatus = CLLocationManager.authorizationStatus;
+          |                                                                 ^~~~~~~~~~~~~~~~~~~
+          |                                                                 authorizationStatus
+    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManager.h:231:1: note: 'authorizationStatus' has been explicitly marked deprecated here
+      231 | + (CLAuthorizationStatus)authorizationStatus API_DEPRECATED_WITH_REPLACEMENT("-authorizationStatus", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
+          | ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:107:1: warning: implementing deprecated method [-Wdeprecated-implementations]
+      107 | - (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+          | ^
+    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManagerDelegate.h:208:1: note: method 'locationManager:didChangeAuthorizationStatus:' declared here
+      208 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status API_DEPRECATED_WITH_REPLACEMENT("-locationManagerDidChangeAuthorization:", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
+          | ^
+    4 warnings generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/LocationServiceStreamHandler.m:36:1: warning: implementing deprecated method [-Wdeprecated-implementations]
+       36 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status{
+          | ^
+    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/LocationServiceStreamHandler.m:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManagerDelegate.h:208:1: note: method 'locationManager:didChangeAuthorizationStatus:' declared here
+      208 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status API_DEPRECATED_WITH_REPLACEMENT("-locationManagerDidChangeAuthorization:", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
+          | ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:70:64: warning: 'windows' is deprecated: first deprecated in iOS 15.0 - Use UIWindowScene.windows on a relevant window scene instead [-Wdeprecated-declarations]
+       70 |     for (UIWindow *window in [UIApplication sharedApplication].windows) {
+          |                                                                ^
+    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/image_picker_ios/image_picker_ios-prefix.pch:2:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:109:62: note: 'windows' has been explicitly marked deprecated here
+      109 | @property(nonatomic,readonly) NSArray<__kindof UIWindow *>  *windows API_DEPRECATED("Use UIWindowScene.windows on a relevant window scene instead", ios(2.0, 15.0), visionos(1.0, 1.0)) API_UNAVAILABLE(watchos);
+          |                                                              ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:128:39: warning: 'kUTTypeImage' is deprecated: first deprecated in iOS 15.0 - Use UTTypeImage or UTType.image (swift) instead. [-Wdeprecated-declarations]
+      128 |     [mediaTypes addObject:(NSString *)kUTTypeImage];
+          |                                       ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:9:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:725:26: note: 'kUTTypeImage' has been explicitly marked deprecated here
+      725 | extern const CFStringRef kUTTypeImage                                API_DEPRECATED("Use UTTypeImage or UTType.image (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:131:39: warning: 'kUTTypeMovie' is deprecated: first deprecated in iOS 15.0 - Use UTTypeMovie or UTType.movie (swift) instead. [-Wdeprecated-declarations]
+      131 |     [mediaTypes addObject:(NSString *)kUTTypeMovie];
+          |                                       ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:9:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:880:26: note: 'kUTTypeMovie' has been explicitly marked deprecated here
+      880 | extern const CFStringRef kUTTypeMovie                                API_DEPRECATED("Use UTTypeMovie or UTType.movie (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    3 warnings generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:102:56: warning: 'kUTTypeGIF' is deprecated: first deprecated in iOS 15.0 - Use UTTypeGIF or UTType.gif (swift) instead. [-Wdeprecated-declarations]
+      102 |       (__bridge CFURLRef)[NSURL fileURLWithPath:path], kUTTypeGIF, gifInfo.images.count, NULL);
+          |                                                        ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:9:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:729:26: note: 'kUTTypeGIF' has been explicitly marked deprecated here
+      729 | extern const CFStringRef kUTTypeGIF                                  API_DEPRECATED("Use UTTypeGIF or UTType.gif (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:40:31: warning: 'authorizationStatus' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
+       40 |     return [CLLocationManager authorizationStatus];
+          |                               ^~~~~~~~~~~~~~~~~~~
+          |                               authorizationStatus
+    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManager.h:231:1: note: 'authorizationStatus' has been explicitly marked deprecated here
+      231 | + (CLAuthorizationStatus)authorizationStatus API_DEPRECATED_WITH_REPLACEMENT("-authorizationStatus", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
+          | ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:47:65: warning: 'authorizationStatus' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
+       47 |   CLAuthorizationStatus authorizationStatus = CLLocationManager.authorizationStatus;
+          |                                                                 ^~~~~~~~~~~~~~~~~~~
+          |                                                                 authorizationStatus
+    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManager.h:231:1: note: 'authorizationStatus' has been explicitly marked deprecated here
+      231 | + (CLAuthorizationStatus)authorizationStatus API_DEPRECATED_WITH_REPLACEMENT("-authorizationStatus", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
+          | ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:47:65: warning: 'authorizationStatus' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
+       47 |   CLAuthorizationStatus authorizationStatus = CLLocationManager.authorizationStatus;
+          |                                                                 ^~~~~~~~~~~~~~~~~~~
+          |                                                                 authorizationStatus
+    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManager.h:231:1: note: 'authorizationStatus' has been explicitly marked deprecated here
+      231 | + (CLAuthorizationStatus)authorizationStatus API_DEPRECATED_WITH_REPLACEMENT("-authorizationStatus", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
+          | ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:107:1: warning: implementing deprecated method [-Wdeprecated-implementations]
+      107 | - (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+          | ^
+    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManagerDelegate.h:208:1: note: method 'locationManager:didChangeAuthorizationStatus:' declared here
+      208 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status API_DEPRECATED_WITH_REPLACEMENT("-locationManagerDidChangeAuthorization:", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
+          | ^
+    4 warnings generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/LocationServiceStreamHandler.m:36:1: warning: implementing deprecated method [-Wdeprecated-implementations]
+       36 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status{
+          | ^
+    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/LocationServiceStreamHandler.m:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManagerDelegate.h:208:1: note: method 'locationManager:didChangeAuthorizationStatus:' declared here
+      208 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status API_DEPRECATED_WITH_REPLACEMENT("-locationManagerDidChangeAuthorization:", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
+          | ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_local_notifications-19.5.0/ios/flutter_local_notifications/Sources/flutter_local_notifications/FlutterLocalNotificationsPlugin.m:972:30: warning: 'UNNotificationPresentationOptionAlert' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
+      972 |       presentationOptions |= UNNotificationPresentationOptionAlert;
+          |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          |                              UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner
+    In module 'UserNotifications' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_local_notifications-19.5.0/ios/flutter_local_notifications/Sources/flutter_local_notifications/./include/flutter_local_notifications/FlutterLocalNotificationsPlugin.h:2:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UNUserNotificationCenter.h:84:5: note: 'UNNotificationPresentationOptionAlert' has been explicitly marked deprecated here
+       84 |     UNNotificationPresentationOptionAlert API_DEPRECATED_WITH_REPLACEMENT("UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner", macos(10.14, 11.0), ios(10.0, 14.0), watchos(3.0, 7.0), tvos(10.0, 14.0)) = (1 << 2),
+          |     ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_local_notifications-19.5.0/ios/flutter_local_notifications/Sources/flutter_local_notifications/FlutterLocalNotificationsPlugin.m:972:30: warning: 'UNNotificationPresentationOptionAlert' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
+      972 |       presentationOptions |= UNNotificationPresentationOptionAlert;
+          |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          |                              UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner
+    In module 'UserNotifications' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_local_notifications-19.5.0/ios/flutter_local_notifications/Sources/flutter_local_notifications/./include/flutter_local_notifications/FlutterLocalNotificationsPlugin.h:2:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UNUserNotificationCenter.h:84:5: note: 'UNNotificationPresentationOptionAlert' has been explicitly marked deprecated here
+       84 |     UNNotificationPresentationOptionAlert API_DEPRECATED_WITH_REPLACEMENT("UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner", macos(10.14, 11.0), ios(10.0, 14.0), watchos(3.0, 7.0), tvos(10.0, 14.0)) = (1 << 2),
+          |     ^
+    1 warning generated.
+    ld: warning: ignoring duplicate libraries: '-lc++'
+    ld: warning: ignoring duplicate libraries: '-lc++'
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/GoogleSignIn/GoogleSignIn/Sources/GIDAppCheck/UI/GIDActivityIndicatorViewController.m:34:13: warning: 'UIActivityIndicatorViewStyleGray' is deprecated: first deprecated in iOS 13.0 [-Wdeprecated-declarations]
+       34 |     style = UIActivityIndicatorViewStyleGray;
+          |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          |             UIActivityIndicatorViewStyleMedium
+    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/GoogleSignIn/GoogleSignIn/Sources/GIDAppCheck/UI/GIDActivityIndicatorViewController.h:21:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIActivityIndicatorView.h:20:5: note: 'UIActivityIndicatorViewStyleGray' has been explicitly marked deprecated here
+       20 |     UIActivityIndicatorViewStyleGray API_DEPRECATED_WITH_REPLACEMENT("UIActivityIndicatorViewStyleMedium", ios(2.0, 13.0)) API_UNAVAILABLE(tvos, visionos, watchos) = 2,
+          |     ^
+    1 warning generated.
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/GoogleSignIn/GoogleSignIn/Sources/GIDAppCheck/UI/GIDActivityIndicatorViewController.m:34:13: warning: 'UIActivityIndicatorViewStyleGray' is deprecated: first deprecated in iOS 13.0 [-Wdeprecated-declarations]
+       34 |     style = UIActivityIndicatorViewStyleGray;
+          |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          |             UIActivityIndicatorViewStyleMedium
+    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/GoogleSignIn/GoogleSignIn/Sources/GIDAppCheck/UI/GIDActivityIndicatorViewController.h:21:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIActivityIndicatorView.h:20:5: note: 'UIActivityIndicatorViewStyleGray' has been explicitly marked deprecated here
+       20 |     UIActivityIndicatorViewStyleGray API_DEPRECATED_WITH_REPLACEMENT("UIActivityIndicatorViewStyleMedium", ios(2.0, 13.0)) API_UNAVAILABLE(tvos, visionos, watchos) = 2,
+          |     ^
+    1 warning generated.
+    ld: warning: ignoring duplicate libraries: '-lc++'
+    ld: warning: ignoring duplicate libraries: '-lc++'
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/trees.c:37:
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/deflate.h:16:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.c:8:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inftrees.c:6:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inflate.c:83:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inffast.c:6:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/infback.c:13:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/deflate.c:52:
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/deflate.h:16:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/crc32.c:30:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/adler32.c:8:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    ld: warning: ignoring duplicate libraries: '-lc++'
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/trees.c:37:
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/deflate.h:16:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.c:8:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inftrees.c:6:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inflate.c:83:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inffast.c:6:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/infback.c:13:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/deflate.c:52:
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/deflate.h:16:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/crc32.c:30:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/adler32.c:8:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
+      170 | #  define OS_CODE 19
+          |           ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
+      141 | #  define OS_CODE  7
+          |           ^
+    1 warning generated.
+    ld: warning: ignoring duplicate libraries: '-lc++'
+    ld: warning: ignoring duplicate libraries: '-lc++'
+    ld: warning: ignoring duplicate libraries: '-lc++'
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:20:1: warning: extension declares a conformance of imported type 'FlutterError' to imported protocols 'Error', 'Sendable'; this will not behave correctly if the owners of 'Flutter' introduce this conformance in the future
+    extension FlutterError: Error {}
+    ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:20:1: note: add '@retroactive' to silence this warning
+    extension FlutterError: Error {}
+    ^                       ~~~~~
+                            @retroactive Error
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:20:1: warning: extension declares a conformance of imported type 'FlutterError' to imported protocols 'Error', 'Sendable'; this will not behave correctly if the owners of 'Flutter' introduce this conformance in the future
+    extension FlutterError: Error {}
+    ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:20:1: note: add '@retroactive' to silence this warning
+    extension FlutterError: Error {}
+    ^                       ~~~~~
+                            @retroactive Error
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: warning: switch must be exhaustive
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.unknown'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.nonMatchingChecksum'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.invalidArgument'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.bucketMismatch'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.internalError'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.pathError'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing cases
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:20:1: warning: extension declares a conformance of imported type 'FlutterError' to imported protocols 'Error', 'Sendable'; this will not behave correctly if the owners of 'Flutter' introduce this conformance in the future
+    extension FlutterError: Error {}
+    ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:20:1: note: add '@retroactive' to silence this warning
+    extension FlutterError: Error {}
+    ^                       ~~~~~
+                            @retroactive Error
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: warning: switch must be exhaustive
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.unknown'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.nonMatchingChecksum'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.invalidArgument'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.bucketMismatch'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.internalError'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.pathError'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing cases
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:20:1: warning: extension declares a conformance of imported type 'FlutterError' to imported protocols 'Error', 'Sendable'; this will not behave correctly if the owners of 'Flutter' introduce this conformance in the future
+    extension FlutterError: Error {}
+    ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:20:1: note: add '@retroactive' to silence this warning
+    extension FlutterError: Error {}
+    ^                       ~~~~~
+                            @retroactive Error
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: warning: switch must be exhaustive
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.unknown'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.nonMatchingChecksum'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.invalidArgument'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.bucketMismatch'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.internalError'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing case: '.pathError'
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/FLTFirebaseStoragePlugin.swift:365:7: note: add missing cases
+          switch code {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: warning: switch must be exhaustive
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.unknown'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.nonMatchingChecksum'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.invalidArgument'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.bucketMismatch'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.internalError'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing case: '.pathError'
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_storage-13.0.5/ios/firebase_storage/Sources/firebase_storage/TaskStateChannelStreamHandler.swift:109:7: note: add missing cases
+          switch storageCode {
+          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-4.3.0/ios/firebase_core/Sources/firebase_core/FLTFirebaseCorePlugin.m:92:35: warning: incompatible pointer types assigning to 'NSString * _Nullable' from 'NSNull * _Nonnull' [-Wincompatible-pointer-types]
+       92 |   pigeonOptions.deepLinkURLScheme = [NSNull null];
+          |                                   ^ ~~~~~~~~~~~~~
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-4.3.0/ios/firebase_core/Sources/firebase_core/FLTFirebaseCorePlugin.m:92:35: warning: incompatible pointer types assigning to 'NSString * _Nullable' from 'NSNull * _Nonnull' [-Wincompatible-pointer-types]
+       92 |   pigeonOptions.deepLinkURLScheme = [NSNull null];
+          |                                   ^ ~~~~~~~~~~~~~
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_messaging-16.1.0/ios/firebase_messaging/Sources/firebase_messaging/FLTFirebaseMessagingPlugin.m:377:32: warning: 'UNNotificationPresentationOptionAlert' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
+      377 |         presentationOptions |= UNNotificationPresentationOptionAlert;
+          |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          |                                UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner
+    In module 'UserNotifications' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_messaging-16.1.0/ios/firebase_messaging/Sources/firebase_messaging/include/FLTFirebaseMessagingPlugin.h:15:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UNUserNotificationCenter.h:84:5: note: 'UNNotificationPresentationOptionAlert' has been explicitly marked deprecated here
+       84 |     UNNotificationPresentationOptionAlert API_DEPRECATED_WITH_REPLACEMENT("UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner", macos(10.14, 11.0), ios(10.0, 14.0), watchos(3.0, 7.0), tvos(10.0, 14.0)) = (1 << 2),
+          |     ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_messaging-16.1.0/ios/firebase_messaging/Sources/firebase_messaging/FLTFirebaseMessagingPlugin.m:377:32: warning: 'UNNotificationPresentationOptionAlert' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
+      377 |         presentationOptions |= UNNotificationPresentationOptionAlert;
+          |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          |                                UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner
+    In module 'UserNotifications' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_messaging-16.1.0/ios/firebase_messaging/Sources/firebase_messaging/include/FLTFirebaseMessagingPlugin.h:15:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UNUserNotificationCenter.h:84:5: note: 'UNNotificationPresentationOptionAlert' has been explicitly marked deprecated here
+       84 |     UNNotificationPresentationOptionAlert API_DEPRECATED_WITH_REPLACEMENT("UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner", macos(10.14, 11.0), ios(10.0, 14.0), watchos(3.0, 7.0), tvos(10.0, 14.0)) = (1 << 2),
+          |     ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:127:72: warning: sending 'FLTFirebaseAuthPlugin *__strong' to parameter of incompatible type 'id<FLTFirebasePlugin> _Nonnull'
+      127 |     [[FLTFirebasePluginRegistry sharedInstance] registerFirebasePlugin:self];
+          |                                                                        ^~~~
+    In module 'firebase_core' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:9:
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-4.3.0/ios/firebase_core/Sources/firebase_core/include/firebase_core/FLTFirebasePluginRegistry.h:23:64: note: passing argument to parameter 'firebasePlugin' here
+       23 | - (void)registerFirebasePlugin:(id<FLTFirebasePlugin> _Nonnull)firebasePlugin;
+          |                                                                ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:408:14: warning: unused variable 'capturedCompletion' [-Wunused-variable]
+      408 |       void (^capturedCompletion)(PigeonUserCredential *_Nullable, FlutterError *_Nullable) =
+          |              ^~~~~~~~~~~~~~~~~~
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:419:14: warning: unused variable 'capturedCompletion' [-Wunused-variable]
+      419 |       void (^capturedCompletion)(PigeonUserCredential *_Nullable, FlutterError *_Nullable) =
+          |              ^~~~~~~~~~~~~~~~~~
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:430:14: warning: unused variable 'capturedCompletion' [-Wunused-variable]
+      430 |       void (^capturedCompletion)(PigeonUserCredential *_Nullable, FlutterError *_Nullable) =
+          |              ^~~~~~~~~~~~~~~~~~
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:834:45: warning: 'keyWindow' is deprecated: first deprecated in iOS 13.0 - Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes [-Wdeprecated-declarations]
+      834 |   return [[UIApplication sharedApplication] keyWindow];
+          |                                             ^
+    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/firebase_auth/firebase_auth-prefix.pch:2:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: property 'keyWindow' is declared deprecated here
+      108 | @property(nullable, nonatomic,readonly) UIWindow *keyWindow API_DEPRECATED("Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes", ios(2.0, 13.0)) API_UNAVAILABLE(visionos, watchos);
+          |                                                   ^
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: 'keyWindow' has been explicitly marked deprecated here
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:1166:9: warning: 'fetchSignInMethodsForEmail:completion:' is deprecated: `fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled. [-Wdeprecated-declarations]
+     1166 |   [auth fetchSignInMethodsForEmail:email
+          |         ^
+    In module 'FirebaseAuth' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:5:
+    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphonesimulator/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:2942:159: note: 'fetchSignInMethodsForEmail:completion:' has been explicitly marked deprecated here
+     2942 | - (void)fetchSignInMethodsForEmail:(NSString * _Nonnull)email completion:(void (^ _Nullable)(NSArray<NSString *> * _Nullable, NSError * _Nullable))completion SWIFT_DEPRECATED_MSG("`fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled.");
+          |                                                                                                                                                               ^
+    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphonesimulator/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:2662:51: note: expanded from macro 'SWIFT_DEPRECATED_MSG'
+     2662 | # define SWIFT_DEPRECATED_MSG(...) __attribute__((deprecated(__VA_ARGS__)))
+          |                                                   ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:1973:16: warning: 'updateEmail:completion:' is deprecated: `updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead. [-Wdeprecated-declarations]
+     1973 |   [currentUser updateEmail:newEmail
+          |                ^
+    In module 'FirebaseAuth' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:5:
+    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphonesimulator/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:4516:111: note: 'updateEmail:completion:' has been explicitly marked deprecated here
+     4516 | - (void)updateEmail:(NSString * _Nonnull)email completion:(void (^ _Nullable)(NSError * _Nullable))completion SWIFT_DEPRECATED_MSG("`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead.");
+          |                                                                                                               ^
+    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphonesimulator/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:2662:51: note: expanded from macro 'SWIFT_DEPRECATED_MSG'
+     2662 | # define SWIFT_DEPRECATED_MSG(...) __attribute__((deprecated(__VA_ARGS__)))
+          |                                                   ^
+    7 warnings generated.
+    ld: warning: ignoring duplicate libraries: '-lc++'
+    ld: warning: ignoring duplicate libraries: '-lc++'
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:127:72: warning: sending 'FLTFirebaseAuthPlugin *__strong' to parameter of incompatible type 'id<FLTFirebasePlugin> _Nonnull'
+      127 |     [[FLTFirebasePluginRegistry sharedInstance] registerFirebasePlugin:self];
+          |                                                                        ^~~~
+    In module 'firebase_core' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:9:
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-4.3.0/ios/firebase_core/Sources/firebase_core/include/firebase_core/FLTFirebasePluginRegistry.h:23:64: note: passing argument to parameter 'firebasePlugin' here
+       23 | - (void)registerFirebasePlugin:(id<FLTFirebasePlugin> _Nonnull)firebasePlugin;
+          |                                                                ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:408:14: warning: unused variable 'capturedCompletion' [-Wunused-variable]
+      408 |       void (^capturedCompletion)(PigeonUserCredential *_Nullable, FlutterError *_Nullable) =
+          |              ^~~~~~~~~~~~~~~~~~
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:419:14: warning: unused variable 'capturedCompletion' [-Wunused-variable]
+      419 |       void (^capturedCompletion)(PigeonUserCredential *_Nullable, FlutterError *_Nullable) =
+          |              ^~~~~~~~~~~~~~~~~~
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:430:14: warning: unused variable 'capturedCompletion' [-Wunused-variable]
+      430 |       void (^capturedCompletion)(PigeonUserCredential *_Nullable, FlutterError *_Nullable) =
+          |              ^~~~~~~~~~~~~~~~~~
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:834:45: warning: 'keyWindow' is deprecated: first deprecated in iOS 13.0 - Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes [-Wdeprecated-declarations]
+      834 |   return [[UIApplication sharedApplication] keyWindow];
+          |                                             ^
+    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/firebase_auth/firebase_auth-prefix.pch:2:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: property 'keyWindow' is declared deprecated here
+      108 | @property(nullable, nonatomic,readonly) UIWindow *keyWindow API_DEPRECATED("Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes", ios(2.0, 13.0)) API_UNAVAILABLE(visionos, watchos);
+          |                                                   ^
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: 'keyWindow' has been explicitly marked deprecated here
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:1166:9: warning: 'fetchSignInMethodsForEmail:completion:' is deprecated: `fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled. [-Wdeprecated-declarations]
+     1166 |   [auth fetchSignInMethodsForEmail:email
+          |         ^
+    In module 'FirebaseAuth' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:5:
+    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphonesimulator/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:501:159: note: 'fetchSignInMethodsForEmail:completion:' has been explicitly marked deprecated here
+      501 | - (void)fetchSignInMethodsForEmail:(NSString * _Nonnull)email completion:(void (^ _Nullable)(NSArray<NSString *> * _Nullable, NSError * _Nullable))completion SWIFT_DEPRECATED_MSG("`fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled.");
+          |                                                                                                                                                               ^
+    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphonesimulator/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:221:51: note: expanded from macro 'SWIFT_DEPRECATED_MSG'
+      221 | # define SWIFT_DEPRECATED_MSG(...) __attribute__((deprecated(__VA_ARGS__)))
+          |                                                   ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:1973:16: warning: 'updateEmail:completion:' is deprecated: `updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead. [-Wdeprecated-declarations]
+     1973 |   [currentUser updateEmail:newEmail
+          |                ^
+    In module 'FirebaseAuth' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-6.1.3/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:5:
+    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphonesimulator/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:2075:111: note: 'updateEmail:completion:' has been explicitly marked deprecated here
+     2075 | - (void)updateEmail:(NSString * _Nonnull)email completion:(void (^ _Nullable)(NSError * _Nullable))completion SWIFT_DEPRECATED_MSG("`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead.");
+          |                                                                                                               ^
+    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphonesimulator/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:221:51: note: expanded from macro 'SWIFT_DEPRECATED_MSG'
+      221 | # define SWIFT_DEPRECATED_MSG(...) __attribute__((deprecated(__VA_ARGS__)))
+          |                                                   ^
+    7 warnings generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/cloud_firestore-6.1.1/ios/cloud_firestore/Sources/cloud_firestore/FLTFirebaseFirestorePlugin.m:571:14: warning: 'setIndexConfigurationFromJSON:completion:' is deprecated: Instead of creating cache indexes manually, consider using `PersistentCacheIndexManager.enableIndexAutoCreation()` to let the SDK decide whether to create cache indexes for queries running locally. [-Wdeprecated-declarations]
+      571 |   [firestore setIndexConfigurationFromJSON:indexConfiguration
+          |              ^
+    In module 'FirebaseFirestoreInternal' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/cloud_firestore-6.1.1/ios/cloud_firestore/Sources/cloud_firestore/FLTFirebaseFirestorePlugin.m:13:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/FirebaseFirestoreInternal/Firestore/Source/Public/FirebaseFirestore/FIRFirestore.h:134:57: note: 'setIndexConfigurationFromJSON:completion:' has been explicitly marked deprecated here
+      134 |     NS_SWIFT_NAME(setIndexConfiguration(_:completion:)) DEPRECATED_MSG_ATTRIBUTE(
+          |                                                         ^
+    In module 'Foundation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/cloud_firestore-6.1.1/ios/cloud_firestore/Sources/cloud_firestore/include/cloud_firestore/Private/FLTDocumentSnapshotStreamHandler.h:18:
+    In module 'CoreFoundation' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.h:6:
+    In module 'AvailabilityMacros' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreFoundation.framework/Headers/CFAvailability.h:23:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/include/AvailabilityMacros.h:152:64: note: expanded from macro 'DEPRECATED_MSG_ATTRIBUTE'
+      152 |             #define DEPRECATED_MSG_ATTRIBUTE(s) __attribute__((deprecated(s)))
+          |                                                                ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/cloud_firestore-6.1.1/ios/cloud_firestore/Sources/cloud_firestore/FLTFirebaseFirestorePlugin.m:571:14: warning: 'setIndexConfigurationFromJSON:completion:' is deprecated: Instead of creating cache indexes manually, consider using `PersistentCacheIndexManager.enableIndexAutoCreation()` to let the SDK decide whether to create cache indexes for queries running locally. [-Wdeprecated-declarations]
+      571 |   [firestore setIndexConfigurationFromJSON:indexConfiguration
+          |              ^
+    In module 'FirebaseFirestoreInternal' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/cloud_firestore-6.1.1/ios/cloud_firestore/Sources/cloud_firestore/FLTFirebaseFirestorePlugin.m:13:
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/FirebaseFirestoreInternal/Firestore/Source/Public/FirebaseFirestore/FIRFirestore.h:134:57: note: 'setIndexConfigurationFromJSON:completion:' has been explicitly marked deprecated here
+      134 |     NS_SWIFT_NAME(setIndexConfiguration(_:completion:)) DEPRECATED_MSG_ATTRIBUTE(
+          |                                                         ^
+    In module 'Foundation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/cloud_firestore-6.1.1/ios/cloud_firestore/Sources/cloud_firestore/include/cloud_firestore/Private/FLTDocumentSnapshotStreamHandler.h:18:
+    In module 'CoreFoundation' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.h:6:
+    In module 'AvailabilityMacros' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/CoreFoundation.framework/Headers/CFAvailability.h:23:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/include/AvailabilityMacros.h:152:64: note: expanded from macro 'DEPRECATED_MSG_ATTRIBUTE'
+      152 |             #define DEPRECATED_MSG_ATTRIBUTE(s) __attribute__((deprecated(s)))
+          |                                                                ^
+    1 warning generated.
+    Error: Couldn't resolve the package 'flutter_gen' in 'package:flutter_gen/gen_l10n/app_localizations.dart'.
+    lib/main.dart:6:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
+    import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Archivo generado automáticamente
+           ^
+    lib/screens/create_activity_screen.dart:8:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
+    import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Traducciones
+           ^
+    lib/utils/category_utils.dart:2:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
+    import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+           ^
+    lib/main.dart:76:11: Error: Not a constant expression.
+              AppLocalizations.delegate,
+              ^^^^^^^^^^^^^^^^
+    lib/services/auth_service.dart:12:38: Error: Couldn't find constructor 'GoogleSignIn'.
+      final GoogleSignIn _googleSignIn = GoogleSignIn();
+                                         ^^^^^^^^^^^^
+    lib/services/auth_service.dart:79:67: Error: The method 'signIn' isn't defined for the type 'GoogleSignIn'.
+     - 'GoogleSignIn' is from 'package:google_sign_in/google_sign_in.dart' ('../../.pub-cache/hosted/pub.dev/google_sign_in-7.2.0/lib/google_sign_in.dart').
+    Try correcting the name to the name of an existing method, or defining a method named 'signIn'.
+          final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+                                                                      ^^^^^^
+    lib/services/auth_service.dart:87:33: Error: The getter 'accessToken' isn't defined for the type 'GoogleSignInAuthentication'.
+     - 'GoogleSignInAuthentication' is from 'package:google_sign_in/src/token_types.dart' ('../../.pub-cache/hosted/pub.dev/google_sign_in-7.2.0/lib/src/token_types.dart').
+    Try correcting the name to the name of an existing getter, or defining a getter or field named 'accessToken'.
+            accessToken: googleAuth.accessToken,
+                                    ^^^^^^^^^^^
+    lib/screens/create_activity_screen.dart:213:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
+     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/create_activity_screen.dart' ('lib/screens/create_activity_screen.dart').
+    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
+        final l10n = AppLocalizations.of(context)!; // Acceso a traducciones
+                     ^^^^^^^^^^^^^^^^
+    lib/utils/category_utils.dart:5:16: Error: Undefined name 'AppLocalizations'.
+      final l10n = AppLocalizations.of(context)!;
+                   ^^^^^^^^^^^^^^^^
+    Unhandled exception:
+    FileSystemException(uri=org-dartlang-untranslatable-uri:package%3Aflutter_gen%2Fgen_l10n%2Fapp_localizations.dart; message=StandardFileSystem only supports file:* and data:* URIs)
+    #0      StandardFileSystem.entityForUri (package:front_end/src/api_prototype/standard_file_system.dart:45)
+    #1      asFileUri (package:vm/kernel_front_end.dart:1008)
+    #2      writeDepfile (package:vm/kernel_front_end.dart:1171)
+    <asynchronous suspension>
+    #3      FrontendCompiler.compile (package:frontend_server/frontend_server.dart:738)
+    <asynchronous suspension>
+    #4      starter (package:frontend_server/starter.dart:102)
+    <asynchronous suspension>
+    #5      main (file:///Volumes/Work/s/w/ir/x/w/sdk/pkg/frontend_server/bin/frontend_server_starter.dart:13)
+    <asynchronous suspension>
+
+    Target kernel_snapshot_program failed: Exception
+    Failed to package /Users/macbookpro/Development/yoinn_app.
+    Command PhaseScriptExecution failed with a nonzero exit code
+    warning: no rule to process file '/Users/macbookpro/.pub-cache/hosted/pub.dev/geocoding_ios-3.1.0/ios/geocoding_ios/Sources/geocoding_ios/PrivacyInfo.xcprivacy' of type 'text.xml' for architecture 'arm64' (in target 'geocoding_ios' from project 'Pods')
+    warning: no rule to process file '/Users/macbookpro/.pub-cache/hosted/pub.dev/geocoding_ios-3.1.0/ios/geocoding_ios/Sources/geocoding_ios/PrivacyInfo.xcprivacy' of type 'text.xml' for architecture 'x86_64' (in target 'geocoding_ios' from project 'Pods')
+    warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'gRPC-Core' from project 'Pods')
+    warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'gRPC-C++' from project 'Pods')
+    warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'abseil' from project 'Pods')
+    note: Run script build phase 'Run Script' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')
+    note: Run script build phase 'Thin Binary' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')
+    warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'BoringSSL-GRPC' from project 'Pods')
+
+Could not build the application for the simulator.
+Error launching application on iPhone 16 Plus.
