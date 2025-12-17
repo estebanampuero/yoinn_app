@@ -14,6 +14,12 @@ class UserModel {
   final List<String> galleryImages;
   final Map<String, dynamic>? location;
 
+  // --- NUEVOS CAMPOS (Gamificación y Redes) ---
+  final String? instagramHandle;
+  final bool isVerified; // Check azul de confianza
+  final int karmaPoints; // Puntos por participar/crear
+  final int activitiesCreatedCount; // Para badge de "Guía Local"
+
   UserModel({
     required this.uid,
     required this.name,
@@ -27,6 +33,10 @@ class UserModel {
     required this.profileCompleted,
     required this.galleryImages,
     this.location,
+    this.instagramHandle,
+    this.isVerified = false,
+    this.karmaPoints = 0,
+    this.activitiesCreatedCount = 0,
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -45,6 +55,11 @@ class UserModel {
       profileCompleted: data['profileCompleted'] ?? false,
       galleryImages: List<String>.from(data['galleryImages'] ?? []),
       location: data['location'],
+      // Mapeo de nuevos campos
+      instagramHandle: data['instagramHandle'],
+      isVerified: data['isVerified'] ?? false,
+      karmaPoints: (data['karmaPoints'] ?? 0).toInt(),
+      activitiesCreatedCount: (data['activitiesCreatedCount'] ?? 0).toInt(),
     );
   }
 
@@ -61,6 +76,11 @@ class UserModel {
       'profileCompleted': profileCompleted,
       'galleryImages': galleryImages,
       'location': location,
+      // Guardar nuevos campos
+      'instagramHandle': instagramHandle,
+      'isVerified': isVerified,
+      'karmaPoints': karmaPoints,
+      'activitiesCreatedCount': activitiesCreatedCount,
       'lastLogin': FieldValue.serverTimestamp(),
     };
   }

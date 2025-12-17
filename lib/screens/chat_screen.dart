@@ -28,7 +28,6 @@ class _ChatScreenState extends State<ChatScreen> {
       Provider.of<DataService>(context, listen: false)
           .sendMessage(widget.activity.id, text, user);
       _messageController.clear();
-      // Scroll al fondo
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           0, 
@@ -45,7 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final dataService = Provider.of<DataService>(context, listen: false);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEFE7DD), // Color fondo tipo WhatsApp suave
+      backgroundColor: const Color(0xFFF0F8FA), // Fondo azulado suave
       appBar: AppBar(
         title: Row(
           children: [
@@ -67,7 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         backgroundColor: Colors.white,
         elevation: 1,
-        foregroundColor: Colors.black,
+        foregroundColor: const Color(0xFF006064), // Texto oscuro
       ),
       body: Column(
         children: [
@@ -75,8 +74,14 @@ class _ChatScreenState extends State<ChatScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: dataService.getActivityMessages(widget.activity.id),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFF00BCD4)));
                 final docs = snapshot.data!.docs;
+
+                if (docs.isEmpty) {
+                  return const Center(
+                    child: Text("Sé el primero en escribir...", style: TextStyle(color: Colors.grey)),
+                  );
+                }
 
                 return ListView.builder(
                   controller: _scrollController,
@@ -117,6 +122,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.grey[200]!)
                 ),
                 child: TextField(
                   controller: _messageController,
@@ -128,12 +134,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   textCapitalization: TextCapitalization.sentences,
                   minLines: 1,
                   maxLines: 5,
+                  cursorColor: const Color(0xFF00BCD4),
                 ),
               ),
             ),
             const SizedBox(width: 8),
             CircleAvatar(
-              backgroundColor: const Color(0xFFF97316),
+              backgroundColor: const Color(0xFF00BCD4), // Botón de enviar Cian
               radius: 22,
               child: IconButton(
                 icon: const Icon(Icons.send, color: Colors.white, size: 20),
@@ -178,7 +185,10 @@ class _ChatBubble extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isMe ? const Color(0xFFF97316) : Colors.white,
+                // COLOR DE BURBUJAS
+                color: isMe 
+                    ? const Color(0xFF00BCD4) // Cian para mí
+                    : const Color(0xFFE0F7FA), // Cian muy claro para otros
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -193,13 +203,32 @@ class _ChatBubble extends StatelessWidget {
                   if (!isMe)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(senderName, style: TextStyle(color: Colors.orange[800], fontSize: 11, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        senderName, 
+                        style: const TextStyle(
+                          color: Color(0xFF00838F), // Nombre en Cian Oscuro
+                          fontSize: 11, 
+                          fontWeight: FontWeight.bold
+                        )
+                      ),
                     ),
-                  Text(text, style: TextStyle(color: isMe ? Colors.white : Colors.black87, fontSize: 15)),
+                  Text(
+                    text, 
+                    style: TextStyle(
+                      color: isMe ? Colors.white : Colors.black87, 
+                      fontSize: 15
+                    )
+                  ),
                   const SizedBox(height: 4),
                   Align(
                     alignment: Alignment.bottomRight,
-                    child: Text(timeStr, style: TextStyle(color: isMe ? Colors.white70 : Colors.grey, fontSize: 10)),
+                    child: Text(
+                      timeStr, 
+                      style: TextStyle(
+                        color: isMe ? Colors.white70 : Colors.grey[600], 
+                        fontSize: 10
+                      )
+                    ),
                   ),
                 ],
               ),

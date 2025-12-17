@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/activity_model.dart';
 import '../services/data_service.dart';
 import 'activity_detail_screen.dart';
@@ -15,14 +16,35 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   late GoogleMapController _mapController;
+  BitmapDescriptor? _customPinIcon; // Variable para el icono
   
-  // Coordenadas por defecto (Puerto Montt)
   static const CameraPosition _initialPosition = CameraPosition(
     target: LatLng(-41.469, -72.942), 
     zoom: 12,
   );
 
   Activity? _selectedActivity;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCustomMarker();
+  }
+
+  // Cargar el pin personalizado
+  Future<void> _loadCustomMarker() async {
+    try {
+      final icon = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(size: Size(48, 48)), 
+        'assets/icons/pin.png', // <--- TU ARCHIVO DEBE ESTAR AQUÍ
+      );
+      setState(() {
+        _customPinIcon = icon;
+      });
+    } catch (e) {
+      print("Error cargando icono del mapa: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,21 +60,21 @@ class _MapScreenState extends State<MapScreen> {
                 _selectedActivity = activity;
               });
               
-              // --- CORRECCIÓN: Usamos newLatLng para centrar el pin ---
               _mapController.animateCamera(
                 CameraUpdate.newLatLng(
                   LatLng(activity.lat, activity.lng),
                 ),
               );
             },
-            icon: BitmapDescriptor.defaultMarker,
+            // AQUI OCURRE EL CAMBIO:
+            // Si _customPinIcon ya cargó, úsalo. Si no, usa el default rojo.
+            icon: _customPinIcon ?? BitmapDescriptor.defaultMarker,
           );
         }).toSet();
 
         return Scaffold(
           body: Stack(
             children: [
-              // 1. EL MAPA
               GoogleMap(
                 mapType: MapType.normal,
                 initialCameraPosition: _initialPosition,
@@ -65,7 +87,6 @@ class _MapScreenState extends State<MapScreen> {
                 tiltGesturesEnabled: true,
                 rotateGesturesEnabled: true,
                 compassEnabled: true,
-                // Le damos padding abajo para que el logo de Google no quede tapado por la tarjeta
                 padding: const EdgeInsets.only(bottom: 150), 
                 onMapCreated: (GoogleMapController controller) {
                   _mapController = controller;
@@ -79,16 +100,16 @@ class _MapScreenState extends State<MapScreen> {
                 },
               ),
 
-              // 2. BOTÓN DE RE-CENTRAR
+              // Botón Recentrar (Color Cian)
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 300),
-                top: 60, // Ajustado para que no choque con el notch
+                top: 60, 
                 right: 20,
                 child: FloatingActionButton(
                   heroTag: 'recenter_map_btn',
                   mini: true,
                   backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFFF97316),
+                  foregroundColor: const Color(0xFF00BCD4), // Cian
                   onPressed: () {
                      if (dataService.activities.isNotEmpty) {
                        final first = dataService.activities.first;
@@ -101,7 +122,7 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
 
-              // 3. TARJETA DE INFORMACIÓN (Mini Recuadro)
+              // Tarjeta Flotante
               if (_selectedActivity != null)
                 Positioned(
                   bottom: 20,
@@ -123,7 +144,7 @@ class _MapScreenState extends State<MapScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
+                            color: const Color(0xFF00BCD4).withOpacity(0.2), // Sombra cian
                             blurRadius: 15,
                             offset: const Offset(0, 5),
                           ),
@@ -131,23 +152,29 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                       child: Row(
                         children: [
-                          // Imagen
                           ClipRRect(
                             borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(16),
                               bottomLeft: Radius.circular(16),
                             ),
-                            child: Image.network(
-                              _selectedActivity!.imageUrl.isNotEmpty 
+                            child: CachedNetworkImage(
+                              imageUrl: _selectedActivity!.imageUrl.isNotEmpty 
                                   ? _selectedActivity!.imageUrl 
                                   : 'https://via.placeholder.com/150',
                               width: 110,
                               height: 110,
                               fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                color: const Color(0xFFE0F7FA),
+                                child: const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00BCD4)))
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.broken_image, color: Colors.grey)
+                              ),
                             ),
                           ),
                           
-                          // Info
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.all(12.0),
@@ -158,7 +185,7 @@ class _MapScreenState extends State<MapScreen> {
                                   Text(
                                     _selectedActivity!.category.toUpperCase(),
                                     style: const TextStyle(
-                                      color: Color(0xFFF97316),
+                                      color: Color(0xFF29B6F6), // Azul Brillante
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -169,7 +196,7 @@ class _MapScreenState extends State<MapScreen> {
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                                      color: Color(0xFF006064),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -177,10 +204,10 @@ class _MapScreenState extends State<MapScreen> {
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      const Icon(Icons.calendar_today, size: 12, color: Colors.grey),
+                                      const Icon(Icons.calendar_today, size: 12, color: Color(0xFF26C6DA)),
                                       const SizedBox(width: 4),
                                       Text(
-                                        DateFormat('d MMM, h:mm a').format(_selectedActivity!.dateTime),
+                                        DateFormat('d MMM, h:mm a', 'es_ES').format(_selectedActivity!.dateTime),
                                         style: const TextStyle(fontSize: 12, color: Colors.grey),
                                       ),
                                     ],
@@ -192,7 +219,7 @@ class _MapScreenState extends State<MapScreen> {
                           
                           const Padding(
                             padding: EdgeInsets.only(right: 12.0),
-                            child: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                            child: Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF26C6DA)),
                           ),
                         ],
                       ),
