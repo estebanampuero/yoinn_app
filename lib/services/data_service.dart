@@ -139,7 +139,7 @@ class DataService with ChangeNotifier {
   Future<void> reportContent({
     required String reporterUid,
     required String reportedId,
-    required String type,
+    required String type, // 'activity' o 'user'
     required String reason
   }) async {
     await _db.collection('reports').add({
@@ -199,7 +199,9 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
 
-  // --- SOLICITUDES Y GESTIÓN ---
+  // --- SOLICITUDES Y GESTIÓN (LÓGICA COMPLETA) ---
+  
+  // 1. Unirse
   Future<void> applyToActivity(String activityId, UserModel user) async {
     try {
       await _db.collection('applications').add({
@@ -240,15 +242,15 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
   
-  // ACEPTAR USUARIO (Actualiza actividad)
+  // 2. ACEPTAR USUARIO (Actualiza actividad)
   Future<void> acceptApplicant(String applicationId, String activityId, String applicantPhotoUrl) async {
     try {
-      // 1. Marcar solicitud como aceptada
+      // A. Marcar solicitud como aceptada
       await _db.collection('applications').doc(applicationId).update({
         'status': 'accepted'
       });
 
-      // 2. Actualizar la actividad (Contador + Foto para Facepile)
+      // B. Actualizar la actividad (Contador + Foto para Facepile)
       await _db.collection('activities').doc(activityId).update({
         'acceptedCount': FieldValue.increment(1),
         'participantImages': FieldValue.arrayUnion([applicantPhotoUrl]),
@@ -260,7 +262,7 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // RECHAZAR USUARIO (Rechazo inicial)
+  // 3. RECHAZAR USUARIO
   Future<void> rejectApplicant(String applicationId) async {
     await _db.collection('applications').doc(applicationId).update({
       'status': 'rejected'
@@ -268,15 +270,15 @@ class DataService with ChangeNotifier {
     notifyListeners();
   }
 
-  // ELIMINAR PARTICIPANTE YA ACEPTADO (Nuevo)
+  // 4. ELIMINAR PARTICIPANTE YA ACEPTADO
   Future<void> removeParticipant(String applicationId, String activityId, String applicantPhotoUrl) async {
     try {
-      // 1. Cambiar estado a rechazado
+      // A. Cambiar estado a rechazado
       await _db.collection('applications').doc(applicationId).update({
         'status': 'rejected'
       });
 
-      // 2. Actualizar actividad (Restar 1 y quitar foto del Facepile)
+      // B. Actualizar actividad (Restar 1 y quitar foto del Facepile)
       await _db.collection('activities').doc(activityId).update({
         'acceptedCount': FieldValue.increment(-1),
         'participantImages': FieldValue.arrayRemove([applicantPhotoUrl]),
@@ -336,6 +338,60 @@ class DataService with ChangeNotifier {
         .where('read', isEqualTo: false)
         .snapshots()
         .map((snapshot) => snapshot.docs.length);
+  }
+
+  // --- ZONA ADMINISTRADOR (MODERACIÓN) ---
+
+  // 1. Obtener todos los reportes pendientes
+  Stream<QuerySnapshot> getAdminReportsStream() {
+    return _db.collection('reports')
+        .where('status', isEqualTo: 'pending_review') 
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+  }
+
+  // 2. Acción: Borrar Actividad (Por reporte)
+  Future<void> adminDeleteActivity(String activityId, String reportId) async {
+    try {
+      // Borramos la actividad
+      await _db.collection('activities').doc(activityId).delete();
+      
+      // Marcamos el reporte como "resuelto - eliminado"
+      await _db.collection('reports').doc(reportId).update({
+        'status': 'resolved_deleted',
+        'resolvedAt': FieldValue.serverTimestamp(),
+      });
+      notifyListeners();
+    } catch (e) {
+      print("Error admin delete activity: $e");
+    }
+  }
+
+  // 3. Acción: Banear Usuario (Por reporte)
+  Future<void> adminBanUser(String userId, String reportId) async {
+    try {
+      // Marcamos al usuario como baneado
+      await _db.collection('users').doc(userId).update({
+        'isBanned': true, 
+      });
+
+      // Marcamos reporte como resuelto
+      await _db.collection('reports').doc(reportId).update({
+        'status': 'resolved_banned',
+        'resolvedAt': FieldValue.serverTimestamp(),
+      });
+      notifyListeners();
+    } catch (e) {
+      print("Error admin ban user: $e");
+    }
+  }
+
+  // 4. Acción: Descartar reporte (Falsa alarma)
+  Future<void> adminDismissReport(String reportId) async {
+    await _db.collection('reports').doc(reportId).update({
+      'status': 'dismissed',
+      'resolvedAt': FieldValue.serverTimestamp(),
+    });
   }
   
   Future<void> refresh() async {

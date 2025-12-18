@@ -22,14 +22,12 @@ class AuthService with ChangeNotifier {
   }
 
   Future<void> _handleAuthChange(User? firebaseUser) async {
-    // DEBUG: Inicio del proceso
     if (kDebugMode) print("Auth State Changed: ${firebaseUser?.uid}");
 
     _isLoading = true;
     notifyListeners();
 
     if (firebaseUser == null) {
-      if (kDebugMode) print("Usuario es NULL, limpiando estado local.");
       _currentUser = null;
       _isLoading = false;
       notifyListeners();
@@ -37,27 +35,22 @@ class AuthService with ChangeNotifier {
     }
 
     try {
-      if (kDebugMode) print("Buscando usuario en Firestore: ${firebaseUser.uid}...");
-      
       DocumentSnapshot doc = await _db.collection('users').doc(firebaseUser.uid).get();
 
       if (doc.exists) {
-        if (kDebugMode) print("Usuario encontrado en Firestore. Cargando datos...");
         _currentUser = UserModel.fromFirestore(doc);
         
-        // Actualizar última conexión sin bloquear el flujo principal
+        // Actualizar última conexión
         _db.collection('users').doc(firebaseUser.uid).update({
           'lastLogin': FieldValue.serverTimestamp(),
         }).catchError((e) => print("Error actualizando lastLogin: $e"));
         
       } else {
-        if (kDebugMode) print("Usuario NO existe en Firestore. Creando nuevo registro...");
-        
         final newUser = UserModel(
           uid: firebaseUser.uid,
           name: firebaseUser.displayName ?? 'Usuario Nuevo',
           email: firebaseUser.email ?? '',
-          profilePictureUrl: firebaseUser.photoURL ?? 'https://ui-avatars.com/api/?name=User',
+          profilePictureUrl: firebaseUser.photoURL ?? '',
           bio: '',
           birthDate: '',
           hobbies: [],
@@ -68,27 +61,18 @@ class AuthService with ChangeNotifier {
           location: null,
         );
 
-        // Guardar en Firestore
         await _db.collection('users').doc(firebaseUser.uid).set(newUser.toMap());
         
-        // Agregar campo de creación
         await _db.collection('users').doc(firebaseUser.uid).update({
           'createdAt': FieldValue.serverTimestamp(),
         });
         
-        // Asignar al estado local
         _currentUser = newUser;
-        if (kDebugMode) print("Nuevo usuario creado y asignado a _currentUser.");
       }
     } catch (e) {
-      // DEBUG: Error crítico
       if (kDebugMode) print("CRITICAL ERROR en _handleAuthChange: $e");
-      // En caso de error (ej: permisos), nos aseguramos que el usuario no quede en un estado limbo
-      // _currentUser = null; 
     } finally {
       _isLoading = false;
-      // DEBUG: Verificación final
-      if (kDebugMode) print("Notificando a la UI. Usuario actual es: ${_currentUser?.email}");
       notifyListeners();
     }
   }
@@ -96,10 +80,7 @@ class AuthService with ChangeNotifier {
   Future<UserCredential?> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        if (kDebugMode) print("Google Sign In cancelado por el usuario.");
-        return null;
-      }
+      if (googleUser == null) return null;
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
@@ -119,9 +100,39 @@ class AuthService with ChangeNotifier {
     try {
       await _googleSignIn.signOut();
       await _auth.signOut();
-      if (kDebugMode) print("Sesión cerrada correctamente.");
     } catch (e) {
       if (kDebugMode) print("Error al cerrar sesión: $e");
+    }
+  }
+
+  // --- FUNCIÓN DE ELIMINAR CUENTA (CORREGIDA) ---
+  // Acepta un texto opcional, pero para Google Sign In no lo usamos para re-auth.
+  Future<void> deleteAccount([String? confirmationText]) async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        // 1. Borrar datos de Firestore
+        await _db.collection('users').doc(user.uid).delete();
+
+        // 2. Borrar usuario de Firebase Auth
+        await user.delete();
+
+        // 3. Limpiar sesión de Google
+        await _googleSignIn.signOut();
+        
+        _currentUser = null;
+        notifyListeners();
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        // Si lleva mucho tiempo logueado, Firebase pide re-ingresar
+        throw 'Por seguridad, cierra sesión e ingresa nuevamente para poder eliminar tu cuenta.';
+      } else {
+        rethrow;
+      }
+    } catch (e) {
+      if (kDebugMode) print("Error eliminando cuenta: $e");
+      rethrow;
     }
   }
 }

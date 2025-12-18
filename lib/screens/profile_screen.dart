@@ -5,13 +5,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:url_launcher/url_launcher.dart'; // <--- NUEVO IMPORT
+import 'package:url_launcher/url_launcher.dart'; 
 import '../models/user_model.dart';
 import '../models/activity_model.dart';
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
 import 'edit_profile_screen.dart';
-import 'edit_activity_screen.dart'; 
+import 'edit_activity_screen.dart';
+import 'admin_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
@@ -52,11 +53,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  // --- DIÁLOGO PARA ELIMINAR CUENTA (COMPATIBLE CON GOOGLE) ---
+  void _showDeleteAccountDialog(BuildContext context) {
+    final confirmationController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Eliminar Cuenta"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Esta acción borrará permanentemente tu perfil y tus datos. No se puede deshacer.",
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              "Escribe la palabra ELIMINAR para confirmar:",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: confirmationController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: "ELIMINAR",
+              ),
+              textCapitalization: TextCapitalization.characters,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancelar")),
+          TextButton(
+            onPressed: () async {
+              if (confirmationController.text.trim() != "ELIMINAR") {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Debes escribir ELIMINAR correctamente."))
+                );
+                return;
+              }
+
+              try {
+                // Llamamos a deleteAccount del AuthService
+                await Provider.of<AuthService>(context, listen: false).deleteAccount();
+                
+                if (mounted) {
+                  Navigator.pop(ctx); 
+                  Navigator.of(context).popUntil((route) => route.isFirst); 
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Tu cuenta ha sido eliminada."))
+                  );
+                }
+              } catch (e) {
+                Navigator.pop(ctx);
+                // Si es un string (error nuestro) o una excepción
+                String errorMsg = e.toString();
+                if (errorMsg.contains("requires-recent-login")) {
+                  errorMsg = "Por seguridad, cierra sesión e inicia de nuevo para poder borrar tu cuenta.";
+                }
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
+              }
+            },
+            child: const Text("BORRAR DEFINITIVAMENTE", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final currentUserUid = Provider.of<AuthService>(context, listen: false).currentUser?.uid;
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final currentUser = authService.currentUser;
+    final currentUserUid = currentUser?.uid;
+    final currentUserEmail = currentUser?.email;
+    
     final isMe = currentUserUid == widget.uid;
     final dataService = Provider.of<DataService>(context, listen: false);
+
+    // RECUERDA PONER TU EMAIL REAL AQUÍ
+    final adminEmails = ['miguel.moreira.ampuero@gmail.com', 'letsgo@yoinn.cl']; 
+    final isAdmin = isMe && adminEmails.contains(currentUserEmail);
 
     return Scaffold(
       appBar: AppBar(
@@ -65,11 +145,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
         foregroundColor: Colors.black,
         actions: [
+          if (isAdmin)
+            IconButton(
+              icon: const Icon(Icons.admin_panel_settings, color: Colors.red),
+              tooltip: "Panel Admin",
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminScreen()));
+              },
+            ),
+
           if (isMe)
             IconButton(
               icon: const Icon(Icons.logout, color: Colors.red),
               onPressed: () {
-                Provider.of<AuthService>(context, listen: false).signOut();
+                authService.signOut();
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
             )
@@ -86,7 +175,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
 
           final user = snapshot.data!;
-          // Verificamos si es Guía Local (>5 actividades creadas)
           final isLocalGuide = user.activitiesCreatedCount > 5;
 
           return SingleChildScrollView(
@@ -94,7 +182,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                // Avatar con borde si es Guía Local
                 Container(
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
@@ -112,7 +199,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Nombre y Badges
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -127,7 +213,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
 
-                // Badge de Guía Local (Gamificación)
                 if (isLocalGuide)
                   Container(
                     margin: const EdgeInsets.only(top: 5),
@@ -149,7 +234,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
 
-                // --- BOTÓN DE INSTAGRAM (Confianza) ---
                 if (user.instagramHandle != null && user.instagramHandle!.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
@@ -163,7 +247,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Puedes usar un asset de icono de IG o este genérico
                           const Icon(Icons.camera_alt, color: Colors.pink, size: 18), 
                           const SizedBox(width: 4),
                           Text("@${user.instagramHandle}", style: const TextStyle(color: Colors.pink, fontWeight: FontWeight.bold)),
@@ -174,7 +257,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 20),
 
-                // Botón Editar Perfil
                 if (isMe)
                   OutlinedButton.icon(
                     onPressed: () async {
@@ -194,7 +276,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 30),
 
-                // Intereses
                 if (user.hobbies.isNotEmpty) ...[
                   const Align(
                     alignment: Alignment.centerLeft,
@@ -217,7 +298,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 30),
                 ],
 
-                // Galería
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -243,7 +323,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 else
                   GridView.builder(
                     shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(), // Scroll lo maneja el padre
+                    physics: const NeverScrollableScrollPhysics(), 
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 8,
@@ -268,7 +348,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Divider(),
                 const SizedBox(height: 20),
 
-                // --- MIS ACTIVIDADES ---
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text("Actividades Creadas", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -326,7 +405,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   },
                 ),
+                
+                // --- BOTÓN DE ELIMINAR CUENTA (REQUERIDO POR APPLE) ---
                 const SizedBox(height: 40),
+                if (isMe)
+                  Center(
+                    child: TextButton(
+                      onPressed: () => _showDeleteAccountDialog(context),
+                      child: Text(
+                        "Eliminar mi cuenta", 
+                        style: TextStyle(color: Colors.red[300], fontSize: 13, decoration: TextDecoration.underline)
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 20),
               ],
             ),
           );

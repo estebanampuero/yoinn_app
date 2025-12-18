@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Necesario para QuerySnapshot
 import '../models/activity_model.dart';
 import '../models/user_model.dart';
 import '../services/data_service.dart';
@@ -125,6 +126,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     final isHost = currentUser?.uid == widget.activity.hostUid;
     final dateStr = DateFormat('EEEE, d MMMM yyyy', 'es_ES').format(widget.activity.dateTime);
     final timeStr = DateFormat('h:mm a').format(widget.activity.dateTime);
+    final dataService = Provider.of<DataService>(context, listen: false);
 
     // --- CÁLCULO DE CUPOS ---
     final spotsLeft = widget.activity.maxAttendees - widget.activity.acceptedCount;
@@ -185,7 +187,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
                   // --- FILA DEL ORGANIZADOR ---
                   FutureBuilder<UserModel?>(
-                    future: Provider.of<DataService>(context, listen: false).getUserProfile(widget.activity.hostUid),
+                    future: dataService.getUserProfile(widget.activity.hostUid),
                     builder: (context, snapshot) {
                       final host = snapshot.data;
                       if (host == null) return const SizedBox();
@@ -243,82 +245,93 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                   const Divider(),
                   const SizedBox(height: 20),
 
-                  // Fecha y Hora
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.calendar_today, color: Colors.orange),
-                      ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(dateStr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(timeStr, style: TextStyle(color: Colors.grey[600])),
-                        ],
-                      )
-                    ],
+                  // Detalles (Fecha, Lugar, Cupos)
+                  _buildDetailRow(Icons.calendar_today, Colors.orange, dateStr, timeStr),
+                  const SizedBox(height: 16),
+                  _buildDetailRow(Icons.location_on, Colors.blue, widget.activity.location, "Ubicación del evento", 
+                    onTap: () async {
+                       final googleUrl = 'https://www.google.com/maps/search/?api=1&query=${widget.activity.lat},${widget.activity.lng}';
+                       if (await canLaunchUrl(Uri.parse(googleUrl))) {
+                         await launchUrl(Uri.parse(googleUrl));
+                       }
+                    },
+                    isLink: true
                   ),
                   const SizedBox(height: 16),
+                  _buildDetailRow(Icons.people, spotsColor, spotsText, "Capacidad total: ${widget.activity.maxAttendees} personas"),
+
+                  const SizedBox(height: 24),
+
+                  // --- LISTA DE ASISTENTES (NUEVO) ---
+                  const Text("Asistentes Confirmados", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
                   
-                  // Ubicación
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.location_on, color: Colors.blue),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(widget.activity.location, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            const Text("Ubicación del evento", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                          ],
+                  StreamBuilder<QuerySnapshot>(
+                    stream: dataService.getActivityApplications(widget.activity.id),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      
+                      // Filtramos solo los aceptados
+                      final acceptedDocs = snapshot.data?.docs.where((doc) => doc['status'] == 'accepted').toList() ?? [];
+
+                      if (acceptedDocs.isEmpty) {
+                        return Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Center(
+                            child: Text("Aún nadie se ha unido. ¡Sé el primero!", style: TextStyle(color: Colors.grey)),
+                          ),
+                        );
+                      }
+
+                      return SizedBox(
+                        height: 70, // Altura para las caritas
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: acceptedDocs.length,
+                          itemBuilder: (context, index) {
+                            final data = acceptedDocs[index].data() as Map<String, dynamic>;
+                            final name = data['applicantName'] ?? '';
+                            final pic = data['applicantProfilePictureUrl'] ?? '';
+                            final uid = data['applicantUid'] ?? '';
+
+                            return GestureDetector(
+                              onTap: () {
+                                // Ir al perfil del asistente
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileScreen(uid: uid)));
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 12.0),
+                                child: Column(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 22,
+                                      backgroundImage: pic.isNotEmpty ? NetworkImage(pic) : null,
+                                      backgroundColor: Colors.blue[100],
+                                      child: pic.isEmpty ? Text(name.isNotEmpty ? name[0] : '?', style: const TextStyle(fontWeight: FontWeight.bold)) : null,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      name.split(' ')[0], // Solo primer nombre
+                                      style: const TextStyle(fontSize: 10),
+                                      overflow: TextOverflow.ellipsis,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.map, color: Colors.blue),
-                        onPressed: () async {
-                           final googleUrl = 'http://maps.google.com/maps?q=${widget.activity.lat},${widget.activity.lng}';
-                           if (await canLaunchUrl(Uri.parse(googleUrl))) {
-                             await launchUrl(Uri.parse(googleUrl));
-                           }
-                        },
-                      )
-                    ],
+                      );
+                    },
                   ),
-                  const SizedBox(height: 16),
-
-                  // --- CUPOS DISPONIBLES ---
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: spotsColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                        child: Icon(Icons.people, color: spotsColor),
-                      ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            spotsText, 
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: spotsColor)
-                          ),
-                          Text(
-                            "Capacidad total: ${widget.activity.maxAttendees} personas", 
-                            style: const TextStyle(color: Colors.grey, fontSize: 12)
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-
+                  
                   const SizedBox(height: 24),
                   
                   // Descripción
@@ -329,7 +342,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                     style: TextStyle(fontSize: 16, color: Colors.grey[800], height: 1.5),
                   ),
                   
-                  const SizedBox(height: 100), // Espacio para el botón flotante
+                  const SizedBox(height: 100), 
                 ],
               ),
             ),
@@ -345,7 +358,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         child: SafeArea(
           child: FutureBuilder<String?>(
             future: currentUser != null 
-                ? Provider.of<DataService>(context, listen: false).getApplicationStatus(widget.activity.id, currentUser.uid)
+                ? dataService.getApplicationStatus(widget.activity.id, currentUser.uid)
                 : Future.value(null),
             builder: (context, snapshot) {
               final status = snapshot.data;
@@ -364,7 +377,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        // --- CORRECCIÓN AQUÍ: Pasamos el objeto activity completo ---
                         MaterialPageRoute(builder: (context) => ChatScreen(
                           activity: widget.activity
                         )),
@@ -388,7 +400,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                     onPressed: () {
                        Navigator.push(
                         context,
-                        // --- CORRECCIÓN AQUÍ: Pasamos el objeto activity completo ---
                         MaterialPageRoute(builder: (context) => ChatScreen(
                           activity: widget.activity
                         )),
@@ -437,6 +448,34 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  // Helper para filas de detalles
+  Widget _buildDetailRow(IconData icon, Color color, String title, String subtitle, {VoidCallback? onTap, bool isLink = false}) {
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+            child: Icon(icon, color: color),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              ],
+            ),
+          ),
+          if (isLink)
+             IconButton(icon: Icon(Icons.open_in_new, color: color, size: 20), onPressed: onTap),
+        ],
       ),
     );
   }
