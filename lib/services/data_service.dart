@@ -51,6 +51,7 @@ class DataService with ChangeNotifier {
     });
   }
 
+  // --- FILTROS ---
   void setSearchQuery(String query) {
     _searchQuery = query;
     _applyFilters();
@@ -89,6 +90,7 @@ class DataService with ChangeNotifier {
     }).toList();
   }
 
+  // --- USUARIOS ---
   Future<UserModel?> getUserProfile(String uid) async {
     try {
       DocumentSnapshot doc = await _db.collection('users').doc(uid).get();
@@ -133,12 +135,11 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // --- SEGURIDAD: REPORTAR Y BLOQUEAR (NUEVO) ---
-  
+  // --- SEGURIDAD ---
   Future<void> reportContent({
     required String reporterUid,
-    required String reportedId, // ActivityId o UserId
-    required String type, // 'activity' o 'user'
+    required String reportedId,
+    required String type,
     required String reason
   }) async {
     await _db.collection('reports').add({
@@ -155,16 +156,15 @@ class DataService with ChangeNotifier {
     await _db.collection('users').doc(myUid).collection('blocked').doc(userToBlockUid).set({
       'timestamp': FieldValue.serverTimestamp()
     });
-    // Aquí podrías agregar lógica para ocultar sus actividades localmente
     notifyListeners();
   }
 
   // --- ACTIVIDADES ---
-
   Future<void> createActivity(Map<String, dynamic> activityData) async {
     try {
       activityData['createdAt'] = FieldValue.serverTimestamp();
-      activityData['acceptedCount'] = 0; // Inicializamos contador de asistentes
+      activityData['acceptedCount'] = 0; // Inicio en 0
+      activityData['participantImages'] = []; // Lista vacía
       await _db.collection('activities').add(activityData);
     } catch (e) {
       if (kDebugMode) print("Error creando actividad: $e");
@@ -199,6 +199,7 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
 
+  // --- SOLICITUDES Y GESTIÓN ---
   Future<void> applyToActivity(String activityId, UserModel user) async {
     try {
       await _db.collection('applications').add({
@@ -239,14 +240,55 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
   
-  Future<void> updateApplicationStatus(String applicationId, String newStatus) async {
-    await _db.collection('applications').doc(applicationId).update({
-      'status': newStatus
-    });
-    // Nota: El incremento de 'acceptedCount' idealmente se hace con Cloud Functions
-    // para seguridad, pero por ahora confiaremos en la lectura del modelo.
+  // ACEPTAR USUARIO (Actualiza actividad)
+  Future<void> acceptApplicant(String applicationId, String activityId, String applicantPhotoUrl) async {
+    try {
+      // 1. Marcar solicitud como aceptada
+      await _db.collection('applications').doc(applicationId).update({
+        'status': 'accepted'
+      });
+
+      // 2. Actualizar la actividad (Contador + Foto para Facepile)
+      await _db.collection('activities').doc(activityId).update({
+        'acceptedCount': FieldValue.increment(1),
+        'participantImages': FieldValue.arrayUnion([applicantPhotoUrl]),
+      });
+      
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) print("Error aceptando usuario: $e");
+    }
   }
 
+  // RECHAZAR USUARIO (Rechazo inicial)
+  Future<void> rejectApplicant(String applicationId) async {
+    await _db.collection('applications').doc(applicationId).update({
+      'status': 'rejected'
+    });
+    notifyListeners();
+  }
+
+  // ELIMINAR PARTICIPANTE YA ACEPTADO (Nuevo)
+  Future<void> removeParticipant(String applicationId, String activityId, String applicantPhotoUrl) async {
+    try {
+      // 1. Cambiar estado a rechazado
+      await _db.collection('applications').doc(applicationId).update({
+        'status': 'rejected'
+      });
+
+      // 2. Actualizar actividad (Restar 1 y quitar foto del Facepile)
+      await _db.collection('activities').doc(activityId).update({
+        'acceptedCount': FieldValue.increment(-1),
+        'participantImages': FieldValue.arrayRemove([applicantPhotoUrl]),
+      });
+      
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) print("Error eliminando participante: $e");
+    }
+  }
+
+  // --- CHAT ---
   Future<void> sendMessage(String activityId, String text, UserModel sender) async {
     try {
       await _db.collection('activities').doc(activityId).collection('messages').add({
@@ -270,6 +312,7 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
 
+  // --- NOTIFICACIONES ---
   Stream<QuerySnapshot> getUserNotifications(String uid) {
     return _db.collection('users')
         .doc(uid)

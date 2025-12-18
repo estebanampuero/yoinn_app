@@ -1,3 +1,4 @@
+import 'dart:io'; // <--- Importante para detectar Platform.isIOS
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -23,16 +24,46 @@ class NotificationService {
       print('✅ Permiso de notificaciones concedido');
       
       // 2. Configurar presentación en primer plano (iOS)
-      // Esto hace que la notificación baje como banner aunque tengas la app abierta
       await _firebaseMessaging.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
         sound: true,
       );
 
-      // 3. Obtener Token y guardarlo
-      String? token = await _firebaseMessaging.getToken();
-      print("📲 FCM TOKEN: $token"); // <-- Si esto imprime null, hay un problema
+      // 3. Obtener Token y guardarlo (CORRECCIÓN PARA EL ERROR APNS)
+      String? token;
+
+      if (Platform.isIOS) {
+        // En iOS, el token de Firebase necesita primero el token de APNS.
+        // A veces tarda unos milisegundos, así que lo verificamos.
+        String? apnsToken = await _firebaseMessaging.getAPNSToken();
+        
+        if (apnsToken == null) {
+          print('⏳ Esperando APNS Token...');
+          // Esperamos 3 segundos y reintentamos
+          await Future.delayed(const Duration(seconds: 3));
+          apnsToken = await _firebaseMessaging.getAPNSToken();
+        }
+
+        if (apnsToken != null) {
+          try {
+            token = await _firebaseMessaging.getToken();
+          } catch (e) {
+            print("Error obteniendo FCM token en iOS: $e");
+          }
+        } else {
+          print("⚠️ No se pudo obtener APNS Token. Las notificaciones pueden fallar en Simulador.");
+        }
+      } else {
+        // En Android es directo
+        try {
+          token = await _firebaseMessaging.getToken();
+        } catch (e) {
+          print("Error obteniendo FCM token en Android: $e");
+        }
+      }
+
+      print("📲 FCM TOKEN: $token");
       
       if (token != null && authService.currentUser != null) {
         await _db.collection('users').doc(authService.currentUser!.uid).update({

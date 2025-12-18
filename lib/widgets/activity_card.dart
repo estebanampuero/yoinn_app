@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/activity_model.dart';
 import '../models/user_model.dart';
 import '../services/data_service.dart';
+import '../screens/profile_screen.dart'; // <--- IMPORTANTE: Para poder navegar al perfil
 
 class ActivityCard extends StatelessWidget {
   final Activity activity;
@@ -18,9 +19,7 @@ class ActivityCard extends StatelessWidget {
     final timeStr = DateFormat('h:mm a').format(activity.dateTime);
     
     // --- LÓGICA FOMO (URGENCIA) ---
-    // Calculamos cuántos lugares quedan reales
     final spotsLeft = activity.maxAttendees - activity.acceptedCount;
-    // Es urgente si queda 1 o 2 lugares
     final isUrgent = spotsLeft > 0 && spotsLeft <= 2;
     final isFull = spotsLeft <= 0;
 
@@ -47,9 +46,9 @@ class ActivityCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // --- IMAGEN ---
               Stack(
                 children: [
-                  // Imagen Principal
                   activity.imageUrl.isNotEmpty
                       ? CachedNetworkImage(
                           imageUrl: activity.imageUrl,
@@ -61,7 +60,7 @@ class ActivityCard extends StatelessWidget {
                         )
                       : Image.network('https://via.placeholder.com/400x200', height: 180, width: double.infinity, fit: BoxFit.cover),
                   
-                  // BADGE DE CATEGORÍA (Arriba derecha)
+                  // BADGE DE CATEGORÍA
                   Positioned(
                     top: 12,
                     right: 12,
@@ -73,13 +72,13 @@ class ActivityCard extends StatelessWidget {
                         boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
                       ),
                       child: Text(
-                        activity.category.toUpperCase(), // Puedes usar tu función de traducción aquí si la tienes
+                        activity.category.toUpperCase(),
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Color(0xFF29B6F6)),
                       ),
                     ),
                   ),
 
-                  // --- BADGE FOMO / URGENCIA (Arriba Izquierda) ---
+                  // --- BADGE FOMO / URGENCIA ---
                   if (isUrgent)
                     Positioned(
                       top: 12,
@@ -120,7 +119,7 @@ class ActivityCard extends StatelessWidget {
                 ],
               ),
               
-              // Contenido Texto
+              // --- INFORMACIÓN ---
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -150,66 +149,124 @@ class ActivityCard extends StatelessWidget {
                         ),
                       ],
                     ),
+
+                    const SizedBox(height: 12),
+
+                    // --- FACEPILE (ASISTENTES) ---
+                    if (activity.acceptedCount > 0)
+                      Row(
+                        children: [
+                          SizedBox(
+                            height: 28,
+                            width: 20.0 * activity.participantImages.take(3).length + 10,
+                            child: Stack(
+                              children: [
+                                for (int i = 0; i < activity.participantImages.take(3).length; i++)
+                                  Positioned(
+                                    left: i * 18.0,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.white, width: 2),
+                                      ),
+                                      child: CircleAvatar(
+                                        radius: 12,
+                                        backgroundImage: NetworkImage(activity.participantImages[i]),
+                                        backgroundColor: Colors.grey[300],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            "+${activity.acceptedCount} van",
+                            style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.w600),
+                          ),
+                          const Spacer(),
+                          if (!isFull)
+                            Text(
+                              "${activity.acceptedCount}/${activity.maxAttendees} cupos",
+                              style: const TextStyle(fontSize: 11, color: Colors.grey),
+                            )
+                        ],
+                      ),
                   ],
                 ),
               ),
               
-              // --- SECCIÓN DEL HOST (Con Gamificación) ---
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE0F7FA).withOpacity(0.3),
-                  border: Border(top: BorderSide(color: const Color(0xFFE0F7FA))),
-                ),
-                child: FutureBuilder<UserModel?>(
-                  future: Provider.of<DataService>(context, listen: false).getUserProfile(activity.hostUid),
-                  builder: (context, snapshot) {
-                    final host = snapshot.data;
-                    final hostName = host?.name ?? '...';
-                    final hostPic = host?.profilePictureUrl;
-                    
-                    // Lógica de Nivel: Si creó > 5 actividades es "Pro/Guía"
-                    final isProHost = (host?.activitiesCreatedCount ?? 0) > 5;
-                    final isVerified = host?.isVerified ?? false;
+              // --- HOST (CLICKEABLE) ---
+              // Envolvemos esta sección en InkWell para que lleve al perfil
+              InkWell(
+                onTap: () {
+                  // Navegar al perfil del organizador
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(uid: activity.hostUid),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9), // Gris muy suave
+                    border: Border(top: BorderSide(color: Colors.grey[200]!)),
+                  ),
+                  child: FutureBuilder<UserModel?>(
+                    future: Provider.of<DataService>(context, listen: false).getUserProfile(activity.hostUid),
+                    builder: (context, snapshot) {
+                      final host = snapshot.data;
+                      final hostName = host?.name ?? '...';
+                      final hostPic = host?.profilePictureUrl;
+                      
+                      final isProHost = (host?.activitiesCreatedCount ?? 0) > 5;
+                      final isVerified = host?.isVerified ?? false;
 
-                    return Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: isProHost 
-                              ? Border.all(color: Colors.amber, width: 2) // Borde Dorado
-                              : null
+                      return Row(
+                        children: [
+                          // Foto pequeña del host
+                          CircleAvatar(
+                            radius: 10,
+                            backgroundImage: hostPic != null && hostPic.isNotEmpty 
+                                ? NetworkImage(hostPic) 
+                                : null,
+                            backgroundColor: Colors.grey[300],
+                            child: hostPic == null || hostPic.isEmpty 
+                                ? const Icon(Icons.person, size: 12, color: Colors.white) 
+                                : null,
                           ),
-                          child: CircleAvatar(
-                            radius: 12,
-                            backgroundColor: const Color(0xFFB2EBF2),
-                            backgroundImage: hostPic != null ? NetworkImage(hostPic) : null,
-                            child: hostPic == null ? const Icon(Icons.person, size: 12, color: Colors.white) : null,
+                          const SizedBox(width: 8),
+                          
+                          Text("Organiza:", style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                          const SizedBox(width: 6),
+                          
+                          Text(
+                            hostName,
+                            style: TextStyle(
+                              fontSize: 12, 
+                              fontWeight: FontWeight.bold,
+                              color: isProHost ? const Color(0xFF0097A7) : Colors.black87
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          hostName,
-                          style: TextStyle(
-                            fontSize: 12, 
-                            color: Colors.grey[700], 
-                            fontWeight: isProHost ? FontWeight.bold : FontWeight.w500
-                          ),
-                        ),
-                        // Iconos de estatus
-                        if (isVerified) ...[
-                          const SizedBox(width: 4),
-                          const Icon(Icons.verified, size: 14, color: Colors.blue),
+                          
+                          if (isVerified) ...[
+                            const SizedBox(width: 4),
+                            const Icon(Icons.verified, size: 14, color: Colors.blue),
+                          ],
+                          if (isProHost) ...[
+                            const SizedBox(width: 4),
+                            const Icon(Icons.star, size: 14, color: Colors.amber),
+                          ],
+                          
+                          const Spacer(),
+                          // Icono de flecha para indicar que es clickeable
+                          const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
                         ],
-                        if (isProHost) ...[
-                          const SizedBox(width: 4),
-                          const Icon(Icons.star, size: 14, color: Colors.amber),
-                        ]
-                      ],
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ],

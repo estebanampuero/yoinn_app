@@ -44,7 +44,7 @@ class ManageActivityScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.people_outline, size: 60, color: Colors.grey),
                   SizedBox(height: 10),
-                  Text("Aún no hay solicitudes", style: TextStyle(color: Colors.grey)),
+                  Text("Aún no hay solicitudes", style: TextStyle(color: Colors.grey, fontSize: 16)),
                 ],
               ),
             );
@@ -53,34 +53,19 @@ class ManageActivityScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // --- SECCIÓN PENDIENTES ---
               if (pending.isNotEmpty) ...[
-                const Text(
-                  "SOLICITUDES PENDIENTES",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
-                ),
+                const Text("Solicitudes Pendientes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 const SizedBox(height: 10),
-                ...pending.map((doc) => _buildApplicantCard(context, doc, isPending: true)),
-                const SizedBox(height: 24),
+                ...pending.map((doc) => _buildUserTile(context, doc, true)),
+                const SizedBox(height: 20),
+                const Divider(),
+                const SizedBox(height: 20),
               ],
 
-              // --- SECCIÓN ACEPTADOS ---
               if (accepted.isNotEmpty) ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "PARTICIPANTES",
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
-                    ),
-                    Text(
-                      "${accepted.length} / ${activity.maxAttendees}",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
+                const Text("Participantes Aceptados", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.green)),
                 const SizedBox(height: 10),
-                ...accepted.map((doc) => _buildApplicantCard(context, doc, isPending: false)),
+                ...accepted.map((doc) => _buildUserTile(context, doc, false)),
               ],
             ],
           );
@@ -89,22 +74,20 @@ class ManageActivityScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildApplicantCard(BuildContext context, DocumentSnapshot doc, {required bool isPending}) {
+  Widget _buildUserTile(BuildContext context, DocumentSnapshot doc, bool isPending) {
     final data = doc.data() as Map<String, dynamic>;
+    final applicationId = doc.id;
     final name = data['applicantName'] ?? 'Desconocido';
     final pic = data['applicantProfilePictureUrl'] ?? '';
-    final applicationId = doc.id;
     final dataService = Provider.of<DataService>(context, listen: false);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: 10),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Row(
           children: [
             CircleAvatar(
-              radius: 24,
               backgroundImage: pic.isNotEmpty ? NetworkImage(pic) : null,
               child: pic.isEmpty ? const Icon(Icons.person) : null,
             ),
@@ -129,16 +112,45 @@ class ManageActivityScreen extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.red),
                     onPressed: () {
-                       dataService.updateApplicationStatus(applicationId, 'rejected');
+                       dataService.rejectApplicant(applicationId);
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.check, color: Colors.green),
                     onPressed: () {
-                       dataService.updateApplicationStatus(applicationId, 'accepted');
+                       dataService.acceptApplicant(applicationId, activity.id, pic);
                     },
                   ),
                 ],
+              )
+            else 
+              // --- BOTÓN ELIMINAR PARTICIPANTE (NUEVO) ---
+              IconButton(
+                icon: const Icon(Icons.person_remove, color: Colors.red),
+                tooltip: "Eliminar participante",
+                onPressed: () {
+                  // Confirmación antes de eliminar
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text("¿Eliminar participante?"),
+                      content: Text("¿Estás seguro de que quieres sacar a $name de la actividad?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text("Cancelar"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(ctx); // Cierra el diálogo
+                            dataService.removeParticipant(applicationId, activity.id, pic);
+                          },
+                          child: const Text("Eliminar", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
           ],
         ),

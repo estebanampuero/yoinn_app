@@ -13,9 +13,9 @@ class Activity {
   final String imageUrl;
   final String hostUid;
   
-  final int acceptedCount;
-  // --- NUEVO CAMPO ---
-  final List<String> participantImages; // Las últimas 3-4 fotos para mostrar en la tarjeta
+  // --- NUEVOS CAMPOS (FOMO y Social) ---
+  final int acceptedCount; 
+  final List<String> participantImages; 
 
   Activity({
     required this.id,
@@ -48,8 +48,8 @@ class Activity {
       maxAttendees: (data['maxAttendees'] ?? 0).toInt(),
       imageUrl: data['imageUrl'] ?? '',
       hostUid: data['hostUid'] ?? '',
+      // Mapeo seguro de nuevos campos
       acceptedCount: (data['acceptedCount'] ?? 0).toInt(),
-      // Mapeo seguro de la lista
       participantImages: List<String>.from(data['participantImages'] ?? []),
     );
   }
@@ -66,6 +66,7 @@ class Activity {
       'maxAttendees': maxAttendees,
       'imageUrl': imageUrl,
       'hostUid': hostUid,
+      // Guardar nuevos campos
       'acceptedCount': acceptedCount,
       'participantImages': participantImages,
     };
