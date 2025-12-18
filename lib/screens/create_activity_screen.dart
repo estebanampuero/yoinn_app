@@ -36,7 +36,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   double? _selectedLng;
 
   final List<String> _categories = [
-    'Sports', 'Food', 'Art', 'Party', 'Travel', 'Music', 'Tech', 'Other'
+    'Deporte', 'Comida', 'Arte', 'Fiesta', 'Viaje', 'Musica', 'Tecnología', 'Otro', 'Bienestar'
   ];
 
   @override

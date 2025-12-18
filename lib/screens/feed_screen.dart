@@ -18,7 +18,7 @@ class _FeedScreenState extends State<FeedScreen> {
   final TextEditingController _searchController = TextEditingController();
   
   final List<String> _filterCategories = [
-    'Todas', 'Sports', 'Food', 'Art', 'Party', 'Travel', 'Music', 'Tech', 'Other'
+    'Todas', 'Deporte', 'Comida', 'Arte', 'Fiesta', 'Viaje', 'Musica', 'Tecnología', 'Otro', 'Bienestar'
   ];
   String _currentCategory = 'Todas';
 

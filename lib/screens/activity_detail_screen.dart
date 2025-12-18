@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:cached_network_image/cached_network_image.dart'; // <--- IMPORTANTE
+import 'package:url_launcher/url_launcher.dart';
 import '../models/activity_model.dart';
-import '../services/auth_service.dart';
+import '../models/user_model.dart';
 import '../services/data_service.dart';
-import 'manage_activity_screen.dart'; 
+import '../services/auth_service.dart';
 import 'chat_screen.dart';
 import 'edit_activity_screen.dart';
+import 'profile_screen.dart'; 
 
 class ActivityDetailScreen extends StatefulWidget {
   final Activity activity;
@@ -21,54 +21,37 @@ class ActivityDetailScreen extends StatefulWidget {
 }
 
 class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
-  String? _myStatus; 
-  bool _isLoading = true;
+  bool _isJoining = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _checkStatus();
-  }
+  void _joinActivity() async {
+    setState(() => _isJoining = true);
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final dataService = Provider.of<DataService>(context, listen: false);
+    final user = authService.currentUser;
 
-  Future<void> _checkStatus() async {
-    final user = Provider.of<AuthService>(context, listen: false).currentUser;
     if (user != null) {
-      final status = await Provider.of<DataService>(context, listen: false)
-          .getApplicationStatus(widget.activity.id, user.uid);
-      
-      if (mounted) {
-        setState(() {
-          _myStatus = status;
-          _isLoading = false;
-        });
-      }
-    } else {
-       if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _handleApply() async {
-    setState(() => _isLoading = true);
-    try {
-      final user = Provider.of<AuthService>(context, listen: false).currentUser;
-      if (user != null) {
-        await Provider.of<DataService>(context, listen: false)
-            .applyToActivity(widget.activity.id, user);
-        await _checkStatus(); 
+      try {
+        final userModel = await dataService.getUserProfile(user.uid);
+        if (userModel != null) {
+          await dataService.applyToActivity(widget.activity.id, userModel);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Solicitud enviada al anfitrión")),
+            );
+          }
+        }
+      } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('¡Solicitud enviada!')),
+            SnackBar(content: Text("Error al unirse: $e")),
           );
         }
       }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-      setState(() => _isLoading = false);
     }
+    if (mounted) setState(() => _isJoining = false);
   }
 
-  // --- LÓGICA DE GESTIÓN (Solo Host) ---
-  void _showHostOptions(BuildContext context) {
+  void _showOptions(BuildContext context, bool isHost) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -77,36 +60,25 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                leading: const Icon(Icons.edit, color: Colors.blue),
-                title: const Text("Editar Actividad"),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => EditActivityScreen(activity: widget.activity)),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.people, color: Colors.orange),
-                title: const Text("Gestionar Participantes"),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ManageActivityScreen(activity: widget.activity)),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text("Eliminar Actividad"),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _confirmDelete();
-                },
-              ),
+              if (isHost)
+                 ListTile(
+                  leading: const Icon(Icons.edit, color: Colors.blue),
+                  title: const Text("Editar Actividad"),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => EditActivityScreen(activity: widget.activity)));
+                  },
+                ),
+              
+              if (!isHost)
+                ListTile(
+                  leading: const Icon(Icons.flag, color: Colors.red),
+                  title: const Text("Reportar Actividad"),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _showReportDialog();
+                  },
+                ),
             ],
           ),
         );
@@ -114,35 +86,36 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     );
   }
 
-  void _confirmDelete() {
+  void _showReportDialog() {
+    final reasonController = TextEditingController();
     showDialog(
-      context: context, 
+      context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("¿Eliminar actividad?"),
-        content: const Text("Esta acción no se puede deshacer."),
+        title: const Text("Reportar"),
+        content: TextField(
+          controller: reasonController,
+          decoration: const InputDecoration(hintText: "¿Por qué reportas esto?"),
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancelar")),
           TextButton(
             onPressed: () async {
-              Navigator.pop(ctx); 
-              await Provider.of<DataService>(context, listen: false).deleteActivity(widget.activity.id);
-              if (mounted) Navigator.pop(context); 
-            }, 
-            child: const Text("Eliminar", style: TextStyle(color: Colors.red))
+              final user = Provider.of<AuthService>(context, listen: false).currentUser;
+              if (user != null) {
+                await Provider.of<DataService>(context, listen: false).reportContent(
+                  reporterUid: user.uid,
+                  reportedId: widget.activity.id,
+                  type: 'activity',
+                  reason: reasonController.text
+                );
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Reporte enviado. Gracias.")));
+              }
+            },
+            child: const Text("Enviar"),
           ),
         ],
       )
-    );
-  }
-
-  void _shareActivity() {
-    final date = DateFormat('dd/MM/yyyy').format(widget.activity.dateTime);
-    Share.share(
-      '¡Únete a mi actividad en Yoinn!\n\n'
-      '${widget.activity.title}\n'
-      '📅 $date\n'
-      '📍 ${widget.activity.location}\n\n'
-      'Descarga la app para unirte.',
     );
   }
 
@@ -150,228 +123,321 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   Widget build(BuildContext context) {
     final currentUser = Provider.of<AuthService>(context).currentUser;
     final isHost = currentUser?.uid == widget.activity.hostUid;
+    final dateStr = DateFormat('EEEE, d MMMM yyyy', 'es_ES').format(widget.activity.dateTime);
+    final timeStr = DateFormat('h:mm a').format(widget.activity.dateTime);
+
+    // --- CÁLCULO DE CUPOS ---
+    final spotsLeft = widget.activity.maxAttendees - widget.activity.acceptedCount;
+    final isFull = spotsLeft <= 0;
+    
+    final spotsColor = spotsLeft <= 2 ? Colors.red : Colors.green;
+    final spotsText = isFull 
+        ? "¡Actividad Llena!" 
+        : "Quedan $spotsLeft cupos disponibles";
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 300.0,
+            expandedHeight: 250,
             pinned: true,
-            actions: [
-              IconButton(
-                icon: const CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.share, color: Color(0xFFF97316), size: 20),
-                ),
-                onPressed: _shareActivity,
-              ),
-              const SizedBox(width: 8),
-              
-              if (isHost || _myStatus == 'accepted')
-                IconButton(
-                  icon: const CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.chat, color: Color(0xFFF97316), size: 20),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChatScreen(activity: widget.activity),
-                      ),
-                    );
-                  },
-                ),
-               const SizedBox(width: 8),
-            ],
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                widget.activity.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  shadows: [Shadow(color: Colors.black45, blurRadius: 10)],
-                  fontSize: 16,
-                ),
-              ),
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // --- IMAGEN DE CABECERA OPTIMIZADA ---
-                  widget.activity.imageUrl.isNotEmpty 
+              background: widget.activity.imageUrl.isNotEmpty
                   ? CachedNetworkImage(
                       imageUrl: widget.activity.imageUrl,
                       fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(color: Colors.grey[900]),
                     )
-                  : Image.network('https://via.placeholder.com/400', fit: BoxFit.cover),
-
-                  const DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.black54],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                  : Image.network('https://via.placeholder.com/400x300', fit: BoxFit.cover),
             ),
+            actions: [
+               IconButton(
+                icon: const CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.more_vert, color: Colors.black)),
+                onPressed: () => _showOptions(context, isHost),
+              ),
+            ],
           ),
-          
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Categoría
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF97316).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: const Color(0xFFE0F7FA),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       widget.activity.category.toUpperCase(),
-                      style: const TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold),
+                      style: const TextStyle(color: Color(0xFF006064), fontWeight: FontWeight.bold, fontSize: 12),
                     ),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Título
+                  Text(
+                    widget.activity.title,
+                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF006064)),
                   ),
                   const SizedBox(height: 20),
 
-                  _buildInfoRow(
-                    Icons.calendar_today, 
-                    DateFormat('EEEE, d MMMM yyyy', 'es_ES').format(widget.activity.dateTime)
-                  ),
-                  const SizedBox(height: 10),
-                  _buildInfoRow(
-                    Icons.access_time, 
-                    DateFormat('h:mm a').format(widget.activity.dateTime)
-                  ),
-                  const SizedBox(height: 10),
-                  _buildInfoRow(Icons.location_on, widget.activity.location),
+                  // --- FILA DEL ORGANIZADOR ---
+                  FutureBuilder<UserModel?>(
+                    future: Provider.of<DataService>(context, listen: false).getUserProfile(widget.activity.hostUid),
+                    builder: (context, snapshot) {
+                      final host = snapshot.data;
+                      if (host == null) return const SizedBox();
 
-                  const SizedBox(height: 30),
-                  const Text("Acerca de la actividad", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
+                      final isPro = host.activitiesCreatedCount > 5;
+                      
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileScreen(uid: host.uid)));
+                        },
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: isPro ? Border.all(color: Colors.amber, width: 2) : null,
+                              ),
+                              child: CircleAvatar(
+                                radius: 22,
+                                backgroundImage: host.profilePictureUrl.isNotEmpty 
+                                    ? NetworkImage(host.profilePictureUrl) 
+                                    : null,
+                                child: host.profilePictureUrl.isEmpty ? const Icon(Icons.person) : null,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      host.name,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    ),
+                                    if (host.isVerified) ...[
+                                      const SizedBox(width: 4),
+                                      const Icon(Icons.verified, color: Colors.blue, size: 16),
+                                    ]
+                                  ],
+                                ),
+                                const Text("Organizador", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                              ],
+                            ),
+                            const Spacer(),
+                            const Icon(Icons.chevron_right, color: Colors.grey),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+                  const Divider(),
+                  const SizedBox(height: 20),
+
+                  // Fecha y Hora
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                        child: const Icon(Icons.calendar_today, color: Colors.orange),
+                      ),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(dateStr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(timeStr, style: TextStyle(color: Colors.grey[600])),
+                        ],
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Ubicación
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                        child: const Icon(Icons.location_on, color: Colors.blue),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.activity.location, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            const Text("Ubicación del evento", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.map, color: Colors.blue),
+                        onPressed: () async {
+                           final googleUrl = 'http://maps.google.com/maps?q=${widget.activity.lat},${widget.activity.lng}';
+                           if (await canLaunchUrl(Uri.parse(googleUrl))) {
+                             await launchUrl(Uri.parse(googleUrl));
+                           }
+                        },
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // --- CUPOS DISPONIBLES ---
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(color: spotsColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                        child: Icon(Icons.people, color: spotsColor),
+                      ),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            spotsText, 
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: spotsColor)
+                          ),
+                          Text(
+                            "Capacidad total: ${widget.activity.maxAttendees} personas", 
+                            style: const TextStyle(color: Colors.grey, fontSize: 12)
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+                  
+                  // Descripción
+                  const Text("Sobre la actividad", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
                   Text(
                     widget.activity.description,
-                    style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[800], height: 1.5),
                   ),
                   
-                  const SizedBox(height: 24),
-                  const Text("Ubicación", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  
-                  SizedBox(
-                    height: 200,
-                    width: double.infinity,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: GoogleMap(
-                        initialCameraPosition: CameraPosition(
-                          target: LatLng(widget.activity.lat, widget.activity.lng),
-                          zoom: 14,
-                        ),
-                        markers: {
-                          Marker(
-                            markerId: const MarkerId('activityLoc'),
-                            position: LatLng(widget.activity.lat, widget.activity.lng),
-                          )
-                        },
-                        zoomControlsEnabled: false,
-                        scrollGesturesEnabled: false,
-                        zoomGesturesEnabled: false,
-                        mapToolbarEnabled: false,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 100), 
+                  const SizedBox(height: 100), // Espacio para el botón flotante
                 ],
               ),
             ),
           ),
         ],
       ),
-      bottomNavigationBar: Container(
+      bottomSheet: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, -5))],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
         ),
-        child: _buildActionButton(isHost),
+        child: SafeArea(
+          child: FutureBuilder<String?>(
+            future: currentUser != null 
+                ? Provider.of<DataService>(context, listen: false).getApplicationStatus(widget.activity.id, currentUser.uid)
+                : Future.value(null),
+            builder: (context, snapshot) {
+              final status = snapshot.data;
+
+              // Botón para el HOST
+              if (isHost) {
+                 return SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: Color(0xFF00BCD4), width: 2),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        // --- CORRECCIÓN AQUÍ: Pasamos el objeto activity completo ---
+                        MaterialPageRoute(builder: (context) => ChatScreen(
+                          activity: widget.activity
+                        )),
+                      );
+                    },
+                    child: const Text("Ir al Chat del Grupo", style: TextStyle(fontSize: 16, color: Color(0xFF00BCD4), fontWeight: FontWeight.bold)),
+                  ),
+                );
+              }
+
+              // Botón si ya fue aceptado
+              if (status == 'accepted') {
+                return SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                       Navigator.push(
+                        context,
+                        // --- CORRECCIÓN AQUÍ: Pasamos el objeto activity completo ---
+                        MaterialPageRoute(builder: (context) => ChatScreen(
+                          activity: widget.activity
+                        )),
+                      );
+                    },
+                    icon: const Icon(Icons.chat),
+                    label: const Text("¡Estás dentro! Ir al Chat", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
+                );
+              }
+
+              // Botón si está pendiente
+              if (status == 'pending') {
+                return SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: null,
+                    child: const Text("Solicitud enviada...", style: TextStyle(fontSize: 16, color: Colors.white)),
+                  ),
+                );
+              }
+
+              // Botón para Unirse
+              return SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isFull ? Colors.grey : const Color(0xFF00BCD4),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: isFull ? null : (_isJoining ? null : _joinActivity),
+                  child: _isJoining
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          isFull ? "AGOTADO" : "Solicitar Unirme", 
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+                        ),
+                ),
+              );
+            },
+          ),
+        ),
       ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, color: const Color(0xFFF97316)),
-        const SizedBox(width: 10),
-        Expanded(child: Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500))),
-      ],
-    );
-  }
-
-  Widget _buildActionButton(bool isHost) {
-    if (_isLoading) {
-      return const SizedBox(height: 50, child: Center(child: CircularProgressIndicator()));
-    }
-
-    if (isHost) {
-      return ElevatedButton(
-        onPressed: () => _showHostOptions(context),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.grey[800],
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        child: const Text("Gestionar Actividad", style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
-      );
-    }
-
-    if (_myStatus == 'accepted') {
-       return ElevatedButton.icon(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChatScreen(activity: widget.activity),
-            ),
-          );
-        },
-        icon: const Icon(Icons.chat),
-        label: const Text("Ir al Chat", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
-    }
-
-    if (_myStatus == 'pending') {
-      return ElevatedButton(
-        onPressed: null, 
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orange[100],
-          disabledBackgroundColor: Colors.orange[100],
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        child: const Text("Solicitud Pendiente", style: TextStyle(fontSize: 18, color: Colors.orange, fontWeight: FontWeight.bold)),
-      );
-    }
-
-    return ElevatedButton(
-      onPressed: _handleApply,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFF97316),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: const Text("Solicitar Unirse", style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
     );
   }
 }
