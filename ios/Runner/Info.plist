@@ -2,21 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Inicio Configuración Google Sign In -->
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<!-- Este valor lo saqué de tu captura de pantalla -->
-				<string>com.googleusercontent.apps.445235194138-s80pe11bldrgooj8n9m7a2jqk5tipq84</string>
-			</array>
-		</dict>
-	</array>
-	<!-- Fin Configuración Google Sign In -->
-
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -37,10 +22,31 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.445235194138-s80pe11bldrgooj8n9m7a2jqk5tipq84</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Necesitamos acceso a tu cámara para tomar fotos de las actividades.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Necesitamos tu ubicación para mejorar la experiencia del mapa.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Necesitamos tu ubicación para sugerirte actividades cercanas y facilitar la creación de eventos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Necesitamos acceso al micrófono para grabar videos de las actividades.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Necesitamos acceso a tu galería para subir fotos de las actividades.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -60,15 +66,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Necesitamos acceso a tu galería para subir fotos de las actividades.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Necesitamos acceso a tu cámara para tomar fotos de las actividades.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Necesitamos acceso al micrófono para grabar videos de las actividades.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Necesitamos tu ubicación para sugerirte actividades cercanas y facilitar la creación de eventos.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Necesitamos tu ubicación para mejorar la experiencia del mapa.</string>
 </dict>
 </plist>
