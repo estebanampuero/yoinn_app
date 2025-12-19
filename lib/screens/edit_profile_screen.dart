@@ -19,10 +19,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _instaController; // <--- Controlador Instagram
   
   final List<String> _allHobbies = [
-    'art_galleries', 'board_games', 'cafes', 'coding', 'concerts', 
-    'cooking', 'cycling', 'dancing', 'dogs', 'fitness', 
-    'gaming', 'hiking', 'movies', 'music', 'outdoors', 
-    'photography', 'reading', 'running', 'traveling', 'yoga'
+    'Deportes',
+    'Comida',
+    'Fiesta',
+    'Música',
+    'Arte',
+    'Aire Libre',
+    'Tecnología',
+    'Cine',
+    'Juegos',
+    'Viajes',
+    'Bienestar',
+    'Educación',
+    'Mascotas',
+    'Negocios',
+    'Idiomas',
+    'Voluntariado',
+    'Fotografía',
+    'Literatura',
+    'Familia',
+    'Otro'
   ];
 
   List<String> _selectedHobbies = [];

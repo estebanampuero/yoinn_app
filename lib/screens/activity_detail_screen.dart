@@ -3,7 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Necesario para QuerySnapshot
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:share_plus/share_plus.dart'; // NECESARIO PARA COMPARTIR
 import '../models/activity_model.dart';
 import '../models/user_model.dart';
 import '../services/data_service.dart';
@@ -52,6 +53,64 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     if (mounted) setState(() => _isJoining = false);
   }
 
+  // --- LÓGICA PARA ELIMINAR ACTIVIDAD ---
+  void _mostrarConfirmacionEliminar(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: const Text("Eliminar Actividad"),
+          content: const Text("¿Estás seguro de que quieres eliminar esta actividad? Esta acción no se puede deshacer."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop(); 
+                _eliminarActividad(); 
+              },
+              child: const Text(
+                "Eliminar",
+                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _eliminarActividad() async {
+    final dataService = Provider.of<DataService>(context, listen: false);
+    try {
+      await dataService.deleteActivity(widget.activity.id); 
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Actividad eliminada correctamente")),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error al eliminar: $e")),
+        );
+      }
+    }
+  }
+
+  // --- LÓGICA PARA COMPARTIR ---
+  void _compartirActividad() {
+    // Generamos un Deep Link simulado. 
+    // Nota: Para que este link abra tu app automáticamente, debes configurar Deep Links (Universal Links) en Android/iOS.
+    final String deepLink = 'https://yoinn.app/activity/${widget.activity.id}';
+    final String mensaje = '¡Hola! Únete a mi actividad "${widget.activity.title}" en Yoinn. Mira los detalles aquí: $deepLink';
+    
+    Share.share(mensaje);
+  }
+
   void _showOptions(BuildContext context, bool isHost) {
     showModalBottomSheet(
       context: context,
@@ -61,19 +120,39 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (isHost)
+              // OPCIÓN COMPARTIR (Visible para todos)
+              ListTile(
+                leading: const Icon(Icons.share, color: Colors.blue),
+                title: const Text("Compartir Actividad"),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _compartirActividad();
+                },
+              ),
+              const Divider(),
+
+              if (isHost) ...[
                  ListTile(
-                  leading: const Icon(Icons.edit, color: Colors.blue),
+                  leading: const Icon(Icons.edit, color: Colors.blueGrey),
                   title: const Text("Editar Actividad"),
                   onTap: () {
                     Navigator.pop(ctx);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => EditActivityScreen(activity: widget.activity)));
                   },
                 ),
+                ListTile(
+                  leading: const Icon(Icons.delete_outline, color: Colors.red),
+                  title: const Text("Eliminar Actividad", style: TextStyle(color: Colors.red)),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _mostrarConfirmacionEliminar(context);
+                  },
+                ),
+              ],
               
               if (!isHost)
                 ListTile(
-                  leading: const Icon(Icons.flag, color: Colors.red),
+                  leading: const Icon(Icons.flag, color: Colors.orange),
                   title: const Text("Reportar Actividad"),
                   onTap: () {
                     Navigator.pop(ctx);
@@ -128,7 +207,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     final timeStr = DateFormat('h:mm a').format(widget.activity.dateTime);
     final dataService = Provider.of<DataService>(context, listen: false);
 
-    // --- CÁLCULO DE CUPOS ---
     final spotsLeft = widget.activity.maxAttendees - widget.activity.acceptedCount;
     final isFull = spotsLeft <= 0;
     
@@ -152,6 +230,11 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                   : Image.network('https://via.placeholder.com/400x300', fit: BoxFit.cover),
             ),
             actions: [
+               // También agregamos un botón rápido de compartir en la barra superior
+               IconButton(
+                icon: const CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.share, color: Colors.black, size: 20)),
+                onPressed: _compartirActividad,
+              ),
                IconButton(
                 icon: const CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.more_vert, color: Colors.black)),
                 onPressed: () => _showOptions(context, isHost),
@@ -164,7 +247,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Categoría
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
@@ -178,14 +260,12 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                   ),
                   const SizedBox(height: 12),
                   
-                  // Título
                   Text(
                     widget.activity.title,
                     style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF006064)),
                   ),
                   const SizedBox(height: 20),
 
-                  // --- FILA DEL ORGANIZADOR ---
                   FutureBuilder<UserModel?>(
                     future: dataService.getUserProfile(widget.activity.hostUid),
                     builder: (context, snapshot) {
@@ -245,12 +325,11 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                   const Divider(),
                   const SizedBox(height: 20),
 
-                  // Detalles (Fecha, Lugar, Cupos)
                   _buildDetailRow(Icons.calendar_today, Colors.orange, dateStr, timeStr),
                   const SizedBox(height: 16),
                   _buildDetailRow(Icons.location_on, Colors.blue, widget.activity.location, "Ubicación del evento", 
                     onTap: () async {
-                       final googleUrl = 'https://www.google.com/maps/search/?api=1&query=${widget.activity.lat},${widget.activity.lng}';
+                       final googleUrl = 'http://googleusercontent.com/maps.google.com/?q=${widget.activity.lat},${widget.activity.lng}';
                        if (await canLaunchUrl(Uri.parse(googleUrl))) {
                          await launchUrl(Uri.parse(googleUrl));
                        }
@@ -262,7 +341,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
                   const SizedBox(height: 24),
 
-                  // --- LISTA DE ASISTENTES (NUEVO) ---
                   const Text("Asistentes Confirmados", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   
@@ -273,7 +351,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                         return const Center(child: CircularProgressIndicator());
                       }
                       
-                      // Filtramos solo los aceptados
                       final acceptedDocs = snapshot.data?.docs.where((doc) => doc['status'] == 'accepted').toList() ?? [];
 
                       if (acceptedDocs.isEmpty) {
@@ -291,7 +368,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                       }
 
                       return SizedBox(
-                        height: 70, // Altura para las caritas
+                        height: 70,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: acceptedDocs.length,
@@ -303,7 +380,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
                             return GestureDetector(
                               onTap: () {
-                                // Ir al perfil del asistente
                                 Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileScreen(uid: uid)));
                               },
                               child: Padding(
@@ -318,7 +394,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      name.split(' ')[0], // Solo primer nombre
+                                      name.split(' ')[0], 
                                       style: const TextStyle(fontSize: 10),
                                       overflow: TextOverflow.ellipsis,
                                     )
@@ -334,7 +410,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                   
                   const SizedBox(height: 24),
                   
-                  // Descripción
                   const Text("Sobre la actividad", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Text(
@@ -363,7 +438,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
             builder: (context, snapshot) {
               final status = snapshot.data;
 
-              // Botón para el HOST
               if (isHost) {
                  return SizedBox(
                   width: double.infinity,
@@ -387,7 +461,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                 );
               }
 
-              // Botón si ya fue aceptado
               if (status == 'accepted') {
                 return SizedBox(
                   width: double.infinity,
@@ -411,7 +484,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                 );
               }
 
-              // Botón si está pendiente
               if (status == 'pending') {
                 return SizedBox(
                   width: double.infinity,
@@ -427,7 +499,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                 );
               }
 
-              // Botón para Unirse
               return SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -452,7 +523,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     );
   }
 
-  // Helper para filas de detalles
   Widget _buildDetailRow(IconData icon, Color color, String title, String subtitle, {VoidCallback? onTap, bool isLink = false}) {
     return InkWell(
       onTap: onTap,

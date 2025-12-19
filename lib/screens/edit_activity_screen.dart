@@ -37,7 +37,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   double? _selectedLng;
 
   final List<String> _categories = [
-    'Sports', 'Food', 'Art', 'Party', 'Travel', 'Music', 'Tech', 'Other'
+    'Deportes', 'Comida', 'Arte', 'Fiestas', 'Viajes', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
   ];
 
   @override

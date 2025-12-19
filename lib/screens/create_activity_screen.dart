@@ -38,7 +38,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
 
   // Lista en Español como solicitaste
   final List<String> _categories = [
-    'Deporte', 'Comida', 'Arte', 'Fiesta', 'Viaje', 'Musica', 'Tecnología', 'Otro', 'Bienestar'
+    'Deportes', 'Comida', 'Arte', 'Fiestas', 'Viajes', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
   ];
 
   @override
