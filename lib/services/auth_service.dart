@@ -2,12 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_messaging/firebase_messaging.dart'; // <--- IMPORTACIÓN NUEVA
 import '../models/user_model.dart';
 
 class AuthService with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseMessaging _messaging = FirebaseMessaging.instance; // <--- INSTANCIA NUEVA
 
   UserModel? _currentUser;
   bool _isLoading = true;
@@ -41,7 +43,7 @@ class AuthService with ChangeNotifier {
         _currentUser = UserModel.fromFirestore(doc);
         
         // Actualizar última conexión
-        _db.collection('users').doc(firebaseUser.uid).update({
+        await _db.collection('users').doc(firebaseUser.uid).update({
           'lastLogin': FieldValue.serverTimestamp(),
         }).catchError((e) => print("Error actualizando lastLogin: $e"));
         
@@ -69,11 +71,47 @@ class AuthService with ChangeNotifier {
         
         _currentUser = newUser;
       }
+
+      // --- NUEVO: GUARDAR EL TOKEN DE NOTIFICACIONES ---
+      // Se ejecuta siempre que el usuario se autentica exitosamente
+      await _saveUserToken(firebaseUser.uid);
+
     } catch (e) {
       if (kDebugMode) print("CRITICAL ERROR en _handleAuthChange: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  // --- NUEVA FUNCIÓN PARA GESTIONAR EL TOKEN ---
+  Future<void> _saveUserToken(String uid) async {
+    try {
+      // 1. Pedir permiso (Crítico para iOS)
+      NotificationSettings settings = await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        // 2. Obtener el token
+        String? token = await _messaging.getToken();
+        
+        if (token != null) {
+          if (kDebugMode) print("FCM Token obtenido: $token");
+          
+          // 3. Guardarlo en Firestore
+          await _db.collection('users').doc(uid).update({
+            'fcmToken': token,
+            'lastTokenUpdate': FieldValue.serverTimestamp(),
+          });
+        }
+      } else {
+        if (kDebugMode) print("Permiso de notificaciones denegado");
+      }
+    } catch (e) {
+      if (kDebugMode) print("Error guardando FCM Token: $e");
     }
   }
 
@@ -105,27 +143,18 @@ class AuthService with ChangeNotifier {
     }
   }
 
-  // --- FUNCIÓN DE ELIMINAR CUENTA (CORREGIDA) ---
-  // Acepta un texto opcional, pero para Google Sign In no lo usamos para re-auth.
   Future<void> deleteAccount([String? confirmationText]) async {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        // 1. Borrar datos de Firestore
         await _db.collection('users').doc(user.uid).delete();
-
-        // 2. Borrar usuario de Firebase Auth
         await user.delete();
-
-        // 3. Limpiar sesión de Google
         await _googleSignIn.signOut();
-        
         _currentUser = null;
         notifyListeners();
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
-        // Si lleva mucho tiempo logueado, Firebase pide re-ingresar
         throw 'Por seguridad, cierra sesión e ingresa nuevamente para poder eliminar tu cuenta.';
       } else {
         rethrow;
