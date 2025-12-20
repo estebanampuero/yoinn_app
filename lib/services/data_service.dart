@@ -192,6 +192,45 @@ class DataService with ChangeNotifier {
     }
   }
 
+  // NUEVO: Limpiar datos de actividad (Reciclaje)
+  Future<void> resetActivityData(String activityId) async {
+    final batch = _db.batch();
+
+    // 1. Borrar Participantes
+    var participants = await _db
+        .collection('applications') // Ojo: Si usas subcolección, ajusta la ruta a activities/id/applications
+        .where('activityId', isEqualTo: activityId) 
+        .get();
+    
+    // Si tus applications están en una colección raíz, esto las borra.
+    // Si están dentro de la actividad (subcolección), usa: _db.collection('activities').doc(activityId).collection('applications').get();
+    
+    for (var doc in participants.docs) {
+      batch.delete(doc.reference);
+    }
+
+    // 2. Borrar Chat
+    var messages = await _db
+        .collection('activities')
+        .doc(activityId)
+        .collection('messages')
+        .get();
+
+    for (var doc in messages.docs) {
+      batch.delete(doc.reference);
+    }
+
+    // 3. Reiniciar contadores en la Actividad principal
+    final activityRef = _db.collection('activities').doc(activityId);
+    batch.update(activityRef, {
+      'acceptedCount': 0,
+      'participantImages': [], // Limpiamos las caritas
+    });
+
+    await batch.commit();
+    notifyListeners();
+  }
+
   Stream<QuerySnapshot> getUserActivitiesStream(String uid) {
     return _db.collection('activities')
         .where('hostUid', isEqualTo: uid)
@@ -199,7 +238,7 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
 
-  // --- SOLICITUDES Y GESTIÓN (LÓGICA COMPLETA) ---
+  // --- SOLICITUDES Y GESTIÓN ---
   
   // 1. Unirse
   Future<void> applyToActivity(String activityId, UserModel user) async {
@@ -242,15 +281,13 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
   
-  // 2. ACEPTAR USUARIO (Actualiza actividad)
+  // 2. ACEPTAR USUARIO
   Future<void> acceptApplicant(String applicationId, String activityId, String applicantPhotoUrl) async {
     try {
-      // A. Marcar solicitud como aceptada
       await _db.collection('applications').doc(applicationId).update({
         'status': 'accepted'
       });
 
-      // B. Actualizar la actividad (Contador + Foto para Facepile)
       await _db.collection('activities').doc(activityId).update({
         'acceptedCount': FieldValue.increment(1),
         'participantImages': FieldValue.arrayUnion([applicantPhotoUrl]),
@@ -270,15 +307,13 @@ class DataService with ChangeNotifier {
     notifyListeners();
   }
 
-  // 4. ELIMINAR PARTICIPANTE YA ACEPTADO
+  // 4. ELIMINAR PARTICIPANTE
   Future<void> removeParticipant(String applicationId, String activityId, String applicantPhotoUrl) async {
     try {
-      // A. Cambiar estado a rechazado
       await _db.collection('applications').doc(applicationId).update({
         'status': 'rejected'
       });
 
-      // B. Actualizar actividad (Restar 1 y quitar foto del Facepile)
       await _db.collection('activities').doc(activityId).update({
         'acceptedCount': FieldValue.increment(-1),
         'participantImages': FieldValue.arrayRemove([applicantPhotoUrl]),
@@ -341,8 +376,6 @@ class DataService with ChangeNotifier {
   }
 
   // --- ZONA ADMINISTRADOR (MODERACIÓN) ---
-
-  // 1. Obtener todos los reportes pendientes
   Stream<QuerySnapshot> getAdminReportsStream() {
     return _db.collection('reports')
         .where('status', isEqualTo: 'pending_review') 
@@ -350,13 +383,9 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
 
-  // 2. Acción: Borrar Actividad (Por reporte)
   Future<void> adminDeleteActivity(String activityId, String reportId) async {
     try {
-      // Borramos la actividad
       await _db.collection('activities').doc(activityId).delete();
-      
-      // Marcamos el reporte como "resuelto - eliminado"
       await _db.collection('reports').doc(reportId).update({
         'status': 'resolved_deleted',
         'resolvedAt': FieldValue.serverTimestamp(),
@@ -367,15 +396,11 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // 3. Acción: Banear Usuario (Por reporte)
   Future<void> adminBanUser(String userId, String reportId) async {
     try {
-      // Marcamos al usuario como baneado
       await _db.collection('users').doc(userId).update({
         'isBanned': true, 
       });
-
-      // Marcamos reporte como resuelto
       await _db.collection('reports').doc(reportId).update({
         'status': 'resolved_banned',
         'resolvedAt': FieldValue.serverTimestamp(),
@@ -386,7 +411,6 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // 4. Acción: Descartar reporte (Falsa alarma)
   Future<void> adminDismissReport(String reportId) async {
     await _db.collection('reports').doc(reportId).update({
       'status': 'dismissed',

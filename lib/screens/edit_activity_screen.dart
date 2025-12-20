@@ -36,8 +36,11 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   double? _selectedLat;
   double? _selectedLng;
 
+  // Lista robusta de categorías
   final List<String> _categories = [
-    'Deportes', 'Comida', 'Arte', 'Fiestas', 'Viajes', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
+    'Deportes', 'Comida', 'Fiesta', 'Música', 'Arte', 'Aire Libre', 'Tecnología', 
+    'Cine', 'Juegos', 'Viajes', 'Bienestar', 'Educación', 'Mascotas', 'Negocios', 
+    'Idiomas', 'Voluntariado', 'Fotografía', 'Literatura', 'Familia', 'Otro'
   ];
 
   @override
@@ -47,12 +50,31 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     _titleController = TextEditingController(text: a.title);
     _descController = TextEditingController(text: a.description);
     _locationController = TextEditingController(text: a.location);
-    _selectedCategory = a.category;
     _maxAttendees = a.maxAttendees;
     _selectedDate = a.dateTime;
     _selectedTime = TimeOfDay.fromDateTime(a.dateTime);
     _selectedLat = a.lat;
     _selectedLng = a.lng;
+
+    // --- LOGICA DE TRADUCCIÓN Y SEGURIDAD PARA CATEGORÍAS ---
+    String incomingCategory = a.category;
+    
+    // Mapa de compatibilidad (Inglés -> Español)
+    Map<String, String> translationMap = {
+      'Sports': 'Deportes', 'Food': 'Comida', 'Art': 'Arte', 'Party': 'Fiesta',
+      'Travel': 'Viajes', 'Music': 'Música', 'Tech': 'Tecnología', 'Other': 'Otro',
+      'Wellness': 'Bienestar', 'Movies': 'Cine', 'Games': 'Juegos'
+    };
+
+    String translated = translationMap[incomingCategory] ?? incomingCategory;
+
+    // Verificar si existe en la lista oficial
+    if (_categories.contains(translated)) {
+      _selectedCategory = translated;
+    } else {
+      // Si no existe, default a 'Otro' para evitar crash
+      _selectedCategory = 'Otro';
+    }
   }
 
   @override
@@ -104,7 +126,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   }
 
   Future<String> _uploadImage() async {
-    if (_imageFile == null) return widget.activity.imageUrl; // Mantener la anterior
+    if (_imageFile == null) return widget.activity.imageUrl; 
     try {
       final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final Reference storageRef = FirebaseStorage.instance
@@ -125,8 +147,10 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     setState(() => _isSaving = true);
 
     try {
+      final dataService = Provider.of<DataService>(context, listen: false);
       String imageUrl = await _uploadImage();
 
+      // Nueva Fecha
       final finalDateTime = DateTime(
         _selectedDate.year,
         _selectedDate.month,
@@ -134,6 +158,15 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
         _selectedTime.hour,
         _selectedTime.minute,
       );
+
+      // --- DETECCIÓN DE RECICLAJE (PASADO -> FUTURO) ---
+      final now = DateTime.now();
+      bool shouldReset = false;
+
+      // Si la actividad original estaba en el pasado Y la nueva es en el futuro
+      if (widget.activity.dateTime.isBefore(now) && finalDateTime.isAfter(now)) {
+        shouldReset = true;
+      }
 
       final updatedData = {
         'title': _titleController.text.trim(),
@@ -147,13 +180,23 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
         'lng': _selectedLng,
       };
 
-      await Provider.of<DataService>(context, listen: false)
-          .updateActivity(widget.activity.id, updatedData);
+      // 1. Actualizar datos básicos
+      await dataService.updateActivity(widget.activity.id, updatedData);
+
+      // 2. Si aplica reciclaje, limpiar participantes y chat
+      if (shouldReset) {
+        await dataService.resetActivityData(widget.activity.id);
+      }
 
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('¡Actividad actualizada!')),
+          SnackBar(
+            content: Text(shouldReset 
+              ? 'Actividad renovada y cupos reiniciados.' 
+              : '¡Actividad actualizada!'),
+            backgroundColor: shouldReset ? Colors.green : const Color(0xFFF97316),
+          ),
         );
       }
     } catch (e) {

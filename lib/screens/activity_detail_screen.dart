@@ -221,6 +221,19 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           SliverAppBar(
             expandedHeight: 250,
             pinned: true,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0), // Un poco de margen para que no pegue al borde
+              child: CircleAvatar(
+                backgroundColor: Colors.white, 
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.black),
+                  onPressed: () => Navigator.pop(context),
+                  // Ajustamos el padding del icono para que quede centrado visualmente
+                  padding: EdgeInsets.zero, 
+                  constraints: const BoxConstraints(),
+                ),
+              ),
+            ),
             flexibleSpace: FlexibleSpaceBar(
               background: widget.activity.imageUrl.isNotEmpty
                   ? CachedNetworkImage(
