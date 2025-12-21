@@ -14,11 +14,12 @@ class UserModel {
   final List<String> galleryImages;
   final Map<String, dynamic>? location;
 
-  // --- NUEVOS CAMPOS (Gamificación y Redes) ---
+  // --- NUEVOS CAMPOS (Gamificación, Redes y ADMIN) ---
   final String? instagramHandle;
   final bool isVerified; // Check azul de confianza
   final int karmaPoints; // Puntos por participar/crear
   final int activitiesCreatedCount; // Para badge de "Guía Local"
+  final bool isAdmin; // <--- NUEVO: Rol de Administrador
 
   UserModel({
     required this.uid,
@@ -37,6 +38,7 @@ class UserModel {
     this.isVerified = false,
     this.karmaPoints = 0,
     this.activitiesCreatedCount = 0,
+    this.isAdmin = false, // Por defecto false
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -60,6 +62,7 @@ class UserModel {
       isVerified: data['isVerified'] ?? false,
       karmaPoints: (data['karmaPoints'] ?? 0).toInt(),
       activitiesCreatedCount: (data['activitiesCreatedCount'] ?? 0).toInt(),
+      isAdmin: data['isAdmin'] ?? false, // <--- Leemos de Firestore
     );
   }
 
@@ -81,6 +84,7 @@ class UserModel {
       'isVerified': isVerified,
       'karmaPoints': karmaPoints,
       'activitiesCreatedCount': activitiesCreatedCount,
+      'isAdmin': isAdmin, // <--- Guardamos en Firestore (útil si creas usuarios manualmente)
       'lastLogin': FieldValue.serverTimestamp(),
     };
   }
