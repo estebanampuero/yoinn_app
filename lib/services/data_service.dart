@@ -20,6 +20,8 @@ class DataService with ChangeNotifier {
   String _selectedCategory = 'Todas';
   DateTime? _selectedDate;
 
+  // --- MEJORA 1: Getter público para que la UI sepa qué categoría pintar ---
+  String get selectedCategory => _selectedCategory;
   DateTime? get currentFilterDate => _selectedDate;
 
   DataService() {
@@ -165,7 +167,16 @@ class DataService with ChangeNotifier {
       activityData['createdAt'] = FieldValue.serverTimestamp();
       activityData['acceptedCount'] = 0; // Inicio en 0
       activityData['participantImages'] = []; // Lista vacía
+      
       await _db.collection('activities').add(activityData);
+
+      // --- MEJORA 2: Resetear filtros para ver la nueva actividad ---
+      _searchQuery = '';
+      _selectedCategory = 'Todas';
+      _selectedDate = null;
+      _applyFilters(); // Re-aplicar filtros limpios
+      notifyListeners(); // Avisar a la UI
+      
     } catch (e) {
       if (kDebugMode) print("Error creando actividad: $e");
       rethrow;

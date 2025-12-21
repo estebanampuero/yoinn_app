@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart'; // <--- IMPORTANTE
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+// Asegúrate de que estos imports sean correctos según la estructura de tus carpetas
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'services/data_service.dart';
@@ -9,15 +12,37 @@ import 'services/notification_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 
+// --- 1. MANEJADOR DE SEGUNDO PLANO (BACKGROUND) ---
+// Esta función debe estar FUERA de cualquier clase (Top Level) y marcada con @pragma
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Es vital inicializar Firebase aquí también porque el hilo está aislado
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  print("🌙 Notificación recibida en Segundo Plano/Terminado: ${message.messageId}");
+}
+
 void main() async {
+  // 1. Bloqueamos el arranque para inicializar los motores nativos
   WidgetsFlutterBinding.ensureInitialized();
   
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
+  // 2. Inicializamos el formato de fechas
   await initializeDateFormatting('es_ES', null);
 
+  // 3. Inicializamos Firebase con manejo de errores
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print("✅ Firebase inicializado correctamente en main()");
+    
+    // 4. Registramos el manejador de segundo plano
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    
+  } catch (e) {
+    print("❌ ERROR CRÍTICO AL INICIALIZAR FIREBASE: $e");
+  }
+
+  // 5. Arrancamos la UI
   runApp(const MyApp());
 }
 
@@ -35,31 +60,28 @@ class MyApp extends StatelessWidget {
         title: 'Yoinn',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          // --- NUEVA PALETA CIAN / AZUL ---
+          // --- PALETA CIAN / AZUL ---
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF00BCD4), // Deep Cyan (Principal)
-            primary: const Color(0xFF00BCD4),   // Deep Cyan
-            secondary: const Color(0xFF29B6F6), // Azul Brillante (Centro del círculo)
-            tertiary: const Color(0xFF26C6DA),  // Turquesa (Transición)
-            surfaceTint: const Color(0xFF4DD0E1), // Cian Claro
-            background: const Color(0xFFF0F8FA), // Fondo muy suave azulado
+            seedColor: const Color(0xFF00BCD4),
+            primary: const Color(0xFF00BCD4),
+            secondary: const Color(0xFF29B6F6),
+            tertiary: const Color(0xFF26C6DA),
+            surfaceTint: const Color(0xFF4DD0E1),
+            background: const Color(0xFFF0F8FA),
           ),
           useMaterial3: true,
-          scaffoldBackgroundColor: const Color(0xFFF0F8FA), // Fondo global ligeramente azulado
+          scaffoldBackgroundColor: const Color(0xFFF0F8FA),
           
-          // Estilo global de botones
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00BCD4), // Deep Cyan
+              backgroundColor: const Color(0xFF00BCD4),
               foregroundColor: Colors.white,
             ),
           ),
-          // Estilo global de botones flotantes
           floatingActionButtonTheme: const FloatingActionButtonThemeData(
             backgroundColor: Color(0xFF00BCD4),
             foregroundColor: Colors.white,
           ),
-          // Estilo de inputs
           inputDecorationTheme: InputDecorationTheme(
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -90,12 +112,55 @@ class _AuthWrapperState extends State<AuthWrapper> {
     _checkAndInitNotifications();
   }
 
-  void _checkAndInitNotifications() {
+  Future<void> _checkAndInitNotifications() async {
+    // Obtenemos el authService sin escuchar cambios para evitar reconstrucciones infinitas
     final authService = Provider.of<AuthService>(context, listen: false);
     
+    // Solo inicializamos si hay usuario logueado y no lo hemos hecho antes
     if (authService.currentUser != null && !_notificationsInitialized) {
-      NotificationService().init(authService);
-      _notificationsInitialized = true;
+      try {
+        FirebaseMessaging messaging = FirebaseMessaging.instance;
+        
+        // --- 3. SOLICITUD DE PERMISOS EXPLÍCITA (Vital para iOS) ---
+        NotificationSettings settings = await messaging.requestPermission(
+          alert: true,
+          announcement: false,
+          badge: true,
+          carPlay: false,
+          criticalAlert: false,
+          provisional: false,
+          sound: true,
+        );
+
+        print('🔔 Permiso de notificaciones estado: ${settings.authorizationStatus}');
+
+        if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+          // Obtener e imprimir el token
+          String? token = await messaging.getToken();
+          print("========================================");
+          print("🔥 TOKEN PARA FIREBASE CONSOLE:");
+          print(token);
+          print("========================================");
+
+          // Inicializar tu servicio de notificaciones personalizado
+          // Asegúrate de que NotificationService maneje errores internamente
+          NotificationService().init(authService, context);
+          
+          // Configurar presentación en primer plano (Heads-up notification)
+          await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+            alert: true, 
+            badge: true,
+            sound: true,
+          );
+        } else {
+          print("⚠️ El usuario no autorizó las notificaciones");
+        }
+        
+        _notificationsInitialized = true;
+        
+      } catch (e) {
+        print("⚠️ Error inicializando notificaciones (posible problema de red): $e");
+      }
     }
   }
 
@@ -104,12 +169,15 @@ class _AuthWrapperState extends State<AuthWrapper> {
     final authService = Provider.of<AuthService>(context);
 
     if (authService.isLoading) {
-      // Loader color Cian
-      return const Scaffold(body: Center(child: CircularProgressIndicator(color: Color(0xFF00BCD4))));
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xFF00BCD4))
+        )
+      );
     }
 
     if (authService.currentUser == null) {
-      _notificationsInitialized = false;
+      _notificationsInitialized = false; // Resetear flag al salir
       return const LoginScreen();
     }
 

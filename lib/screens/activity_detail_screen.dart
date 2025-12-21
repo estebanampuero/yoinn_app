@@ -4,14 +4,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:share_plus/share_plus.dart'; // NECESARIO PARA COMPARTIR
+import 'package:share_plus/share_plus.dart'; 
 import '../models/activity_model.dart';
 import '../models/user_model.dart';
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
 import 'chat_screen.dart';
 import 'edit_activity_screen.dart';
-import 'profile_screen.dart'; 
+import 'profile_screen.dart';
+import 'manage_requests_screen.dart'; // <--- NUEVO IMPORT
 
 class ActivityDetailScreen extends StatefulWidget {
   final Activity activity;
@@ -103,11 +104,8 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
   // --- LÓGICA PARA COMPARTIR ---
   void _compartirActividad() {
-    // Generamos un Deep Link simulado. 
-    // Nota: Para que este link abra tu app automáticamente, debes configurar Deep Links (Universal Links) en Android/iOS.
     final String deepLink = 'https://yoinn.app/activity/${widget.activity.id}';
     final String mensaje = '¡Hola! Únete a mi actividad "${widget.activity.title}" en Yoinn. Mira los detalles aquí: $deepLink';
-    
     Share.share(mensaje);
   }
 
@@ -120,7 +118,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // OPCIÓN COMPARTIR (Visible para todos)
               ListTile(
                 leading: const Icon(Icons.share, color: Colors.blue),
                 title: const Text("Compartir Actividad"),
@@ -222,13 +219,12 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
             expandedHeight: 250,
             pinned: true,
             leading: Padding(
-              padding: const EdgeInsets.all(8.0), // Un poco de margen para que no pegue al borde
+              padding: const EdgeInsets.all(8.0),
               child: CircleAvatar(
                 backgroundColor: Colors.white, 
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.black),
                   onPressed: () => Navigator.pop(context),
-                  // Ajustamos el padding del icono para que quede centrado visualmente
                   padding: EdgeInsets.zero, 
                   constraints: const BoxConstraints(),
                 ),
@@ -243,7 +239,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                   : Image.network('https://via.placeholder.com/400x300', fit: BoxFit.cover),
             ),
             actions: [
-               // También agregamos un botón rápido de compartir en la barra superior
                IconButton(
                 icon: const CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.share, color: Colors.black, size: 20)),
                 onPressed: _compartirActividad,
@@ -444,36 +439,78 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
         ),
         child: SafeArea(
-          child: FutureBuilder<String?>(
-            future: currentUser != null 
-                ? dataService.getApplicationStatus(widget.activity.id, currentUser.uid)
-                : Future.value(null),
+          // CAMBIO CLAVE: Usamos StreamBuilder en vez de FutureBuilder
+          // para escuchar cambios en tiempo real (Unirse -> Pendiente -> Aceptado)
+          child: StreamBuilder<QuerySnapshot>(
+            stream: dataService.getActivityApplications(widget.activity.id),
             builder: (context, snapshot) {
-              final status = snapshot.data;
-
-              if (isHost) {
-                 return SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      side: const BorderSide(color: Color(0xFF00BCD4), width: 2),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ChatScreen(
-                          activity: widget.activity
-                        )),
-                      );
-                    },
-                    child: const Text("Ir al Chat del Grupo", style: TextStyle(fontSize: 16, color: Color(0xFF00BCD4), fontWeight: FontWeight.bold)),
-                  ),
-                );
+              String? status;
+              
+              if (snapshot.hasData && currentUser != null) {
+                // Buscamos si el usuario actual tiene una solicitud
+                try {
+                  final myDoc = snapshot.data!.docs.firstWhere((doc) => doc['applicantUid'] == currentUser.uid);
+                  status = myDoc['status'];
+                } catch (e) {
+                  // No ha solicitado unirse aún
+                  status = null; 
+                }
               }
 
+              // --- VISTA DEL DUEÑO (HOST) ---
+              if (isHost) {
+                 return Column(
+                   mainAxisSize: MainAxisSize.min,
+                   children: [
+                     // Botón para ir al Chat
+                     SizedBox(
+                       width: double.infinity,
+                       height: 45,
+                       child: ElevatedButton(
+                         style: ElevatedButton.styleFrom(
+                           backgroundColor: Colors.white,
+                           side: const BorderSide(color: Color(0xFF00BCD4), width: 2),
+                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                         ),
+                         onPressed: () {
+                           Navigator.push(
+                             context,
+                             MaterialPageRoute(builder: (context) => ChatScreen(
+                               activity: widget.activity
+                             )),
+                           );
+                         },
+                         child: const Text("Ir al Chat del Grupo", style: TextStyle(fontSize: 16, color: Color(0xFF00BCD4), fontWeight: FontWeight.bold)),
+                       ),
+                     ),
+                     const SizedBox(height: 12),
+                     // Botón NUEVO para gestionar solicitudes
+                     SizedBox(
+                       width: double.infinity,
+                       height: 45,
+                       child: ElevatedButton.icon(
+                         style: ElevatedButton.styleFrom(
+                           backgroundColor: const Color(0xFF00BCD4),
+                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                         ),
+                         onPressed: () {
+                           Navigator.push(
+                             context,
+                             MaterialPageRoute(builder: (context) => ManageRequestsScreen(
+                               activityId: widget.activity.id,
+                               activityTitle: widget.activity.title,
+                             )),
+                           );
+                         },
+                         icon: const Icon(Icons.people, color: Colors.white),
+                         label: const Text("Gestionar Solicitudes", style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                       ),
+                     ),
+                   ],
+                 );
+              }
+
+              // --- VISTA DEL PARTICIPANTE ---
               if (status == 'accepted') {
                 return SizedBox(
                   width: double.infinity,

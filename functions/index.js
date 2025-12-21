@@ -1,111 +1,186 @@
 /**
- * Lógica para Notificaciones de Chat en Yoinn App (Versión 2 - Moderna)
+ * Lógica de Notificaciones Yoinn (Chat + Solicitudes + Aceptados)
  */
 
-const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { setGlobalOptions } = require("firebase-functions/v2/options");
 const admin = require("firebase-admin");
 
-// Inicializamos la app
 admin.initializeApp();
 
-// CONFIGURACIÓN GLOBAL
-// Aquí forzamos la región a Chile (southamerica-west1) para que coincida con tu base de datos
+// Configuración regional (Chile)
 setGlobalOptions({ 
     maxInstances: 10,
     region: "southamerica-west1" 
 });
 
+// --- 1. NOTIFICACIÓN DE CHAT ---
 exports.sendChatNotification = onDocumentCreated("activities/{activityId}/messages/{messageId}", async (event) => {
-    // En v2, 'event.data' es el snapshot y 'event.params' tiene los IDs
     const snapshot = event.data;
-    
-    // Si no hay datos (ej. borrado), salimos
-    if (!snapshot) {
-        return;
-    }
+    if (!snapshot) return;
 
     const messageData = snapshot.data();
     const activityId = event.params.activityId;
-
-    const senderName = messageData.senderName || "Alguien";
-    const text = messageData.text || "Envió una imagen"; 
     const senderUid = messageData.senderUid;
+    const text = messageData.text || "📷 Imagen enviada";
 
     try {
-      // 1. Obtener datos de la Actividad
-      const activityDoc = await admin.firestore().collection('activities').doc(activityId).get();
-      if (!activityDoc.exists) {
-        console.log("Actividad no encontrada");
-        return;
-      }
-      
-      const activityData = activityDoc.data();
-      const hostUid = activityData.hostUid;
-      const activityTitle = activityData.title || "Actividad";
+        const activityDoc = await admin.firestore().collection('activities').doc(activityId).get();
+        if (!activityDoc.exists) return;
+        
+        const activityData = activityDoc.data();
+        const hostUid = activityData.hostUid;
+        const activityTitle = activityData.title || "Actividad";
 
-      // 2. Buscar participantes ACEPTADOS
-      const appsSnapshot = await admin.firestore()
-          .collection('applications') 
-          .where('activityId', '==', activityId)
-          .where('status', '==', 'accepted')
-          .get();
+        // Buscar a quién notificar (Host + Participantes Aceptados)
+        const appsSnapshot = await admin.firestore().collection('applications')
+            .where('activityId', '==', activityId)
+            .where('status', '==', 'accepted').get();
 
-      // 3. Filtrar a quién notificar
-      let uidsToNotify = new Set();
-      
-      // A. Incluir al dueño (si no es quien escribió)
-      if (hostUid && hostUid !== senderUid) {
-        uidsToNotify.add(hostUid);
-      }
+        let uidsToNotify = new Set();
+        // Incluir al host si no fue él quien escribió
+        if (hostUid && hostUid !== senderUid) uidsToNotify.add(hostUid);
+        
+        // Incluir participantes
+        appsSnapshot.forEach(doc => {
+            if (doc.data().applicantUid !== senderUid) uidsToNotify.add(doc.data().applicantUid);
+        });
 
-      // B. Incluir participantes (si no son quien escribió)
-      appsSnapshot.forEach(doc => {
-        const participantUid = doc.data().applicantUid;
-        if (participantUid && participantUid !== senderUid) {
-          uidsToNotify.add(participantUid);
+        const promises = [];
+        for (let uid of uidsToNotify) {
+            // A. Guardar en "Campanita" (Firestore)
+            const dbPromise = admin.firestore().collection('users').doc(uid).collection('notifications').add({
+                title: `Nuevo mensaje en "${activityTitle}"`,
+                body: text,
+                type: 'chat', // Importante para navegar al chat
+                activityId: activityId,
+                read: false,
+                timestamp: admin.firestore.FieldValue.serverTimestamp()
+            });
+            promises.push(dbPromise);
+
+            // B. Enviar Push (FCM)
+            const userDoc = await admin.firestore().collection('users').doc(uid).get();
+            const token = userDoc.data()?.fcmToken;
+            
+            if (token) {
+                const payload = {
+                    notification: {
+                        title: `💬 ${activityTitle}`,
+                        body: text,
+                    },
+                    data: {
+                        type: "chat",
+                        activityId: activityId,
+                        click_action: "FLUTTER_NOTIFICATION_CLICK"
+                    }
+                };
+                promises.push(admin.messaging().sendToDevice(token, payload));
+            }
         }
-      });
-
-      if (uidsToNotify.size === 0) {
-        console.log("Nadie a quien notificar");
-        return;
-      }
-
-      // 4. Obtener tokens FCM
-      const tokens = [];
-      for (let uid of uidsToNotify) {
-        const userDoc = await admin.firestore().collection('users').doc(uid).get();
-        const token = userDoc.data()?.fcmToken;
-        if (token) {
-          tokens.push(token);
-        }
-      }
-
-      if (tokens.length === 0) {
-        console.log("No hay tokens registrados");
-        return;
-      }
-
-      // 5. Crear Payload
-      const payload = {
-        notification: {
-          title: `Nuevo mensaje en "${activityTitle}"`,
-          body: `${senderName}: ${text}`,
-          sound: "default",
-        },
-        data: {
-          click_action: "FLUTTER_NOTIFICATION_CLICK",
-          activityId: activityId,
-          type: "chat_message"
-        },
-      };
-
-      // 6. Enviar
-      const response = await admin.messaging().sendToDevice(tokens, payload);
-      console.log("Notificaciones enviadas:", response.successCount);
+        await Promise.all(promises);
 
     } catch (error) {
-      console.error("Error enviando notificación:", error);
+        console.error("Error en chat notification:", error);
+    }
+});
+
+// --- 2. NUEVA SOLICITUD (Alguien quiere unirse) ---
+exports.onNewApplication = onDocumentCreated("applications/{applicationId}", async (event) => {
+    const snapshot = event.data;
+    if (!snapshot) return;
+    
+    const data = snapshot.data();
+    const activityId = data.activityId;
+    const applicantName = data.applicantName || "Alguien";
+    const applicantUid = data.applicantUid;
+
+    try {
+        const activityDoc = await admin.firestore().collection('activities').doc(activityId).get();
+        if (!activityDoc.exists) return;
+
+        const hostUid = activityDoc.data().hostUid;
+        const activityTitle = activityDoc.data().title;
+
+        // No notificar si el host se une a sí mismo
+        if (hostUid === applicantUid) return;
+
+        // A. Guardar en Campanita del Host
+        await admin.firestore().collection('users').doc(hostUid).collection('notifications').add({
+            title: "Nueva Solicitud",
+            body: `${applicantName} quiere unirse a "${activityTitle}"`,
+            type: 'request_join', 
+            activityId: activityId,
+            applicantUid: applicantUid, // <--- MEJORA INTEGRADA: Necesario para ver el perfil del solicitante
+            read: false,
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // B. Enviar Push al Host
+        const hostUserDoc = await admin.firestore().collection('users').doc(hostUid).get();
+        const token = hostUserDoc.data()?.fcmToken;
+        
+        if (token) {
+            await admin.messaging().sendToDevice(token, {
+                notification: {
+                    title: "🙋‍♂️ Nueva Solicitud",
+                    body: `${applicantName} quiere unirse a tu actividad`,
+                },
+                data: {
+                    type: "request_join",
+                    activityId: activityId,
+                    click_action: "FLUTTER_NOTIFICATION_CLICK"
+                }
+            });
+        }
+    } catch (error) {
+        console.error("Error en application notification:", error);
+    }
+});
+
+// --- 3. SOLICITUD ACEPTADA (Notificar al participante) ---
+exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}", async (event) => {
+    const before = event.data.before.data();
+    const after = event.data.after.data();
+
+    // Solo disparar si cambió de 'pending' a 'accepted'
+    if (before.status !== 'accepted' && after.status === 'accepted') {
+        const applicantUid = after.applicantUid;
+        const activityId = after.activityId;
+
+        try {
+            const activityDoc = await admin.firestore().collection('activities').doc(activityId).get();
+            const activityTitle = activityDoc.data()?.title || "Actividad";
+
+            // A. Guardar en Campanita del Participante
+            await admin.firestore().collection('users').doc(applicantUid).collection('notifications').add({
+                title: "¡Solicitud Aceptada!",
+                body: `Ya eres parte de "${activityTitle}".`,
+                type: 'request_accepted',
+                activityId: activityId,
+                read: false,
+                timestamp: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            // B. Enviar Push
+            const userDoc = await admin.firestore().collection('users').doc(applicantUid).get();
+            const token = userDoc.data()?.fcmToken;
+            
+            if (token) {
+                await admin.messaging().sendToDevice(token, {
+                    notification: {
+                        title: "🚀 ¡Estás dentro!",
+                        body: `Te aceptaron en "${activityTitle}"`,
+                    },
+                    data: {
+                        type: "request_accepted",
+                        activityId: activityId,
+                        click_action: "FLUTTER_NOTIFICATION_CLICK"
+                    }
+                });
+            }
+        } catch (error) {
+            console.error("Error en accepted notification:", error);
+        }
     }
 });

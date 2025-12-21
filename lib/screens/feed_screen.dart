@@ -20,7 +20,6 @@ class _FeedScreenState extends State<FeedScreen> {
   final List<String> _filterCategories = [
     'Todas', 'Deporte', 'Comida', 'Arte', 'Fiesta', 'Viaje', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
   ];
-  String _currentCategory = 'Todas';
 
   @override
   void dispose() {
@@ -55,6 +54,7 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
+    // Escuchamos cambios del DataService para redibujar si cambian los filtros externamente
     final dataService = Provider.of<DataService>(context);
     
     return Scaffold(
@@ -160,13 +160,12 @@ class _FeedScreenState extends State<FeedScreen> {
                     separatorBuilder: (c, i) => const SizedBox(width: 8),
                     itemBuilder: (context, index) {
                       final category = _filterCategories[index];
-                      final isSelected = _currentCategory == category;
+                      // INTEGRACIÓN: Usamos el getter del servicio, no variable local
+                      final isSelected = dataService.selectedCategory == category;
                       
                       return GestureDetector(
                         onTap: () {
-                          setState(() {
-                            _currentCategory = category;
-                          });
+                          // Solo llamamos al servicio, él notificará el cambio
                           dataService.setCategoryFilter(category);
                         },
                         child: Container(
