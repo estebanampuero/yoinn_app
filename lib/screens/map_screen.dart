@@ -1,3 +1,5 @@
+import 'dart:ui' as ui; // <--- NECESARIO PARA REDIMENSIONAR
+import 'package:flutter/services.dart'; // <--- NECESARIO PARA LEER ASSETS
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +18,7 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   late GoogleMapController _mapController;
-  BitmapDescriptor? _customPinIcon; // Variable para el icono
+  BitmapDescriptor? _customPinIcon; 
   
   static const CameraPosition _initialPosition = CameraPosition(
     target: LatLng(-41.469, -72.942), 
@@ -31,13 +33,24 @@ class _MapScreenState extends State<MapScreen> {
     _loadCustomMarker();
   }
 
-  // Cargar el pin personalizado
+  // --- FUNCIÓN MÁGICA PARA REDIMENSIONAR ---
+  // Esta función toma tu imagen grande y la devuelve pequeña (width: 120)
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(), targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!.buffer.asUint8List();
+  }
+
+  // Cargar el pin personalizado REDIMENSIONADO
   Future<void> _loadCustomMarker() async {
     try {
-      final icon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(48, 48)), 
-        'assets/icons/pin.png', // <--- TU ARCHIVO DEBE ESTAR AQUÍ
-      );
+      // 120 es un buen tamaño para pantallas retina. 
+      // Si sigue muy grande, baja a 100. Si muy chico, sube a 150.
+      final Uint8List markerIcon = await getBytesFromAsset('assets/icons/pin.png', 120);
+      
+      final icon = BitmapDescriptor.fromBytes(markerIcon);
+      
       setState(() {
         _customPinIcon = icon;
       });
@@ -66,8 +79,7 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               );
             },
-            // AQUI OCURRE EL CAMBIO:
-            // Si _customPinIcon ya cargó, úsalo. Si no, usa el default rojo.
+            // Usamos el icono cargado
             icon: _customPinIcon ?? BitmapDescriptor.defaultMarker,
           );
         }).toSet();
