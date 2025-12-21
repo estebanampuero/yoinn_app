@@ -27,6 +27,25 @@ class _MapScreenState extends State<MapScreen> {
 
   Activity? _selectedActivity;
 
+  // --- ESTILO DEL MAPA (JSON) ---
+  // Esto apaga los POIs (Negocios) y el Transit (Transporte) para limpiar el mapa
+  final String _mapStyle = '''
+    [
+      {
+        "featureType": "poi",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      },
+      {
+        "featureType": "transit",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      }
+    ]
+  ''';
+
   @override
   void initState() {
     super.initState();
@@ -34,7 +53,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // --- FUNCIÓN MÁGICA PARA REDIMENSIONAR ---
-  // Esta función toma tu imagen grande y la devuelve pequeña (width: 120)
+  // Esta función toma tu imagen grande y la devuelve pequeña (width: 100)
   Future<Uint8List> getBytesFromAsset(String path, int width) async {
     ByteData data = await rootBundle.load(path);
     ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(), targetWidth: width);
@@ -45,9 +64,8 @@ class _MapScreenState extends State<MapScreen> {
   // Cargar el pin personalizado REDIMENSIONADO
   Future<void> _loadCustomMarker() async {
     try {
-      // 120 es un buen tamaño para pantallas retina. 
-      // Si sigue muy grande, baja a 100. Si muy chico, sube a 150.
-      final Uint8List markerIcon = await getBytesFromAsset('assets/icons/pin.png', 120);
+      // 100 es un buen tamaño para el mapa
+      final Uint8List markerIcon = await getBytesFromAsset('assets/icons/map_marker.png', 100);
       
       final icon = BitmapDescriptor.fromBytes(markerIcon);
       
@@ -102,6 +120,8 @@ class _MapScreenState extends State<MapScreen> {
                 padding: const EdgeInsets.only(bottom: 150), 
                 onMapCreated: (GoogleMapController controller) {
                   _mapController = controller;
+                  // APLICAMOS EL ESTILO AQUÍ
+                  _mapController.setMapStyle(_mapStyle);
                 },
                 onTap: (_) {
                   if (_selectedActivity != null) {
