@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:purchases_flutter/purchases_flutter.dart'; // RevenueCat
 import '../models/user_model.dart';
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
+import '../services/subscription_service.dart'; // Tu servicio de pagos
 import 'admin_screen.dart';
 
-// Importamos los widgets que creamos en la carpeta /widgets
+// Widgets existentes
 import '../widgets/profile_header.dart';
 import '../widgets/profile_gallery.dart';
 import '../widgets/profile_activities_list.dart';
@@ -19,7 +21,45 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Lógica de borrado de cuenta (Obligatorio para Apple)
+  bool _isPremium = false;
+  bool _loadingPremium = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPremiumStatus();
+  }
+
+  Future<void> _checkPremiumStatus() async {
+    final status = await SubscriptionService.isUserPremium();
+    if (mounted) {
+      setState(() {
+        _isPremium = status;
+        _loadingPremium = false;
+      });
+    }
+  }
+
+  // Lógica para mostrar el Paywall desde el perfil
+  void _showPaywall() async {
+    final package = await SubscriptionService.getCurrentOffering();
+    if (package != null && mounted) {
+      // Usamos el mismo diseño de Paywall que definimos antes
+      // (Si lo tienes en un archivo separado, impórtalo. Si no, defínelo aquí o usa showModalBottomSheet genérico)
+      // Por simplicidad, aquí invoco una función básica, pero idealmente reusas el _PaywallBottomSheet de ActivityDetail
+      _mostrarOferta(package); 
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("No hay ofertas disponibles")));
+    }
+  }
+
+  void _mostrarOferta(Package package) {
+    // Aquí puedes copiar el _PaywallBottomSheet o navegar a una pantalla de suscripción
+    // Para este ejemplo rápido, mostramos un diálogo simple o reusas tu widget
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Abriendo ofertas... (Integra tu Paywall aquí)")));
+    // TIP: Lo mejor es mover _PaywallBottomSheet a un archivo /widgets/paywall_widget.dart para usarlo en todos lados
+  }
+
   void _showDeleteAccountDialog(BuildContext context) {
     final confirmationController = TextEditingController();
     showDialog(
@@ -45,18 +85,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () async {
               if (confirmationController.text.trim() != "ELIMINAR") return;
               try {
-                // Llamamos al servicio para borrar en Firebase Auth y Firestore
                 await Provider.of<AuthService>(context, listen: false).deleteAccount();
                 if (mounted) {
                   Navigator.pop(ctx);
-                  // Volvemos a la pantalla de inicio/login
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 }
               } catch (e) {
                 if (mounted) Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Error al eliminar: $e"))
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
               }
             },
             child: const Text("BORRAR", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
@@ -75,25 +111,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return FutureBuilder<UserModel?>(
       future: dataService.getUserProfile(widget.uid),
       builder: (context, snapshot) {
-        // ESTADO DE CARGA
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
-        // ESTADO DE ERROR O NO EXISTE
         if (!snapshot.hasData || snapshot.data == null) {
-          return Scaffold(
-            appBar: AppBar(title: const Text("Perfil")),
-            body: const Center(child: Text("Usuario no encontrado")),
-          );
+          return Scaffold(appBar: AppBar(), body: const Center(child: Text("Usuario no encontrado")));
         }
 
         final user = snapshot.data!;
-        // Verificamos si es admin usando el campo del modelo
         final isAdmin = isMe && user.isAdmin;
         final isLocalGuide = user.activitiesCreatedCount > 5;
 
-        // UI PRINCIPAL LIMPIA
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
@@ -102,14 +131,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: Colors.white,
             foregroundColor: Colors.black,
             actions: [
-              // BOTÓN DE ADMIN (Solo visible si isAdmin es true)
               if (isAdmin)
                 IconButton(
                   icon: const Icon(Icons.security, color: Colors.red),
-                  tooltip: "Panel de Admin",
                   onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminScreen())),
                 ),
-              // BOTÓN DE LOGOUT
               if (isMe)
                 IconButton(
                   icon: const Icon(Icons.logout, color: Colors.red),
@@ -124,19 +150,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                // 1. CABECERA (Foto, Bio, Botones)
                 ProfileHeader(
                   user: user, 
                   isMe: isMe, 
                   isLocalGuide: isLocalGuide,
-                  onEditProfile: () => setState((){}), // Recarga al volver de editar
+                  onEditProfile: () => setState((){}), 
                 ),
+
+                // --- NUEVO: BANNER DE SUSCRIPCIÓN (Solo si soy yo) ---
+                if (isMe && !_loadingPremium) ...[
+                  const SizedBox(height: 20),
+                  _buildPremiumBanner(),
+                ],
 
                 // 2. GALERÍA
                 ProfileGallery(
                   user: user, 
                   isMe: isMe,
-                  onImageUploaded: () => setState((){}), // Recarga al subir foto
+                  onImageUploaded: () => setState((){}),
                 ),
 
                 const SizedBox(height: 30),
@@ -151,18 +182,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 40),
 
-                // 4. BORRAR CUENTA (Requisito Apple)
                 if (isMe)
                   TextButton(
                     onPressed: () => _showDeleteAccountDialog(context),
-                    child: const Text(
-                      "Eliminar cuenta", 
-                      style: TextStyle(
-                        color: Colors.red, // Rojo explícito para indicar peligro
-                        decoration: TextDecoration.underline,
-                        fontWeight: FontWeight.w500
-                      )
-                    ),
+                    child: const Text("Eliminar cuenta", style: TextStyle(color: Colors.red, decoration: TextDecoration.underline)),
                   ),
                 const SizedBox(height: 20),
               ],
@@ -171,5 +194,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       },
     );
+  }
+
+  // --- WIDGET DEL BANNER PREMIUM ---
+  Widget _buildPremiumBanner() {
+    if (_isPremium) {
+      // Diseño para USUARIO PRO (Ya pagó)
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(colors: [Color(0xFFFFD700), Color(0xFFFFA000)]), // Dorado
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.verified, color: Colors.white, size: 30),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Eres Yoinn PRO", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text("Membresía activa", style: TextStyle(color: Colors.white70, fontSize: 12)),
+                ],
+              ),
+            ),
+            // Botón discreto para gestionar (opcional)
+            InkWell(
+              onTap: () {
+                // Aquí podrías mostrar detalles o botón para cancelar
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Gestiona tu suscripción en los ajustes de Apple/Google.")));
+              },
+              child: const Icon(Icons.settings, color: Colors.white70),
+            )
+          ],
+        ),
+      );
+    } else {
+      // Diseño para USUARIO GRATIS (Venta)
+      return GestureDetector(
+        onTap: _showPaywall, // Abre el Paywall
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          decoration: BoxDecoration(
+            color: const Color(0xFF222222), // Negro elegante o Azul oscuro
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4))],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(color: Color(0xFF00BCD4), shape: BoxShape.circle),
+                child: const Icon(Icons.star, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Pásate a Yoinn PRO", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                    Text("Únete sin límites y destaca", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.grey),
+            ],
+          ),
+        ),
+      );
+    }
   }
 }

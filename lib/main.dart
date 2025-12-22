@@ -9,6 +9,7 @@ import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'services/data_service.dart';
 import 'services/notification_service.dart';
+import 'services/subscription_service.dart'; // <--- IMPORTANTE: REVENUECAT
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 
@@ -38,11 +39,15 @@ void main() async {
     // 4. Registramos el manejador de segundo plano
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     
+    // 5. Inicializamos RevenueCat (Suscripciones)
+    await SubscriptionService.init();
+    print("✅ RevenueCat inicializado correctamente");
+
   } catch (e) {
-    print("❌ ERROR CRÍTICO AL INICIALIZAR FIREBASE: $e");
+    print("❌ ERROR CRÍTICO AL INICIALIZAR FIREBASE O REVENUECAT: $e");
   }
 
-  // 5. Arrancamos la UI
+  // 6. Arrancamos la UI
   runApp(const MyApp());
 }
 
@@ -119,6 +124,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
     // Solo inicializamos si hay usuario logueado y no lo hemos hecho antes
     if (authService.currentUser != null && !_notificationsInitialized) {
       try {
+        // --- Identificar usuario en RevenueCat ---
+        await SubscriptionService.logIn(authService.currentUser!.uid);
+
         FirebaseMessaging messaging = FirebaseMessaging.instance;
         
         // --- 3. SOLICITUD DE PERMISOS EXPLÍCITA (Vital para iOS) ---
@@ -143,7 +151,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
           print("========================================");
 
           // Inicializar tu servicio de notificaciones personalizado
-          // Asegúrate de que NotificationService maneje errores internamente
           NotificationService().init(authService, context);
           
           // Configurar presentación en primer plano (Heads-up notification)

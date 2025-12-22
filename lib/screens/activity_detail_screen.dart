@@ -5,10 +5,14 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:share_plus/share_plus.dart'; 
+import 'package:purchases_flutter/purchases_flutter.dart'; // <--- IMPORTANTE
+
 import '../models/activity_model.dart';
 import '../models/user_model.dart';
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
+import '../services/subscription_service.dart'; // <--- IMPORTANTE
+
 import 'chat_screen.dart';
 import 'edit_activity_screen.dart';
 import 'profile_screen.dart';
@@ -27,10 +31,31 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   bool _isJoining = false;
 
   void _joinActivity() async {
+    // 1. VERIFICACIÓN DE SUSCRIPCIÓN (LÓGICA FREEMIUM)
+    // Primero revisamos si el usuario ya tiene la marca en Firebase (más rápido)
+    final user = Provider.of<AuthService>(context, listen: false).currentUser;
+    bool isPremium = user?.isPremium ?? false;
+
+    // Si Firebase dice false, verificamos con RevenueCat por si acaso (sync fallida o restauración)
+    if (!isPremium) {
+      isPremium = await SubscriptionService.isUserPremium();
+    }
+    
+    // SIMULACIÓN: Límite para usuarios FREE.
+    // Aquí podrías contar cuántas veces se ha unido el usuario esta semana.
+    // Por ahora lo dejamos en 'false' para que puedas probar el flujo normal,
+    // o cámbialo a 'true' para forzar la aparición del Paywall y probar la compra.
+    bool limitReached = false; 
+    
+    // Si NO es premium y alcanzó el límite -> PAYWALL
+    if (!isPremium && limitReached) {
+      _showPaywall(context);
+      return; 
+    }
+
+    // 2. LÓGICA NORMAL DE UNIRSE
     setState(() => _isJoining = true);
-    final authService = Provider.of<AuthService>(context, listen: false);
     final dataService = Provider.of<DataService>(context, listen: false);
-    final user = authService.currentUser;
 
     if (user != null) {
       try {
@@ -52,6 +77,24 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       }
     }
     if (mounted) setState(() => _isJoining = false);
+  }
+
+  void _showPaywall(BuildContext context) async {
+    // Buscamos la oferta configurada en RevenueCat
+    final package = await SubscriptionService.getCurrentOffering();
+    
+    if (package != null && mounted) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
+        builder: (ctx) => _PaywallBottomSheet(package: package),
+      );
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("No hay ofertas disponibles en este momento.")));
+      }
+    }
   }
 
   // --- LÓGICA PARA ELIMINAR ACTIVIDAD ---
@@ -395,7 +438,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
                   const SizedBox(height: 24),
 
-                  // --- MOVIDO ARRIBA: DESCRIPCIÓN ---
+                  // --- DESCRIPCIÓN ---
                   const Text("Sobre la actividad", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Text(
@@ -405,7 +448,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
                   const SizedBox(height: 24),
 
-                  // --- MOVIDO ABAJO: ASISTENTES ---
+                  // --- ASISTENTES ---
                   const Text("Asistentes Confirmados", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   
@@ -635,6 +678,134 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           ),
           if (isLink)
              IconButton(icon: Icon(Icons.open_in_new, color: color, size: 20), onPressed: onTap),
+        ],
+      ),
+    );
+  }
+}
+
+// --- WIDGET DEL PAYWALL (PANTALLA DE PAGO) ---
+// Este widget muestra la oferta y, si es exitosa, ACTUALIZA FIREBASE
+class _PaywallBottomSheet extends StatelessWidget {
+  final Package package;
+  const _PaywallBottomSheet({required this.package});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      height: 600, 
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 40, height: 4,
+            decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+          ),
+          const SizedBox(height: 20),
+          
+          const Icon(Icons.verified, size: 60, color: Color(0xFF00BCD4)),
+          const SizedBox(height: 10),
+          const Text("Desbloquea Yoinn Pro", style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 10),
+          const Text(
+            "Únete a actividades ilimitadas y destaca en la comunidad.",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey, fontSize: 16),
+          ),
+          
+          const SizedBox(height: 30),
+          
+          _buildBenefit(Icons.check_circle, "Unirse a grupos ilimitados"),
+          _buildBenefit(Icons.star, "Insignia PRO en tu perfil"),
+          _buildBenefit(Icons.flash_on, "Acceso prioritario a eventos"),
+          
+          const Spacer(),
+          
+          Text(
+            package.storeProduct.priceString, 
+            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
+          ),
+          const Text("por mes, cancela cuando quieras", style: TextStyle(color: Colors.grey, fontSize: 12)),
+          
+          const SizedBox(height: 20),
+          
+          SizedBox(
+            width: double.infinity,
+            height: 55,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00BCD4),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 5,
+              ),
+              onPressed: () async {
+                // --- COMPRA Y SINCRONIZACIÓN ---
+                final success = await SubscriptionService.purchasePackage(package);
+                if (success) {
+                  // Si pagó en Apple/Google, marcamos como Premium en Firebase
+                  final user = Provider.of<AuthService>(context, listen: false).currentUser;
+                  if (user != null) {
+                    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+                      'isPremium': true
+                    });
+                  }
+
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("¡Bienvenido a Yoinn Pro! 🚀")));
+                  }
+                }
+              },
+              child: const Text("SUSCRIBIRME AHORA", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          TextButton(
+            onPressed: () async {
+              final restored = await SubscriptionService.restorePurchases();
+              if (restored) {
+                // Si restauró, también sincronizamos
+                final user = Provider.of<AuthService>(context, listen: false).currentUser;
+                if (user != null) {
+                  await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+                    'isPremium': true
+                  });
+                }
+                
+                if (context.mounted) Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Compras restauradas con éxito.")));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("No se encontraron compras activas.")));
+              }
+            },
+            child: const Text("Restaurar Compras", style: TextStyle(color: Colors.grey, decoration: TextDecoration.underline)),
+          ),
+          
+          const SizedBox(height: 10),
+          const Text(
+            "Términos de Uso • Política de Privacidad",
+            style: TextStyle(fontSize: 10, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBenefit(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, color: const Color(0xFF00BCD4), size: 24),
+          const SizedBox(width: 12),
+          Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
         ],
       ),
     );

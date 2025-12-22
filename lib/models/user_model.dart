@@ -8,7 +8,7 @@ class UserModel {
   final String bio;
   final String birthDate;
   final List<String> hobbies;
-  final bool isSubscribed;
+  final bool isSubscribed; // Suscripción a newsletter/emails
   final bool phoneVerified;
   final bool profileCompleted;
   final List<String> galleryImages;
@@ -16,10 +16,13 @@ class UserModel {
 
   // --- NUEVOS CAMPOS (Gamificación, Redes y ADMIN) ---
   final String? instagramHandle;
-  final bool isVerified; // Check azul de confianza
-  final int karmaPoints; // Puntos por participar/crear
-  final int activitiesCreatedCount; // Para badge de "Guía Local"
-  final bool isAdmin; // <--- NUEVO: Rol de Administrador
+  final bool isVerified; 
+  final int karmaPoints; 
+  final int activitiesCreatedCount; 
+  final bool isAdmin; 
+  
+  // --- NUEVO CAMPO (Suscripción de Pago) ---
+  final bool isPremium; 
 
   UserModel({
     required this.uid,
@@ -38,7 +41,8 @@ class UserModel {
     this.isVerified = false,
     this.karmaPoints = 0,
     this.activitiesCreatedCount = 0,
-    this.isAdmin = false, // Por defecto false
+    this.isAdmin = false,
+    this.isPremium = false, // Por defecto false
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -62,7 +66,8 @@ class UserModel {
       isVerified: data['isVerified'] ?? false,
       karmaPoints: (data['karmaPoints'] ?? 0).toInt(),
       activitiesCreatedCount: (data['activitiesCreatedCount'] ?? 0).toInt(),
-      isAdmin: data['isAdmin'] ?? false, // <--- Leemos de Firestore
+      isAdmin: data['isAdmin'] ?? false,
+      isPremium: data['isPremium'] ?? false, // <--- Leemos el estado PRO
     );
   }
 
@@ -84,7 +89,8 @@ class UserModel {
       'isVerified': isVerified,
       'karmaPoints': karmaPoints,
       'activitiesCreatedCount': activitiesCreatedCount,
-      'isAdmin': isAdmin, // <--- Guardamos en Firestore (útil si creas usuarios manualmente)
+      'isAdmin': isAdmin,
+      'isPremium': isPremium, // <--- Guardamos el estado PRO
       'lastLogin': FieldValue.serverTimestamp(),
     };
   }

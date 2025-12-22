@@ -20,7 +20,6 @@ class DataService with ChangeNotifier {
   String _selectedCategory = 'Todas';
   DateTime? _selectedDate;
 
-  // --- MEJORA 1: Getter público para que la UI sepa qué categoría pintar ---
   String get selectedCategory => _selectedCategory;
   DateTime? get currentFilterDate => _selectedDate;
 
@@ -141,7 +140,7 @@ class DataService with ChangeNotifier {
   Future<void> reportContent({
     required String reporterUid,
     required String reportedId,
-    required String type, // 'activity' o 'user'
+    required String type, 
     required String reason
   }) async {
     await _db.collection('reports').add({
@@ -165,17 +164,16 @@ class DataService with ChangeNotifier {
   Future<void> createActivity(Map<String, dynamic> activityData) async {
     try {
       activityData['createdAt'] = FieldValue.serverTimestamp();
-      activityData['acceptedCount'] = 0; // Inicio en 0
-      activityData['participantImages'] = []; // Lista vacía
+      activityData['acceptedCount'] = 0; 
+      activityData['participantImages'] = []; 
       
       await _db.collection('activities').add(activityData);
 
-      // --- MEJORA 2: Resetear filtros para ver la nueva actividad ---
       _searchQuery = '';
       _selectedCategory = 'Todas';
       _selectedDate = null;
-      _applyFilters(); // Re-aplicar filtros limpios
-      notifyListeners(); // Avisar a la UI
+      _applyFilters(); 
+      notifyListeners(); 
       
     } catch (e) {
       if (kDebugMode) print("Error creando actividad: $e");
@@ -203,24 +201,18 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // NUEVO: Limpiar datos de actividad (Reciclaje)
   Future<void> resetActivityData(String activityId) async {
     final batch = _db.batch();
 
-    // 1. Borrar Participantes
     var participants = await _db
-        .collection('applications') // Ojo: Si usas subcolección, ajusta la ruta a activities/id/applications
+        .collection('applications') 
         .where('activityId', isEqualTo: activityId) 
         .get();
-    
-    // Si tus applications están en una colección raíz, esto las borra.
-    // Si están dentro de la actividad (subcolección), usa: _db.collection('activities').doc(activityId).collection('applications').get();
     
     for (var doc in participants.docs) {
       batch.delete(doc.reference);
     }
 
-    // 2. Borrar Chat
     var messages = await _db
         .collection('activities')
         .doc(activityId)
@@ -231,11 +223,10 @@ class DataService with ChangeNotifier {
       batch.delete(doc.reference);
     }
 
-    // 3. Reiniciar contadores en la Actividad principal
     final activityRef = _db.collection('activities').doc(activityId);
     batch.update(activityRef, {
       'acceptedCount': 0,
-      'participantImages': [], // Limpiamos las caritas
+      'participantImages': [], 
     });
 
     await batch.commit();
@@ -251,7 +242,6 @@ class DataService with ChangeNotifier {
 
   // --- SOLICITUDES Y GESTIÓN ---
   
-  // 1. Unirse
   Future<void> applyToActivity(String activityId, UserModel user) async {
     try {
       await _db.collection('applications').add({
@@ -292,7 +282,6 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
   
-  // 2. ACEPTAR USUARIO
   Future<void> acceptApplicant(String applicationId, String activityId, String applicantPhotoUrl) async {
     try {
       await _db.collection('applications').doc(applicationId).update({
@@ -310,7 +299,6 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // 3. RECHAZAR USUARIO
   Future<void> rejectApplicant(String applicationId) async {
     await _db.collection('applications').doc(applicationId).update({
       'status': 'rejected'
@@ -318,7 +306,6 @@ class DataService with ChangeNotifier {
     notifyListeners();
   }
 
-  // 4. ELIMINAR PARTICIPANTE
   Future<void> removeParticipant(String applicationId, String activityId, String applicantPhotoUrl) async {
     try {
       await _db.collection('applications').doc(applicationId).update({
@@ -336,7 +323,8 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // --- CHAT ---
+  // --- CHAT MODERNO ---
+  
   Future<void> sendMessage(String activityId, String text, UserModel sender) async {
     try {
       await _db.collection('activities').doc(activityId).collection('messages').add({
@@ -345,10 +333,32 @@ class DataService with ChangeNotifier {
         'senderName': sender.name,
         'senderProfilePictureUrl': sender.profilePictureUrl,
         'timestamp': FieldValue.serverTimestamp(),
+        'readBy': [sender.uid],
+        'likedBy': [], // INICIALIZAMOS EL ARRAY DE LIKES
       });
     } catch (e) {
       if (kDebugMode) print("Error enviando mensaje: $e");
       rethrow;
+    }
+  }
+
+  // NUEVO: DAR/QUITAR LIKE (CORAZÓN)
+  Future<void> toggleMessageLike(String activityId, String messageId, String myUid, bool currentlyLiked) async {
+    final docRef = _db.collection('activities')
+        .doc(activityId)
+        .collection('messages')
+        .doc(messageId);
+
+    if (currentlyLiked) {
+      // Quitar like
+      await docRef.update({
+        'likedBy': FieldValue.arrayRemove([myUid])
+      });
+    } else {
+      // Dar like
+      await docRef.update({
+        'likedBy': FieldValue.arrayUnion([myUid])
+      });
     }
   }
 
@@ -358,6 +368,49 @@ class DataService with ChangeNotifier {
         .collection('messages')
         .orderBy('timestamp', descending: true)
         .snapshots();
+  }
+
+  Future<void> markMessagesAsRead(String activityId, String myUid) async {
+    final query = await _db.collection('activities')
+        .doc(activityId)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .limit(50)
+        .get();
+
+    final batch = _db.batch();
+    bool needsCommit = false;
+
+    for (var doc in query.docs) {
+      List readBy = doc['readBy'] ?? [];
+      if (!readBy.contains(myUid)) {
+        batch.update(doc.reference, {
+          'readBy': FieldValue.arrayUnion([myUid])
+        });
+        needsCommit = true;
+      }
+    }
+
+    if (needsCommit) {
+      await batch.commit();
+    }
+  }
+
+  Future<void> setTypingStatus(String activityId, String uid, bool isTyping) async {
+    final docRef = _db.collection('activities').doc(activityId).collection('typing').doc(uid);
+    
+    if (isTyping) {
+      await docRef.set({
+        'isTyping': true,
+        'timestamp': FieldValue.serverTimestamp(), 
+      });
+    } else {
+      await docRef.delete();
+    }
+  }
+
+  Stream<QuerySnapshot> getTypingStatus(String activityId) {
+    return _db.collection('activities').doc(activityId).collection('typing').snapshots();
   }
 
   // --- NOTIFICACIONES ---
@@ -386,7 +439,7 @@ class DataService with ChangeNotifier {
         .map((snapshot) => snapshot.docs.length);
   }
 
-  // --- ZONA ADMINISTRADOR (MODERACIÓN) ---
+  // --- ZONA ADMINISTRADOR ---
   Stream<QuerySnapshot> getAdminReportsStream() {
     return _db.collection('reports')
         .where('status', isEqualTo: 'pending_review') 
