@@ -3,6 +3,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart'; // <--- IMPORTACIÓN NUEVA
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
+import 'dart:math';
 import '../models/user_model.dart';
 
 class AuthService with ChangeNotifier {
@@ -113,6 +117,72 @@ class AuthService with ChangeNotifier {
     } catch (e) {
       if (kDebugMode) print("Error guardando FCM Token: $e");
     }
+  }
+
+  // --- INICIAR SESIÓN CON APPLE (OBLIGATORIO PARA IOS) ---
+  Future<User?> signInWithApple() async {
+    try {
+      // 1. Generar un "nonce" aleatorio (Requisito de seguridad de Apple/Firebase)
+      final rawNonce = _generateNonce();
+      final sha256Nonce = sha256.convert(utf8.encode(rawNonce)).toString();
+
+      // 2. Pedir credenciales a Apple
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: sha256Nonce,
+      );
+
+      // 3. Crear credencial para Firebase
+      final OAuthCredential credential = OAuthProvider("apple.com").credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+        rawNonce: rawNonce,
+      );
+
+      // 4. Iniciar sesión en Firebase
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      
+      // 5. Guardar datos básicos si es usuario nuevo
+      if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+        // Apple a veces solo da el nombre la primera vez, hay que guardarlo rápido
+        String name = "Usuario Apple";
+        if (appleCredential.givenName != null) {
+          name = "${appleCredential.givenName} ${appleCredential.familyName ?? ''}";
+        }
+        await _db.collection('users').doc(userCredential.user!.uid).set({
+          'uid': userCredential.user!.uid,
+          'email': userCredential.user!.email ?? '',
+          'name': name,
+          'profilePictureUrl': '', 
+          'createdAt': FieldValue.serverTimestamp(),
+          'activitiesCreatedCount': 0,
+          'isAdmin': false,
+          'isVerified': false,
+          'bio': '',
+          'birthDate': '',
+          'hobbies': [],
+          'isSubscribed': false,
+          'phoneVerified': false,
+          'profileCompleted': false,
+          'galleryImages': [],
+          'location': null,
+        });
+      }
+      return userCredential.user;
+    } catch (e) {
+      if (kDebugMode) print("Error Apple Sign In: $e");
+      return null;
+    }
+  }
+
+  // Función auxiliar para el nonce
+  String _generateNonce([int length = 32]) {
+    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    final random = Random.secure();
+    return List.generate(length, (_) => charset[random.nextInt(charset.length)]).join();
   }
 
   Future<UserCredential?> signInWithGoogle() async {

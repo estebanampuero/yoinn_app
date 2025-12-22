@@ -1,6 +1,8 @@
+import 'dart:io'; // Para detectar si es iOS
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async'; // Necesario para el auto-play del slider
+import 'package:sign_in_with_apple/sign_in_with_apple.dart'; // Importante
 import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -14,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   Timer? _timer;
+  bool _isLoading = false;
 
   // Datos para el carrusel de bienvenida
   final List<Map<String, dynamic>> _onboardingData = [
@@ -60,6 +63,22 @@ class _LoginScreenState extends State<LoginScreen> {
     _timer?.cancel();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _handleAppleLogin() async {
+    setState(() => _isLoading = true);
+    final authService = Provider.of<AuthService>(context, listen: false);
+    
+    final user = await authService.signInWithApple();
+    
+    if (user == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text("Error al iniciar con Apple"))
+        );
+      }
+    }
+    if (mounted) setState(() => _isLoading = false);
   }
 
   @override
@@ -121,52 +140,68 @@ class _LoginScreenState extends State<LoginScreen> {
 
             const Spacer(flex: 2), // Empuja el botón hacia abajo
 
-            // --- 4. BOTÓN DE GOOGLE ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 55,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Provider.of<AuthService>(context, listen: false).signInWithGoogle();
-                      },
-                      // Usamos el logo oficial de Google desde la red para que se vea nítido
-                      icon: Image.network(
-                        'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
-                        height: 24,
-                        loadingBuilder: (context, child, loadingProgress) {
-                           if (loadingProgress == null) return child;
-                           return const Icon(Icons.login, color: Colors.grey); // Fallback mientras carga
-                        },
-                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.login, color: Colors.grey),
+            // --- 4. BOTONES DE INICIO DE SESIÓN ---
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                child: Column(
+                  children: [
+                    // --- BOTÓN APPLE (Solo visible en iOS) ---
+                    if (Platform.isIOS) 
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: SignInWithAppleButton(
+                          onPressed: _handleAppleLogin,
+                          height: 50,
+                          style: SignInWithAppleButtonStyle.black, // Estilo nativo
+                          borderRadius: const BorderRadius.all(Radius.circular(30)), // Coincidir con el de Google
+                        ),
                       ),
-                      label: const Text("Continuar con Google"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black87,
-                        elevation: 3,
-                        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          side: const BorderSide(color: Color(0xFFE0E0E0)), // Borde gris suave
+
+                    // --- BOTÓN DE GOOGLE ---
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50, // Ajustado a 50 para coincidir con Apple si está presente
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Provider.of<AuthService>(context, listen: false).signInWithGoogle();
+                        },
+                        // Usamos el logo oficial de Google desde la red para que se vea nítido
+                        icon: Image.network(
+                          'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
+                          height: 24,
+                          loadingBuilder: (context, child, loadingProgress) {
+                             if (loadingProgress == null) return child;
+                             return const Icon(Icons.login, color: Colors.grey); // Fallback mientras carga
+                          },
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.login, color: Colors.grey),
+                        ),
+                        label: const Text("Continuar con Google"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black87,
+                          elevation: 3,
+                          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            side: const BorderSide(color: Color(0xFFE0E0E0)), // Borde gris suave
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Texto legal pequeño (Da confianza)
-                  const Text(
-                    "Al continuar, aceptas nuestros Términos de Servicio\ny Política de Privacidad.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 11, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 10),
-                ],
+                    const SizedBox(height: 20),
+                    // Texto legal pequeño (Da confianza)
+                    const Text(
+                      "Al continuar, aceptas nuestros Términos de Servicio\ny Política de Privacidad.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
