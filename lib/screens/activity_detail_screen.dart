@@ -12,7 +12,7 @@ import '../services/auth_service.dart';
 import 'chat_screen.dart';
 import 'edit_activity_screen.dart';
 import 'profile_screen.dart';
-import 'manage_requests_screen.dart'; // <--- NUEVO IMPORT
+import 'manage_requests_screen.dart'; 
 
 class ActivityDetailScreen extends StatefulWidget {
   final Activity activity;
@@ -147,7 +147,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                 ),
               ],
               
-              if (!isHost)
+              if (!isHost) ...[
                 ListTile(
                   leading: const Icon(Icons.flag, color: Colors.orange),
                   title: const Text("Reportar Actividad"),
@@ -156,6 +156,15 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                     _showReportDialog();
                   },
                 ),
+                ListTile(
+                  leading: const Icon(Icons.block, color: Colors.grey),
+                  title: const Text("Bloquear Usuario"),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _showBlockDialog();
+                  },
+                ),
+              ],
             ],
           ),
         );
@@ -164,37 +173,74 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   }
 
   void _showReportDialog() {
-    final reasonController = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Reportar"),
-        content: TextField(
-          controller: reasonController,
-          decoration: const InputDecoration(hintText: "¿Por qué reportas esto?"),
-        ),
+        title: const Text("Reportar Actividad"),
+        content: const Text("¿Por qué quieres reportar esto?"),
+        actions: [
+          TextButton(
+            child: const Text("Es Spam"),
+            onPressed: () => _submitReport(ctx, "Spam"),
+          ),
+          TextButton(
+            child: const Text("Contenido Ofensivo"),
+            onPressed: () => _submitReport(ctx, "Ofensivo/Inapropiado"),
+          ),
+          TextButton(
+            child: const Text("Cancelar"),
+            onPressed: () => Navigator.pop(ctx),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submitReport(BuildContext ctx, String reason) async {
+    Navigator.pop(ctx); 
+    
+    try {
+      await FirebaseFirestore.instance.collection('reports').add({
+        'activityId': widget.activity.id, 
+        'reason': reason,
+        'timestamp': FieldValue.serverTimestamp(),
+        'reportedBy': Provider.of<AuthService>(context, listen: false).currentUser?.uid ?? 'anon',
+        'type': 'activity_report'
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Gracias. Revisaremos este contenido en menos de 24h."),
+          backgroundColor: Colors.green,
+        )
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error al enviar reporte.")));
+    }
+  }
+
+  void _showBlockDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Bloquear Usuario"),
+        content: const Text("No verás más contenido de este usuario. ¿Continuar?"),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancelar")),
           TextButton(
-            onPressed: () async {
-              final user = Provider.of<AuthService>(context, listen: false).currentUser;
-              if (user != null) {
-                await Provider.of<DataService>(context, listen: false).reportContent(
-                  reporterUid: user.uid,
-                  reportedId: widget.activity.id,
-                  type: 'activity',
-                  reason: reasonController.text
-                );
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Reporte enviado. Gracias.")));
-              }
+            onPressed: () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Usuario bloqueado."))
+              );
             },
-            child: const Text("Enviar"),
+            child: const Text("BLOQUEAR", style: TextStyle(color: Colors.red)),
           ),
         ],
-      )
+      ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -349,6 +395,17 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
                   const SizedBox(height: 24),
 
+                  // --- MOVIDO ARRIBA: DESCRIPCIÓN ---
+                  const Text("Sobre la actividad", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(
+                    widget.activity.description,
+                    style: TextStyle(fontSize: 16, color: Colors.grey[800], height: 1.5),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // --- MOVIDO ABAJO: ASISTENTES ---
                   const Text("Asistentes Confirmados", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   
@@ -416,15 +473,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                     },
                   ),
                   
-                  const SizedBox(height: 24),
-                  
-                  const Text("Sobre la actividad", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.activity.description,
-                    style: TextStyle(fontSize: 16, color: Colors.grey[800], height: 1.5),
-                  ),
-                  
                   const SizedBox(height: 100), 
                 ],
               ),
@@ -439,30 +487,24 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
         ),
         child: SafeArea(
-          // CAMBIO CLAVE: Usamos StreamBuilder en vez de FutureBuilder
-          // para escuchar cambios en tiempo real (Unirse -> Pendiente -> Aceptado)
           child: StreamBuilder<QuerySnapshot>(
             stream: dataService.getActivityApplications(widget.activity.id),
             builder: (context, snapshot) {
               String? status;
               
               if (snapshot.hasData && currentUser != null) {
-                // Buscamos si el usuario actual tiene una solicitud
                 try {
                   final myDoc = snapshot.data!.docs.firstWhere((doc) => doc['applicantUid'] == currentUser.uid);
                   status = myDoc['status'];
                 } catch (e) {
-                  // No ha solicitado unirse aún
                   status = null; 
                 }
               }
 
-              // --- VISTA DEL DUEÑO (HOST) ---
               if (isHost) {
                  return Column(
                    mainAxisSize: MainAxisSize.min,
                    children: [
-                     // Botón para ir al Chat
                      SizedBox(
                        width: double.infinity,
                        height: 45,
@@ -484,7 +526,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                        ),
                      ),
                      const SizedBox(height: 12),
-                     // Botón NUEVO para gestionar solicitudes
                      SizedBox(
                        width: double.infinity,
                        height: 45,
@@ -510,7 +551,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                  );
               }
 
-              // --- VISTA DEL PARTICIPANTE ---
               if (status == 'accepted') {
                 return SizedBox(
                   width: double.infinity,

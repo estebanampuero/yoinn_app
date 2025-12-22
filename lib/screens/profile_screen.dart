@@ -19,7 +19,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Lógica de borrado de cuenta (se queda aquí por seguridad)
+  // Lógica de borrado de cuenta (Obligatorio para Apple)
   void _showDeleteAccountDialog(BuildContext context) {
     final confirmationController = TextEditingController();
     showDialog(
@@ -30,7 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Esta acción es irreversible. Se borrarán tus datos."),
+            const Text("Esta acción es irreversible. Se borrarán tus datos y actividades."),
             const SizedBox(height: 10),
             const Text("Escribe ELIMINAR para confirmar:", style: TextStyle(fontWeight: FontWeight.bold)),
             TextField(
@@ -45,16 +45,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () async {
               if (confirmationController.text.trim() != "ELIMINAR") return;
               try {
+                // Llamamos al servicio para borrar en Firebase Auth y Firestore
                 await Provider.of<AuthService>(context, listen: false).deleteAccount();
                 if (mounted) {
                   Navigator.pop(ctx);
+                  // Volvemos a la pantalla de inicio/login
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 }
               } catch (e) {
                 if (mounted) Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error al eliminar: $e"))
+                );
               }
             },
-            child: const Text("BORRAR", style: TextStyle(color: Colors.red)),
+            child: const Text("BORRAR", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -84,6 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
 
         final user = snapshot.data!;
+        // Verificamos si es admin usando el campo del modelo
         final isAdmin = isMe && user.isAdmin;
         final isLocalGuide = user.activitiesCreatedCount > 5;
 
@@ -96,11 +102,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: Colors.white,
             foregroundColor: Colors.black,
             actions: [
+              // BOTÓN DE ADMIN (Solo visible si isAdmin es true)
               if (isAdmin)
                 IconButton(
                   icon: const Icon(Icons.security, color: Colors.red),
+                  tooltip: "Panel de Admin",
                   onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminScreen())),
                 ),
+              // BOTÓN DE LOGOUT
               if (isMe)
                 IconButton(
                   icon: const Icon(Icons.logout, color: Colors.red),
@@ -142,11 +151,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 40),
 
-                // 4. BORRAR CUENTA
+                // 4. BORRAR CUENTA (Requisito Apple)
                 if (isMe)
                   TextButton(
                     onPressed: () => _showDeleteAccountDialog(context),
-                    child: const Text("Eliminar cuenta", style: TextStyle(color: Colors.red, decoration: TextDecoration.underline)),
+                    child: const Text(
+                      "Eliminar cuenta", 
+                      style: TextStyle(
+                        color: Colors.red, // Rojo explícito para indicar peligro
+                        decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.w500
+                      )
+                    ),
                   ),
                 const SizedBox(height: 20),
               ],
