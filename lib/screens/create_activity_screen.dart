@@ -1,4 +1,5 @@
-import 'dart:io';
+import 'dart:io'; 
+import 'package:flutter/cupertino.dart'; 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../services/auth_service.dart';
 import '../services/data_service.dart';
-import 'map_picker_screen.dart'; // Asegúrate de tener este archivo creado
+import 'map_picker_screen.dart'; 
 
 class CreateActivityScreen extends StatefulWidget {
   const CreateActivityScreen({super.key});
@@ -23,9 +24,8 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   final _descController = TextEditingController();
   final _locationController = TextEditingController();
   
-  // CORRECCIÓN: El valor inicial debe coincidir con uno de la lista _categories
   String _selectedCategory = 'Otro'; 
-  int _maxAttendees = 2;
+  int _maxAttendees = 2; // Valor inicial
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
   bool _isSaving = false;
@@ -36,17 +36,21 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   double? _selectedLat;
   double? _selectedLng;
 
-  // Lista en Español como solicitaste
   final List<String> _categories = [
     'Deportes', 'Comida', 'Arte', 'Fiestas', 'Viajes', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
   ];
 
+  // Lista de opciones para acompañantes (del 1 al 20)
+  final List<int> _attendeesOptions = List.generate(20, (index) => index + 1);
+
+  final Color _activeColor = const Color(0xFFF97316); 
+  final Color _iosBtnColor = const Color(0xFF00BCD4); 
+
   @override
   void initState() {
     super.initState();
-    // Protección adicional: Si por alguna razón el valor inicial no está en la lista, usamos el primero
     if (!_categories.contains(_selectedCategory)) {
-      _selectedCategory = _categories.last; // 'Otro' o 'Bienestar'
+      _selectedCategory = _categories.last; 
     }
   }
 
@@ -62,7 +66,6 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: ImageSource.gallery, 
-        // --- OPTIMIZACIÓN DE SUBIDA ---
         imageQuality: 80, 
         maxWidth: 1080,   
         maxHeight: 1080,
@@ -78,7 +81,6 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   }
 
   Future<void> _openLocationSearch() async {
-    // Navegamos a la pantalla de selección de mapa
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const MapPickerScreen()),
@@ -93,19 +95,251 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
     }
   }
 
+  // --- LÓGICA DE FECHA NATIVA ---
   Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2026),
-    );
-    if (picked != null) setState(() => _selectedDate = picked);
+    if (Platform.isIOS) {
+      showCupertinoModalPopup(
+        context: context,
+        builder: (context) {
+          return Container(
+            height: 250,
+            color: Colors.white,
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.grey[100],
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: Text("Listo", style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
+                        onPressed: () => Navigator.of(context).pop(),
+                      )
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.date,
+                    initialDateTime: _selectedDate,
+                    minimumDate: DateTime.now().subtract(const Duration(days: 1)),
+                    maximumDate: DateTime(2026),
+                    onDateTimeChanged: (DateTime newDate) {
+                      setState(() => _selectedDate = newDate);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } else {
+      final picked = await showDatePicker(
+        context: context,
+        initialDate: _selectedDate,
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2026),
+      );
+      if (picked != null) setState(() => _selectedDate = picked);
+    }
   }
 
+  // --- LÓGICA DE HORA NATIVA ---
   Future<void> _pickTime() async {
-    final picked = await showTimePicker(context: context, initialTime: _selectedTime);
-    if (picked != null) setState(() => _selectedTime = picked);
+    final bool is24HourFormat = MediaQuery.of(context).alwaysUse24HourFormat;
+
+    if (Platform.isIOS) {
+      showCupertinoModalPopup(
+        context: context,
+        builder: (context) {
+          return Container(
+            height: 250,
+            color: Colors.white,
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.grey[100],
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: Text("Listo", style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
+                        onPressed: () => Navigator.of(context).pop(),
+                      )
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.time,
+                    initialDateTime: DateTime(
+                      DateTime.now().year, DateTime.now().month, DateTime.now().day,
+                      _selectedTime.hour, _selectedTime.minute,
+                    ),
+                    use24hFormat: is24HourFormat, 
+                    onDateTimeChanged: (DateTime newTime) {
+                      setState(() {
+                        _selectedTime = TimeOfDay.fromDateTime(newTime);
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } else {
+      final picked = await showTimePicker(
+        context: context, 
+        initialTime: _selectedTime,
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: is24HourFormat),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: ColorScheme.light(primary: _iosBtnColor, onPrimary: Colors.white, onSurface: Colors.black),
+              ),
+              child: child!,
+            ),
+          );
+        },
+      );
+      if (picked != null) setState(() => _selectedTime = picked);
+    }
+  }
+
+  // --- WIDGET DE CATEGORÍA NATIVO ---
+  Widget _buildCategoryInput() {
+    if (Platform.isIOS) {
+      return GestureDetector(
+        onTap: () {
+          showCupertinoModalPopup(
+            context: context,
+            builder: (context) => Container(
+              height: 250,
+              color: Colors.white,
+              child: Column(
+                children: [
+                  Container(
+                    color: Colors.grey[100],
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          child: Text("Listo", style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
+                          onPressed: () => Navigator.of(context).pop(),
+                        )
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 32,
+                      scrollController: FixedExtentScrollController(
+                        initialItem: _categories.indexOf(_selectedCategory)
+                      ),
+                      onSelectedItemChanged: (index) {
+                        setState(() => _selectedCategory = _categories[index]);
+                      },
+                      children: _categories.map((c) => Text(c)).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+        child: InputDecorator(
+          decoration: const InputDecoration(
+            labelText: 'Categoría',
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            suffixIcon: Icon(Icons.arrow_drop_down),
+          ),
+          child: Text(_selectedCategory, style: const TextStyle(fontSize: 16)),
+        ),
+      );
+    } else {
+      return DropdownButtonFormField<String>(
+        value: _selectedCategory,
+        decoration: const InputDecoration(labelText: 'Categoría', border: OutlineInputBorder()),
+        items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+        onChanged: (v) => setState(() => _selectedCategory = v!),
+      );
+    }
+  }
+
+  // --- NUEVO: WIDGET DE ACOMPAÑANTES IGUAL A CATEGORÍAS ---
+  Widget _buildAttendeesInput() {
+    if (Platform.isIOS) {
+      // iOS: Input decorado que abre CupertinoPicker (Igual que Categoría)
+      return GestureDetector(
+        onTap: () {
+          showCupertinoModalPopup(
+            context: context,
+            builder: (context) => Container(
+              height: 250,
+              color: Colors.white,
+              child: Column(
+                children: [
+                  Container(
+                    color: Colors.grey[100],
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          child: Text("Listo", style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
+                          onPressed: () => Navigator.of(context).pop(),
+                        )
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 32,
+                      scrollController: FixedExtentScrollController(
+                        initialItem: _attendeesOptions.indexOf(_maxAttendees)
+                      ),
+                      onSelectedItemChanged: (index) {
+                        setState(() => _maxAttendees = _attendeesOptions[index]);
+                      },
+                      children: _attendeesOptions.map((n) => Text("$n persona${n > 1 ? 's' : ''}")).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+        child: InputDecorator(
+          decoration: const InputDecoration(
+            labelText: 'Nº de acompañantes (máx)',
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            suffixIcon: Icon(Icons.people_outline),
+          ),
+          child: Text("$_maxAttendees", style: const TextStyle(fontSize: 16)),
+        ),
+      );
+    } else {
+      // Android: Dropdown (Igual que Categoría)
+      return DropdownButtonFormField<int>(
+        value: _maxAttendees,
+        decoration: const InputDecoration(labelText: 'Nº de acompañantes (máx)', border: OutlineInputBorder()),
+        items: _attendeesOptions.map((n) => DropdownMenuItem(value: n, child: Text("$n"))).toList(),
+        onChanged: (v) => setState(() => _maxAttendees = v!),
+      );
+    }
   }
 
   Future<String> _uploadImage(String userId) async {
@@ -130,7 +364,6 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     
-    // Validación de mapa
     if (_selectedLat == null || _selectedLng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor toca en "Ubicación" para seleccionar en el mapa')),
@@ -148,8 +381,6 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
       if (_imageFile != null) {
         imageUrl = await _uploadImage(user.uid);
       } else {
-        // Placeholder si no hay imagen
-        final randomParam = DateTime.now().millisecondsSinceEpoch;
         imageUrl = 'https://via.placeholder.com/800x600.png?text=${_selectedCategory}';
       }
 
@@ -172,7 +403,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
         'imageUrl': imageUrl,
         'lat': _selectedLat, 
         'lng': _selectedLng,
-        'acceptedCount': 0, // Inicializar contadores
+        'acceptedCount': 0,
         'participantImages': [],
       };
 
@@ -250,19 +481,15 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
               ),
               const SizedBox(height: 16),
 
-              DropdownButtonFormField<String>(
-                value: _selectedCategory,
-                decoration: const InputDecoration(labelText: 'Categoría', border: OutlineInputBorder()),
-                items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                onChanged: (v) => setState(() => _selectedCategory = v!),
-              ),
+              // CATEGORÍA (NATIVA: Picker en iOS, Dropdown en Android)
+              _buildCategoryInput(),
               const SizedBox(height: 16),
 
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: _pickDate,
+                      onPressed: _pickDate, // Fecha nativa
                       icon: const Icon(Icons.calendar_today),
                       label: Text(DateFormat('dd/MM/yyyy').format(_selectedDate)),
                       style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
@@ -271,7 +498,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: _pickTime,
+                      onPressed: _pickTime, // Hora nativa inteligente
                       icon: const Icon(Icons.access_time),
                       label: Text(_selectedTime.format(context)),
                       style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
@@ -281,11 +508,11 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
               ),
               const SizedBox(height: 16),
 
-              // CAMPO DE UBICACIÓN CON MAPA
+              // CAMPO DE UBICACIÓN
               TextFormField(
                 controller: _locationController,
                 readOnly: true, 
-                onTap: _openLocationSearch, // Abre el mapa
+                onTap: _openLocationSearch, 
                 decoration: const InputDecoration(
                   labelText: 'Ubicación', 
                   border: OutlineInputBorder(),
@@ -296,27 +523,10 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
               ),
               const SizedBox(height: 16),
 
-              const Text("Nº de acompañantes (máx)"),
-              Row(
-                children: [
-                  Expanded(
-                    child: Slider(
-                      value: _maxAttendees.toDouble(),
-                      min: 1,
-                      max: 20,
-                      divisions: 19,
-                      label: _maxAttendees.toString(),
-                      activeColor: const Color(0xFFF97316),
-                      onChanged: (v) => setState(() => _maxAttendees = v.toInt()),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(border: Border.all(color: Colors.grey[300]!), borderRadius: BorderRadius.circular(8)),
-                    child: Text("$_maxAttendees", style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
+              // ACOMPAÑANTES (AHORA ES IGUAL A CATEGORÍA)
+              // Picker en iOS, Dropdown en Android
+              _buildAttendeesInput(),
+              
               const SizedBox(height: 30),
 
               SizedBox(
@@ -325,7 +535,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF97316),
+                    backgroundColor: _activeColor, 
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
