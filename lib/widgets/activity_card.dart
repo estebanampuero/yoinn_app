@@ -20,7 +20,8 @@ class ActivityCard extends StatelessWidget {
     
     // --- LÓGICA FOMO (URGENCIA) ---
     final spotsLeft = activity.maxAttendees - activity.acceptedCount;
-    final isUrgent = spotsLeft > 0 && spotsLeft <= 2;
+    // Consideramos urgente si quedan 3 o menos
+    final isUrgent = spotsLeft > 0 && spotsLeft <= 3; 
     final isFull = spotsLeft <= 0;
 
     return Container(
@@ -78,7 +79,7 @@ class ActivityCard extends StatelessWidget {
                     ),
                   ),
 
-                  // --- BADGE FOMO / URGENCIA ---
+                  // --- BADGE FOMO / URGENCIA (MODIFICADO) ---
                   if (isUrgent)
                     Positioned(
                       top: 12,
@@ -95,8 +96,11 @@ class ActivityCard extends StatelessWidget {
                           children: [
                             const Icon(Icons.local_fire_department, color: Colors.white, size: 12),
                             const SizedBox(width: 4),
+                            // AQUÍ ESTÁ EL CAMBIO DE LÓGICA SINGULAR/PLURAL
                             Text(
-                              "¡Solo quedan $spotsLeft!",
+                              spotsLeft == 1 
+                                  ? "¡Solo queda 1 cupo!" 
+                                  : "¡Solo quedan $spotsLeft cupos!",
                               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
                             ),
                           ],
@@ -197,7 +201,6 @@ class ActivityCard extends StatelessWidget {
               ),
               
               // --- HOST (CLICKEABLE) ---
-              // Envolvemos esta sección en InkWell para que lleve al perfil
               InkWell(
                 onTap: () {
                   // Navegar al perfil del organizador
