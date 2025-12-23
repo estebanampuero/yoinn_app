@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:share_plus/share_plus.dart'; 
 import 'package:purchases_flutter/purchases_flutter.dart'; // <--- IMPORTANTE
+import 'package:firebase_analytics/firebase_analytics.dart'; // <--- IMPORTANTE: ANALYTICS
 
 import '../models/activity_model.dart';
 import '../models/user_model.dart';
@@ -41,6 +42,16 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       isPremium = await SubscriptionService.isUserPremium();
     }
     
+    // --- ANALYTICS: REGISTRAR INTENTO DE UNIÓN ---
+    await FirebaseAnalytics.instance.logEvent(
+       name: 'join_activity_request',
+       parameters: {
+          'category': widget.activity.category,
+          'is_premium': isPremium.toString(),
+          'activity_id': widget.activity.id,
+       },
+    );
+
     // SIMULACIÓN: Límite para usuarios FREE.
     // Aquí podrías contar cuántas veces se ha unido el usuario esta semana.
     // Por ahora lo dejamos en 'false' para que puedas probar el flujo normal,
@@ -49,6 +60,8 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     
     // Si NO es premium y alcanzó el límite -> PAYWALL
     if (!isPremium && limitReached) {
+      // Registrar que vio el paywall
+      await FirebaseAnalytics.instance.logEvent(name: 'paywall_shown', parameters: {'source': 'activity_limit'});
       _showPaywall(context);
       return; 
     }
@@ -62,6 +75,10 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         final userModel = await dataService.getUserProfile(user.uid);
         if (userModel != null) {
           await dataService.applyToActivity(widget.activity.id, userModel);
+          
+          // Registrar éxito
+          await FirebaseAnalytics.instance.logEvent(name: 'join_activity_success');
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Solicitud enviada al anfitrión")),
@@ -150,6 +167,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     final String deepLink = 'https://yoinn.app/activity/${widget.activity.id}';
     final String mensaje = '¡Hola! Únete a mi actividad "${widget.activity.title}" en Yoinn. Mira los detalles aquí: $deepLink';
     Share.share(mensaje);
+    FirebaseAnalytics.instance.logEvent(name: 'share_activity', parameters: {'activity_id': widget.activity.id});
   }
 
   void _showOptions(BuildContext context, bool isHost) {
