@@ -18,6 +18,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Timer? _timer;
   bool _isLoading = false;
 
+  // Controladores para el Login de Demo
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   // Datos para el carrusel de bienvenida
   final List<Map<String, dynamic>> _onboardingData = [
     {
@@ -62,6 +66,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _timer?.cancel();
     _pageController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -81,128 +87,197 @@ class _LoginScreenState extends State<LoginScreen> {
     if (mounted) setState(() => _isLoading = false);
   }
 
+  // Función para Login con Email/Password (Para Demo de Apple)
+  void _handleEmailLogin() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) return;
+
+    setState(() => _isLoading = true);
+    try {
+      await Provider.of<AuthService>(context, listen: false).signInWithEmail(
+        _emailController.text.trim(), 
+        _passwordController.text.trim()
+      );
+      // Si funciona, AuthWrapper redirige solo.
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text("Error: $e"))
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Si el teclado está abierto, ajustamos para que se vea el formulario
+    final bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            const Spacer(flex: 1), // Espacio flexible arriba
-            
-            // --- 1. TU LOGO Y MARCA ---
-            // Usamos tu imagen personalizada
-            Image.asset(
-              'assets/icons/pin.png', 
-              height: 100, // Tamaño controlado
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                // Por si acaso fallara la carga, mostramos un ícono de respaldo
-                return const Icon(Icons.location_on, size: 80, color: Color(0xFF00BCD4));
-              },
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              "Yoinn",
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w900, // Letra muy gruesa para impacto
-                color: Color(0xFF00BCD4),    // Tu color Cian
-                letterSpacing: 1.5,
-              ),
-            ),
+        child: SingleChildScrollView( // Scroll para evitar overflow con teclado
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
+            child: Column(
+              children: [
+                if (!isKeyboardOpen) const Spacer(flex: 1), 
+                
+                // --- 1. TU LOGO Y MARCA ---
+                if (!isKeyboardOpen) ...[
+                  Image.asset(
+                    'assets/icons/pin.png', 
+                    height: 100, 
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.location_on, size: 80, color: Color(0xFF00BCD4));
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "Yoinn",
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900, 
+                      color: Color(0xFF00BCD4),    
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const Spacer(flex: 1),
+                ],
 
-            const Spacer(flex: 1),
-
-            // --- 2. CARRUSEL INFORMATIVO ---
-            SizedBox(
-              height: 280, // Altura fija para el slider
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (value) => setState(() => _currentPage = value),
-                itemCount: _onboardingData.length,
-                itemBuilder: (context, index) => _buildOnboardingContent(
-                  icon: _onboardingData[index]["icon"],
-                  title: _onboardingData[index]["title"],
-                  text: _onboardingData[index]["text"],
-                ),
-              ),
-            ),
-
-            // --- 3. PUNTITOS INDICADORES ---
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _onboardingData.length,
-                (index) => _buildDot(index: index),
-              ),
-            ),
-
-            const Spacer(flex: 2), // Empuja el botón hacia abajo
-
-            // --- 4. BOTONES DE INICIO DE SESIÓN ---
-            if (_isLoading)
-              const Center(child: CircularProgressIndicator())
-            else
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-                child: Column(
-                  children: [
-                    // --- BOTÓN APPLE (Solo visible en iOS) ---
-                    if (Platform.isIOS) 
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: SignInWithAppleButton(
-                          onPressed: _handleAppleLogin,
-                          height: 50,
-                          style: SignInWithAppleButtonStyle.black, // Estilo nativo
-                          borderRadius: const BorderRadius.all(Radius.circular(30)), // Coincidir con el de Google
-                        ),
+                // --- 2. CARRUSEL INFORMATIVO (Se oculta con teclado) ---
+                if (!isKeyboardOpen) ...[
+                  SizedBox(
+                    height: 200, 
+                    child: PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: (value) => setState(() => _currentPage = value),
+                      itemCount: _onboardingData.length,
+                      itemBuilder: (context, index) => _buildOnboardingContent(
+                        icon: _onboardingData[index]["icon"],
+                        title: _onboardingData[index]["title"],
+                        text: _onboardingData[index]["text"],
                       ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      _onboardingData.length,
+                      (index) => _buildDot(index: index),
+                    ),
+                  ),
+                  const Spacer(flex: 2), 
+                ] else 
+                  const SizedBox(height: 40), // Espacio si teclado abierto
 
-                    // --- BOTÓN DE GOOGLE ---
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50, // Ajustado a 50 para coincidir con Apple si está presente
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Provider.of<AuthService>(context, listen: false).signInWithGoogle();
-                        },
-                        // Usamos el logo oficial de Google desde la red para que se vea nítido
-                        icon: Image.network(
-                          'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
-                          height: 24,
-                          loadingBuilder: (context, child, loadingProgress) {
-                             if (loadingProgress == null) return child;
-                             return const Icon(Icons.login, color: Colors.grey); // Fallback mientras carga
-                          },
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.login, color: Colors.grey),
-                        ),
-                        label: const Text("Continuar con Google"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black87,
-                          elevation: 3,
-                          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            side: const BorderSide(color: Color(0xFFE0E0E0)), // Borde gris suave
+                // --- 4. BOTONES DE INICIO DE SESIÓN ---
+                if (_isLoading)
+                  const Center(child: CircularProgressIndicator())
+                else
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                    child: Column(
+                      children: [
+                        // --- BOTÓN APPLE ---
+                        if (Platform.isIOS) 
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: SignInWithAppleButton(
+                              onPressed: _handleAppleLogin,
+                              height: 50,
+                              style: SignInWithAppleButtonStyle.black, 
+                              borderRadius: const BorderRadius.all(Radius.circular(30)),
+                            ),
+                          ),
+
+                        // --- BOTÓN DE GOOGLE ---
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50, 
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Provider.of<AuthService>(context, listen: false).signInWithGoogle();
+                            },
+                            icon: Image.network(
+                              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
+                              height: 24,
+                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.login, color: Colors.grey),
+                            ),
+                            label: const Text("Continuar con Google"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black87,
+                              elevation: 3,
+                              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                side: const BorderSide(color: Color(0xFFE0E0E0)), 
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        
+                        const SizedBox(height: 30),
+                        
+                        // --- FORMULARIO DEMO PARA APPLE REVIEW ---
+                        const Divider(),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text("Acceso Demo / Admin", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                        ),
+                        
+                        TextField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(
+                            labelText: "Email Demo",
+                            isDense: true,
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.email_outlined),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: "Contraseña",
+                            isDense: true,
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.lock_outline),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _handleEmailLogin,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[200],
+                              foregroundColor: Colors.black,
+                            ),
+                            child: const Text("Ingresar"),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+                        
+                        // Texto legal 
+                        const Text(
+                          "Al continuar, aceptas nuestros Términos de Servicio\ny Política de Privacidad.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 11, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                    // Texto legal pequeño (Da confianza)
-                    const Text(
-                      "Al continuar, aceptas nuestros Términos de Servicio\ny Política de Privacidad.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 11, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                ),
-              ),
-          ],
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -215,11 +290,10 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Círculo decorativo detrás del ícono explicativo
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFE0F7FA), // Tu color fondo muy claro
+              color: const Color(0xFFE0F7FA), 
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 60, color: const Color(0xFF00BCD4)),
@@ -250,7 +324,7 @@ class _LoginScreenState extends State<LoginScreen> {
       duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.only(right: 6),
       height: 8,
-      width: _currentPage == index ? 24 : 8, // El activo es más ancho
+      width: _currentPage == index ? 24 : 8, 
       decoration: BoxDecoration(
         color: _currentPage == index ? const Color(0xFF00BCD4) : const Color(0xFFB2EBF2),
         borderRadius: BorderRadius.circular(4),

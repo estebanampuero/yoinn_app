@@ -204,6 +204,54 @@ class AuthService with ChangeNotifier {
     }
   }
 
+  // --- NUEVA FUNCIÓN: LOGIN CON EMAIL/PASSWORD (Para Apple Demo) ---
+  Future<void> signInWithEmail(String email, String password) async {
+    try {
+      // 1. Autenticar en Firebase Auth
+      UserCredential result = await _auth.signInWithEmailAndPassword(
+        email: email, 
+        password: password
+      );
+      
+      User? user = result.user;
+
+      // 2. Verificar/Crear en Firestore para evitar crashes
+      if (user != null) {
+        final userDoc = await _db.collection('users').doc(user.uid).get();
+        
+        if (!userDoc.exists) {
+          // Si no existe (porque se creó en consola), creamos perfil básico
+          await _db.collection('users').doc(user.uid).set({
+            'uid': user.uid,
+            'email': email,
+            'name': 'Usuario Demo',
+            'profilePictureUrl': 'https://ui-avatars.com/api/?name=Demo&background=00BCD4&color=fff',
+            'createdAt': FieldValue.serverTimestamp(),
+            'lastLogin': FieldValue.serverTimestamp(),
+            // Campos por defecto para evitar null errors
+            'isManualPro': false,
+            'isPremium': false,
+            'isAdmin': false,
+            'isVerified': false,
+            'karmaPoints': 0,
+            'activitiesCreatedCount': 0,
+            'bio': 'Cuenta de demostración.',
+            'hobbies': [],
+            'galleryImages': [],
+            'isSubscribed': false,
+            'phoneVerified': false,
+            'profileCompleted': true,
+            'location': null,
+          });
+        }
+      }
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) print("Error en signInWithEmail: $e");
+      rethrow; 
+    }
+  }
+
   Future<void> signOut() async {
     try {
       await _googleSignIn.signOut();
