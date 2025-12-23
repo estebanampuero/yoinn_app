@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 class SubscriptionService {
-  // Tu API KEY pública de la captura de pantalla
-  static const _apiKey = 'test_VSZTRMlTDFqtJtTRMOFDtZoAeYC';
+  // ✅ API KEY CORRECTA INTEGRADA
+  static const _apiKey = 'appl_anELedxRZvCqULxNzZvSmXqEfxv';
 
   // OJO: Este ID debe ser IDÉNTICO al de tu captura de pantalla de RevenueCat
   static const _entitlementId = 'Yoinn Pro'; 

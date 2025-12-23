@@ -23,6 +23,9 @@ class UserModel {
   
   // --- NUEVO CAMPO (Suscripción de Pago) ---
   final bool isPremium; 
+  
+  // --- NUEVO CAMPO (Suscripción Manual / Admin) ---
+  final bool isManualPro;
 
   UserModel({
     required this.uid,
@@ -43,6 +46,7 @@ class UserModel {
     this.activitiesCreatedCount = 0,
     this.isAdmin = false,
     this.isPremium = false, // Por defecto false
+    this.isManualPro = false, // Por defecto false
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -67,7 +71,8 @@ class UserModel {
       karmaPoints: (data['karmaPoints'] ?? 0).toInt(),
       activitiesCreatedCount: (data['activitiesCreatedCount'] ?? 0).toInt(),
       isAdmin: data['isAdmin'] ?? false,
-      isPremium: data['isPremium'] ?? false, // <--- Leemos el estado PRO
+      isPremium: data['isPremium'] ?? false,
+      isManualPro: data['isManualPro'] ?? false, // <--- Leemos el estado Manual
     );
   }
 
@@ -90,7 +95,8 @@ class UserModel {
       'karmaPoints': karmaPoints,
       'activitiesCreatedCount': activitiesCreatedCount,
       'isAdmin': isAdmin,
-      'isPremium': isPremium, // <--- Guardamos el estado PRO
+      'isPremium': isPremium,
+      'isManualPro': isManualPro, // <--- Guardamos el estado Manual
       'lastLogin': FieldValue.serverTimestamp(),
     };
   }

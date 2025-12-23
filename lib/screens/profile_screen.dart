@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:purchases_flutter/purchases_flutter.dart'; // RevenueCat
+// import 'package:purchases_flutter/purchases_flutter.dart'; // Ya no es estrictamente necesario aquí si usamos el servicio
 import '../models/user_model.dart';
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
-import '../services/subscription_service.dart'; // Tu servicio de pagos
+import '../services/subscription_service.dart';
 import 'admin_screen.dart';
 
-// Widgets existentes
+// Importamos la nueva pantalla PRO
+import 'paywall_pro_screen.dart'; 
+
 import '../widgets/profile_header.dart';
 import '../widgets/profile_gallery.dart';
 import '../widgets/profile_activities_list.dart';
@@ -30,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _checkPremiumStatus();
   }
 
+  // Verificamos si es Premium usando tu servicio (RevenueCat)
   Future<void> _checkPremiumStatus() async {
     final status = await SubscriptionService.isUserPremium();
     if (mounted) {
@@ -40,24 +43,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // Lógica para mostrar el Paywall desde el perfil
+  // Lógica para mostrar el NUEVO Paywall
   void _showPaywall() async {
-    final package = await SubscriptionService.getCurrentOffering();
-    if (package != null && mounted) {
-      // Usamos el mismo diseño de Paywall que definimos antes
-      // (Si lo tienes en un archivo separado, impórtalo. Si no, defínelo aquí o usa showModalBottomSheet genérico)
-      // Por simplicidad, aquí invoco una función básica, pero idealmente reusas el _PaywallBottomSheet de ActivityDetail
-      _mostrarOferta(package); 
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("No hay ofertas disponibles")));
-    }
-  }
+    // Navegamos a la pantalla PaywallProScreen que creamos
+    final result = await Navigator.push(
+      context, 
+      MaterialPageRoute(builder: (context) => const PaywallProScreen())
+    );
 
-  void _mostrarOferta(Package package) {
-    // Aquí puedes copiar el _PaywallBottomSheet o navegar a una pantalla de suscripción
-    // Para este ejemplo rápido, mostramos un diálogo simple o reusas tu widget
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Abriendo ofertas... (Integra tu Paywall aquí)")));
-    // TIP: Lo mejor es mover _PaywallBottomSheet a un archivo /widgets/paywall_widget.dart para usarlo en todos lados
+    // Si devuelve 'true', significa que compró o restauró exitosamente
+    if (result == true) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("¡Bienvenido a Yoinn PRO! 🌟"))
+        );
+      }
+      // Volvemos a chequear el estado para actualizar la UI (borde dorado, etc.)
+      _checkPremiumStatus();
+    }
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
@@ -122,6 +125,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final user = snapshot.data!;
         final isAdmin = isMe && user.isAdmin;
         final isLocalGuide = user.activitiesCreatedCount > 5;
+        
+        // --- LÓGICA DE UNIFICACIÓN DE ESTADO ---
+        // Es PRO si pagó (_isPremium de RevenueCat) O si tiene el flag manual en Firebase
+        final bool isProReal = _isPremium || user.isManualPro;
 
         return Scaffold(
           backgroundColor: Colors.white,
@@ -157,10 +164,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onEditProfile: () => setState((){}), 
                 ),
 
-                // --- NUEVO: BANNER DE SUSCRIPCIÓN (Solo si soy yo) ---
+                // --- BANNER DE SUSCRIPCIÓN (Solo si soy yo) ---
                 if (isMe && !_loadingPremium) ...[
                   const SizedBox(height: 20),
-                  _buildPremiumBanner(),
+                  // Le pasamos el estado REAL (Pagado o Manual)
+                  _buildPremiumBanner(isProReal),
                 ],
 
                 // 2. GALERÍA
@@ -197,9 +205,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // --- WIDGET DEL BANNER PREMIUM ---
-  Widget _buildPremiumBanner() {
-    if (_isPremium) {
-      // Diseño para USUARIO PRO (Ya pagó)
+  // Modificado para recibir el estado 'isVip'
+  Widget _buildPremiumBanner(bool isVip) {
+    if (isVip) {
+      // Diseño para USUARIO PRO (Ya pagó o es Manual) - Oro y Elegancia
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -221,11 +230,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            // Botón discreto para gestionar (opcional)
             InkWell(
               onTap: () {
-                // Aquí podrías mostrar detalles o botón para cancelar
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Gestiona tu suscripción en los ajustes de Apple/Google.")));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Gestiona tu suscripción en los ajustes de Apple.")));
               },
               child: const Icon(Icons.settings, color: Colors.white70),
             )
@@ -233,23 +240,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       );
     } else {
-      // Diseño para USUARIO GRATIS (Venta)
+      // Diseño para USUARIO GRATIS - "Pásate a PRO"
       return GestureDetector(
-        onTap: _showPaywall, // Abre el Paywall
+        onTap: _showPaywall, // Ahora abre la PaywallProScreen
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           decoration: BoxDecoration(
-            color: const Color(0xFF222222), // Negro elegante o Azul oscuro
+            color: const Color(0xFF1E1E1E), // Gris oscuro muy elegante
             borderRadius: BorderRadius.circular(12),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4))],
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 4))],
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(color: Color(0xFF00BCD4), shape: BoxShape.circle),
-                child: const Icon(Icons.star, color: Colors.white, size: 20),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFFD700), // Icono dorado sobre fondo oscuro
+                  shape: BoxShape.circle
+                ),
+                child: const Icon(Icons.star, color: Colors.black, size: 20),
               ),
               const SizedBox(width: 12),
               const Expanded(

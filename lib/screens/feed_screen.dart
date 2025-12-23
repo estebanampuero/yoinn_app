@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/data_service.dart';
+import '../services/subscription_service.dart'; // Importante para verificar premium
+import '../models/user_model.dart'; // <--- AGREGADO PARA LEER isManualPro
 import '../widgets/activity_card.dart';
 import 'activity_detail_screen.dart';
 import 'create_activity_screen.dart';
 import 'profile_screen.dart';
+import 'paywall_pro_screen.dart'; // Nueva pantalla de ventas
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -17,14 +20,62 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   final TextEditingController _searchController = TextEditingController();
   
+  // Estado para controlar la UI según suscripción (RevenueCat O Manual)
+  bool _isPremium = false; 
+
   final List<String> _filterCategories = [
     'Todas', 'Deporte', 'Comida', 'Arte', 'Fiesta', 'Viaje', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _checkPremiumStatus();
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  // Verificamos el estado premium al cargar el feed
+  Future<void> _checkPremiumStatus() async {
+    // 1. Verificamos suscripción de pago (RevenueCat)
+    final revenueCatStatus = await SubscriptionService.isUserPremium();
+    
+    // 2. Verificamos suscripción manual en Firebase
+    bool manualStatus = false;
+    if (mounted) { // Check mounted antes de usar context
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final dataService = Provider.of<DataService>(context, listen: false);
+      
+      if (authService.currentUser != null) {
+        // Obtenemos el perfil para ver si tiene isManualPro
+        final user = await dataService.getUserProfile(authService.currentUser!.uid);
+        manualStatus = user?.isManualPro ?? false;
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        // Es Premium si pagó O si se lo activamos manualmente
+        _isPremium = revenueCatStatus || manualStatus;
+      });
+    }
+  }
+
+  // Abre la pantalla de ventas
+  void _openPaywall() async {
+    final result = await Navigator.push(
+      context, 
+      MaterialPageRoute(builder: (context) => const PaywallProScreen())
+    );
+    if (result == true) {
+      // Si compró, actualizamos la UI del Feed (borde dorado)
+      _checkPremiumStatus();
+      if(mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("¡Ya eres PRO!")));
+    }
   }
 
   Future<void> _pickDateFilter(BuildContext context, DataService dataService) async {
@@ -37,7 +88,7 @@ class _FeedScreenState extends State<FeedScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF00BCD4), // Cian en calendario
+              primary: Color(0xFF00BCD4), 
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -54,11 +105,10 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
-    // Escuchamos cambios del DataService para redibujar si cambian los filtros externamente
     final dataService = Provider.of<DataService>(context);
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F8FA), // Fondo azul muy pálido
+      backgroundColor: const Color(0xFFF0F8FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -67,23 +117,64 @@ class _FeedScreenState extends State<FeedScreen> {
           style: TextStyle(color: Color(0xFF00BCD4), fontWeight: FontWeight.w800, fontSize: 24),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: GestureDetector(
-              onTap: () {
-                 final myUid = authService.currentUser?.uid;
-                 if (myUid != null) {
-                   Navigator.push(
-                     context,
-                     MaterialPageRoute(builder: (context) => ProfileScreen(uid: myUid)),
-                   );
-                 }
-              },
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(authService.currentUser?.profilePictureUrl ?? ''),
-                backgroundColor: const Color(0xFFB2EBF2), // Fondo suave si no hay foto
+          Row(
+            children: [
+              // --- INTEGRACIÓN: Botón "Pásate a PRO" si NO es premium ---
+              if (!_isPremium)
+                GestureDetector(
+                  onTap: _openPaywall,
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(colors: [Color(0xFFFFD700), Color(0xFFFFA000)]),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 4)],
+                    ),
+                    child: const Row(
+                      children: [
+                         Icon(Icons.workspace_premium, color: Colors.white, size: 16),
+                         SizedBox(width: 4),
+                         Text(
+                           "PRO",
+                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                         ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // --- INTEGRACIÓN: Foto de Perfil con lógica Premium ---
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: GestureDetector(
+                  onTap: () {
+                     final myUid = authService.currentUser?.uid;
+                     if (myUid != null) {
+                       Navigator.push(
+                         context,
+                         MaterialPageRoute(builder: (context) => ProfileScreen(uid: myUid)),
+                       ).then((_) => _checkPremiumStatus()); // Actualizar al volver del perfil
+                     }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(2), // Espacio para el borde
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      // Si es Premium: Borde Dorado. Si no: Transparente (o color normal)
+                      border: _isPremium 
+                          ? Border.all(color: const Color(0xFFFFD700), width: 2.5) 
+                          : null, 
+                    ),
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundImage: NetworkImage(authService.currentUser?.profilePictureUrl ?? ''),
+                      backgroundColor: const Color(0xFFB2EBF2),
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           )
         ],
       ),
@@ -107,7 +198,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           prefixIcon: const Icon(Icons.search, color: Colors.grey),
                           contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
                           filled: true,
-                          fillColor: const Color(0xFFE0F7FA), // Input ligeramente azulado
+                          fillColor: const Color(0xFFE0F7FA),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30),
                             borderSide: BorderSide.none,
@@ -122,14 +213,13 @@ class _FeedScreenState extends State<FeedScreen> {
                     ),
                     const SizedBox(width: 8),
                     
-                    // Botón Filtro Fecha
                     GestureDetector(
                       onTap: () => _pickDateFilter(context, dataService),
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: dataService.currentFilterDate != null 
-                              ? const Color(0xFF29B6F6) // Azul Brillante si activo
+                              ? const Color(0xFF29B6F6) 
                               : const Color(0xFFE0F7FA),
                           shape: BoxShape.circle,
                         ),
@@ -160,19 +250,16 @@ class _FeedScreenState extends State<FeedScreen> {
                     separatorBuilder: (c, i) => const SizedBox(width: 8),
                     itemBuilder: (context, index) {
                       final category = _filterCategories[index];
-                      // INTEGRACIÓN: Usamos el getter del servicio, no variable local
                       final isSelected = dataService.selectedCategory == category;
                       
                       return GestureDetector(
                         onTap: () {
-                          // Solo llamamos al servicio, él notificará el cambio
                           dataService.setCategoryFilter(category);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            // Fondo: Cian Profundo si seleccionado
                             color: isSelected ? const Color(0xFF00BCD4) : Colors.transparent,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
@@ -252,7 +339,7 @@ class _FeedScreenState extends State<FeedScreen> {
             MaterialPageRoute(builder: (context) => const CreateActivityScreen()),
           );
         },
-        backgroundColor: const Color(0xFF00BCD4), // Cian Oscuro
+        backgroundColor: const Color(0xFF00BCD4),
         child: const Icon(Icons.add, size: 30, color: Colors.white),
       ),
     );

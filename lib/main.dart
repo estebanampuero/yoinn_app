@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart'; // <--- IMPORTANTE
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:purchases_flutter/purchases_flutter.dart'; // <--- AGREGADO PARA EL LISTENER
 
 // Asegúrate de que estos imports sean correctos según la estructura de tus carpetas
 import 'firebase_options.dart';
@@ -110,6 +111,24 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   bool _notificationsInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // --- ESCUCHA EN TIEMPO REAL DE CAMBIOS DE SUSCRIPCIÓN ---
+    Purchases.addCustomerInfoUpdateListener((customerInfo) {
+      // Verificar si es Pro usando el ID correcto "Yoinn Pro"
+      bool isPro = customerInfo.entitlements.all["Yoinn Pro"]?.isActive ?? false;
+      
+      if (!isPro) {
+        // Aquí detectamos si la suscripción expiró o falló el pago mientras la app está abierta
+        print("⚠️ El estado de la suscripción cambió a: INACTIVO");
+      } else {
+        print("🌟 El estado de la suscripción cambió a: ACTIVO (Yoinn Pro)");
+      }
+    });
+  }
 
   @override
   void didChangeDependencies() {
