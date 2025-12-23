@@ -6,7 +6,7 @@
     <application
         android:label="yoinn_app"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
 
         <!-- INICIO CONFIGURACIÓN MAPAS -->
         <!-- Reemplaza el value con tu API KEY real creada en Google Cloud -->

@@ -1,7 +1,7 @@
 name: yoinn_app
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.0+2
+version: 1.0.0+4
 
 environment:
   sdk: ^3.10.3
@@ -42,8 +42,17 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: "^0.13.1"
 
 flutter:
   uses-material-design: true
   assets:
     - assets/icons/
+
+# --- CONFIGURACIÓN DE ÍCONOS AUTOMÁTICOS ---
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/pin_solid.png" # Asegúrate de que esta imagen exista
+  min_sdk_android: 21
+  remove_alpha_ios: true
