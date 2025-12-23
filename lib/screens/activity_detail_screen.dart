@@ -5,14 +5,15 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:share_plus/share_plus.dart'; 
-import 'package:purchases_flutter/purchases_flutter.dart'; // <--- IMPORTANTE
-import 'package:firebase_analytics/firebase_analytics.dart'; // <--- IMPORTANTE: ANALYTICS
+import 'package:purchases_flutter/purchases_flutter.dart'; 
+import 'package:firebase_analytics/firebase_analytics.dart'; 
 
 import '../models/activity_model.dart';
 import '../models/user_model.dart';
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
-import '../services/subscription_service.dart'; // <--- IMPORTANTE
+import '../services/subscription_service.dart'; 
+import '../config/subscription_limits.dart'; // <--- NUEVO
 
 import 'chat_screen.dart';
 import 'edit_activity_screen.dart';
@@ -33,16 +34,14 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
   void _joinActivity() async {
     // 1. VERIFICACIÓN DE SUSCRIPCIÓN (LÓGICA FREEMIUM)
-    // Primero revisamos si el usuario ya tiene la marca en Firebase (más rápido)
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
     bool isPremium = user?.isPremium ?? false;
 
-    // Si Firebase dice false, verificamos con RevenueCat por si acaso (sync fallida o restauración)
     if (!isPremium) {
       isPremium = await SubscriptionService.isUserPremium();
     }
     
-    // --- ANALYTICS: REGISTRAR INTENTO DE UNIÓN ---
+    // --- ANALYTICS ---
     await FirebaseAnalytics.instance.logEvent(
        name: 'join_activity_request',
        parameters: {
@@ -52,15 +51,20 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
        },
     );
 
-    // SIMULACIÓN: Límite para usuarios FREE.
-    // Aquí podrías contar cuántas veces se ha unido el usuario esta semana.
-    // Por ahora lo dejamos en 'false' para que puedas probar el flujo normal,
-    // o cámbialo a 'true' para forzar la aparición del Paywall y probar la compra.
-    bool limitReached = false; 
+    // --- NUEVA LÓGICA DE LÍMITES CENTRALIZADA ---
+    // Obtenemos el límite desde el archivo de configuración
+    final int weeklyLimit = isPremium 
+        ? SubscriptionLimits.proMaxJoinsPerWeek 
+        : SubscriptionLimits.freeMaxJoinsPerWeek;
+
+    // TODO: Conectar esto con DataService para contar las uniones reales de esta semana.
+    // Por ahora, simulamos '0' uniones para permitir el flujo, pero ya respeta la constante 'weeklyLimit'.
+    // Si quieres probar el Paywall, cambia currentJoins a un valor mayor que weeklyLimit.
+    int currentJoins = 0; 
     
-    // Si NO es premium y alcanzó el límite -> PAYWALL
+    bool limitReached = currentJoins >= weeklyLimit;
+    
     if (!isPremium && limitReached) {
-      // Registrar que vio el paywall
       await FirebaseAnalytics.instance.logEvent(name: 'paywall_shown', parameters: {'source': 'activity_limit'});
       _showPaywall(context);
       return; 
@@ -76,7 +80,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         if (userModel != null) {
           await dataService.applyToActivity(widget.activity.id, userModel);
           
-          // Registrar éxito
           await FirebaseAnalytics.instance.logEvent(name: 'join_activity_success');
 
           if (mounted) {
@@ -97,7 +100,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   }
 
   void _showPaywall(BuildContext context) async {
-    // Buscamos la oferta configurada en RevenueCat
     final package = await SubscriptionService.getCurrentOffering();
     
     if (package != null && mounted) {
@@ -114,7 +116,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     }
   }
 
-  // --- LÓGICA PARA ELIMINAR ACTIVIDAD ---
+  // --- ELIMINAR ---
   void _mostrarConfirmacionEliminar(BuildContext context) {
     showDialog(
       context: context,
@@ -162,7 +164,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     }
   }
 
-  // --- LÓGICA PARA COMPARTIR ---
+  // --- COMPARTIR ---
   void _compartirActividad() {
     final String deepLink = 'https://yoinn.app/activity/${widget.activity.id}';
     final String mensaje = '¡Hola! Únete a mi actividad "${widget.activity.title}" en Yoinn. Mira los detalles aquí: $deepLink';
@@ -702,8 +704,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   }
 }
 
-// --- WIDGET DEL PAYWALL (PANTALLA DE PAGO) ---
-// Este widget muestra la oferta y, si es exitosa, ACTUALIZA FIREBASE
 class _PaywallBottomSheet extends StatelessWidget {
   final Package package;
   const _PaywallBottomSheet({required this.package});
@@ -762,10 +762,8 @@ class _PaywallBottomSheet extends StatelessWidget {
                 elevation: 5,
               ),
               onPressed: () async {
-                // --- COMPRA Y SINCRONIZACIÓN ---
                 final success = await SubscriptionService.purchasePackage(package);
                 if (success) {
-                  // Si pagó en Apple/Google, marcamos como Premium en Firebase
                   final user = Provider.of<AuthService>(context, listen: false).currentUser;
                   if (user != null) {
                     await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
@@ -789,7 +787,6 @@ class _PaywallBottomSheet extends StatelessWidget {
             onPressed: () async {
               final restored = await SubscriptionService.restorePurchases();
               if (restored) {
-                // Si restauró, también sincronizamos
                 final user = Provider.of<AuthService>(context, listen: false).currentUser;
                 if (user != null) {
                   await FirebaseFirestore.instance.collection('users').doc(user.uid).update({

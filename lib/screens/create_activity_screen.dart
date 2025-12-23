@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../services/auth_service.dart';
 import '../services/data_service.dart';
+import '../config/subscription_limits.dart'; // <--- NUEVO
 import 'map_picker_screen.dart'; 
 
 class CreateActivityScreen extends StatefulWidget {
@@ -40,8 +41,8 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
     'Deportes', 'Comida', 'Arte', 'Fiestas', 'Viajes', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
   ];
 
-  // Lista de opciones para acompañantes (del 1 al 20)
-  final List<int> _attendeesOptions = List.generate(20, (index) => index + 1);
+  // La lista ahora se genera dinámicamente
+  List<int> _attendeesOptions = [];
 
   final Color _activeColor = const Color(0xFFF97316); 
   final Color _iosBtnColor = const Color(0xFF00BCD4); 
@@ -51,6 +52,27 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
     super.initState();
     if (!_categories.contains(_selectedCategory)) {
       _selectedCategory = _categories.last; 
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // --- LÓGICA DE LÍMITES FREEMIUM ---
+    final user = Provider.of<AuthService>(context, listen: false).currentUser;
+    final isPremium = user?.isPremium ?? false;
+
+    // Definir límite según plan
+    final int maxLimit = isPremium 
+        ? SubscriptionLimits.proMaxAttendees 
+        : SubscriptionLimits.freeMaxAttendees;
+
+    // Generar la lista de opciones (Ej: Free [1,2,3], Pro [1..20])
+    _attendeesOptions = List.generate(maxLimit, (index) => index + 1);
+
+    // Seguridad: Si el valor actual excede el límite (raro en create), ajustarlo
+    if (_maxAttendees > maxLimit) {
+      _maxAttendees = maxLimit;
     }
   }
 
@@ -277,10 +299,12 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
     }
   }
 
-  // --- NUEVO: WIDGET DE ACOMPAÑANTES IGUAL A CATEGORÍAS ---
+  // --- WIDGET DE ACOMPAÑANTES ---
   Widget _buildAttendeesInput() {
+    // Si la lista está vacía (carga inicial), ponemos un valor seguro
+    if (_attendeesOptions.isEmpty) return const SizedBox();
+
     if (Platform.isIOS) {
-      // iOS: Input decorado que abre CupertinoPicker (Igual que Categoría)
       return GestureDetector(
         onTap: () {
           showCupertinoModalPopup(
@@ -308,7 +332,9 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                     child: CupertinoPicker(
                       itemExtent: 32,
                       scrollController: FixedExtentScrollController(
-                        initialItem: _attendeesOptions.indexOf(_maxAttendees)
+                        initialItem: _attendeesOptions.indexOf(_maxAttendees) >= 0 
+                            ? _attendeesOptions.indexOf(_maxAttendees) 
+                            : 0
                       ),
                       onSelectedItemChanged: (index) {
                         setState(() => _maxAttendees = _attendeesOptions[index]);
@@ -332,9 +358,8 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
         ),
       );
     } else {
-      // Android: Dropdown (Igual que Categoría)
       return DropdownButtonFormField<int>(
-        value: _maxAttendees,
+        value: _attendeesOptions.contains(_maxAttendees) ? _maxAttendees : _attendeesOptions.first,
         decoration: const InputDecoration(labelText: 'Nº de acompañantes (máx)', border: OutlineInputBorder()),
         items: _attendeesOptions.map((n) => DropdownMenuItem(value: n, child: Text("$n"))).toList(),
         onChanged: (v) => setState(() => _maxAttendees = v!),
@@ -481,7 +506,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
               ),
               const SizedBox(height: 16),
 
-              // CATEGORÍA (NATIVA: Picker en iOS, Dropdown en Android)
+              // CATEGORÍA (NATIVA)
               _buildCategoryInput(),
               const SizedBox(height: 16),
 
@@ -489,7 +514,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: _pickDate, // Fecha nativa
+                      onPressed: _pickDate, 
                       icon: const Icon(Icons.calendar_today),
                       label: Text(DateFormat('dd/MM/yyyy').format(_selectedDate)),
                       style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
@@ -498,7 +523,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: _pickTime, // Hora nativa inteligente
+                      onPressed: _pickTime, 
                       icon: const Icon(Icons.access_time),
                       label: Text(_selectedTime.format(context)),
                       style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
@@ -508,7 +533,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
               ),
               const SizedBox(height: 16),
 
-              // CAMPO DE UBICACIÓN
+              // UBICACIÓN
               TextFormField(
                 controller: _locationController,
                 readOnly: true, 
@@ -523,8 +548,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
               ),
               const SizedBox(height: 16),
 
-              // ACOMPAÑANTES (AHORA ES IGUAL A CATEGORÍA)
-              // Picker en iOS, Dropdown en Android
+              // ACOMPAÑANTES (DINÁMICO SEGÚN PLAN)
               _buildAttendeesInput(),
               
               const SizedBox(height: 30),
