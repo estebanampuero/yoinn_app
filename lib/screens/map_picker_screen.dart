@@ -7,7 +7,12 @@ import 'package:uuid/uuid.dart';
 import '../services/location_service.dart';
 
 class MapPickerScreen extends StatefulWidget {
-  const MapPickerScreen({super.key});
+  final bool isPro; // <--- Nuevo parámetro recibido
+
+  const MapPickerScreen({
+    super.key, 
+    this.isPro = false // Por defecto false
+  });
 
   @override
   State<MapPickerScreen> createState() => _MapPickerScreenState();
@@ -136,11 +141,10 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Quitamos el AppBar para tener control total con Stack y SafeArea
-      resizeToAvoidBottomInset: false, // Evita que el mapa se deforme al abrir teclado
+      resizeToAvoidBottomInset: false, 
       body: Stack(
         children: [
-          // 1. MAPA DE FONDO (Ocupa toda la pantalla)
+          // 1. MAPA DE FONDO
           GoogleMap(
             initialCameraPosition: CameraPosition(target: _center, zoom: 15),
             myLocationEnabled: true,
@@ -163,11 +167,10 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             ),
           ),
 
-          // 3. BARRA DE BÚSQUEDA Y BOTÓN ATRÁS (Dentro de SafeArea)
+          // 3. BARRA DE BÚSQUEDA Y BOTÓN ATRÁS (Condicional para PRO)
           Column(
             children: [
               Container(
-                // Fondo gradiente suave para que se vea el texto sobre el mapa
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -183,7 +186,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                       children: [
                         Row(
                           children: [
-                            // Botón Atrás
+                            // Botón Atrás (Siempre visible)
                             Container(
                               decoration: const BoxDecoration(
                                 color: Colors.white,
@@ -196,43 +199,45 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                               ),
                             ),
                             const SizedBox(width: 10),
-                            // Buscador
-                            Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(30),
-                                  boxShadow: const [
-                                    BoxShadow(color: Colors.black26, blurRadius: 5, offset: Offset(0, 2))
-                                  ],
-                                ),
-                                child: TextField(
-                                  controller: _searchController,
-                                  onChanged: _onSearchChanged,
-                                  decoration: InputDecoration(
-                                    hintText: "Buscar dirección...",
-                                    border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                                    suffixIcon: _isSearching 
-                                      ? const SizedBox(width: 20, height: 20, child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator(strokeWidth: 2)))
-                                      : IconButton(
-                                          icon: const Icon(Icons.clear, color: Colors.grey),
-                                          onPressed: () {
-                                            _searchController.clear();
-                                            setState(() => _predictions = []);
-                                          },
-                                        ),
+                            
+                            // Buscador (SOLO SI ES PRO)
+                            if (widget.isPro) 
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(30),
+                                    boxShadow: const [
+                                      BoxShadow(color: Colors.black26, blurRadius: 5, offset: Offset(0, 2))
+                                    ],
+                                  ),
+                                  child: TextField(
+                                    controller: _searchController,
+                                    onChanged: _onSearchChanged,
+                                    decoration: InputDecoration(
+                                      hintText: "Buscar dirección...",
+                                      border: InputBorder.none,
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                                      suffixIcon: _isSearching 
+                                        ? const SizedBox(width: 20, height: 20, child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator(strokeWidth: 2)))
+                                        : IconButton(
+                                            icon: const Icon(Icons.clear, color: Colors.grey),
+                                            onPressed: () {
+                                              _searchController.clear();
+                                              setState(() => _predictions = []);
+                                            },
+                                          ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                         
-                        // Lista de Resultados de Búsqueda
-                        if (_predictions.isNotEmpty)
+                        // Lista de Resultados (Solo si hay texto y es PRO)
+                        if (widget.isPro && _predictions.isNotEmpty)
                           Container(
-                            margin: const EdgeInsets.only(top: 8, left: 50), // Alineado bajo el buscador
+                            margin: const EdgeInsets.only(top: 8, left: 50), 
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
                               color: Colors.white,

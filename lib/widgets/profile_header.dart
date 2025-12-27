@@ -8,9 +8,10 @@ class ProfileHeader extends StatelessWidget {
   final UserModel user;
   final bool isMe;
   final bool isLocalGuide;
+  final bool isPro; // <--- Nuevo parámetro para estatus PRO
   final VoidCallback onEditProfile;
 
-  // COLOR DE MARCA (Cian Yoinn)
+  // COLOR DE MARCA
   static const Color brandColor = Color(0xFF00BCD4);
 
   const ProfileHeader({
@@ -18,6 +19,7 @@ class ProfileHeader extends StatelessWidget {
     required this.user,
     required this.isMe,
     required this.isLocalGuide,
+    this.isPro = false, // Por defecto falso
     required this.onEditProfile,
   });
 
@@ -25,24 +27,82 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // --- FOTO ---
-        Container(
-          padding: const EdgeInsets.all(3),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            // El borde dorado se mantiene para "Guía Local" (es un estándar), 
-            // pero si quieres todo cian, cambia Colors.amber por brandColor aquí.
-            border: isLocalGuide ? Border.all(color: Colors.amber, width: 3) : null,
-          ),
-          child: CircleAvatar(
-            radius: 60,
-            backgroundColor: Colors.grey[200],
-            backgroundImage: user.profilePictureUrl.isNotEmpty
-                ? CachedNetworkImageProvider(user.profilePictureUrl)
-                : null,
-            child: user.profilePictureUrl.isEmpty ? const Icon(Icons.person, size: 60, color: Colors.grey) : null,
-          ),
+        // --- FOTO CON BORDE PRO Y BADGE ---
+        Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            // Contenedor de la Foto + Borde
+            Container(
+              padding: const EdgeInsets.all(4), // Grosor del borde
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                // Lógica del Borde:
+                // 1. Si es PRO -> Gradiente Dorado Metálico
+                // 2. Si es Local Guide (y no Pro) -> Borde Amber
+                // 3. Si no -> Nada
+                gradient: isPro 
+                    ? const LinearGradient(
+                        colors: [
+                          Color(0xFFB8860B), // Dorado Oscuro
+                          Color(0xFFFFD700), // Oro Brillante
+                          Color(0xFFD4AF37), // Oro Metálico
+                          Color(0xFFFFD700), 
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        stops: [0.0, 0.4, 0.7, 1.0]
+                      )
+                    : null,
+                border: (!isPro && isLocalGuide) 
+                    ? Border.all(color: Colors.amber, width: 3) 
+                    : null,
+                color: isPro ? null : Colors.transparent,
+              ),
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.grey[200],
+                backgroundImage: user.profilePictureUrl.isNotEmpty
+                    ? CachedNetworkImageProvider(user.profilePictureUrl)
+                    : null,
+                child: user.profilePictureUrl.isEmpty 
+                    ? const Icon(Icons.person, size: 60, color: Colors.grey) 
+                    : null,
+              ),
+            ),
+
+            // --- BADGE "PRO" (Solo si es PRO) ---
+            if (isPro)
+              Positioned(
+                bottom: -2, // Justo en el borde inferior
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.black, // Fondo negro para contraste premium
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFFFD700), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      )
+                    ]
+                  ),
+                  child: const Text(
+                    "PRO",
+                    style: TextStyle(
+                      color: Color(0xFFFFD700), // Texto Dorado
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
+        
         const SizedBox(height: 16),
 
         // --- NOMBRE ---
@@ -55,7 +115,6 @@ class ProfileHeader extends StatelessWidget {
             ),
             if (user.isVerified) ...[
               const SizedBox(width: 6),
-              // Verificado se suele dejar azul (estándar), pero podemos poner brandColor si prefieres
               const Icon(Icons.verified, color: Colors.blue, size: 20),
             ]
           ],
@@ -108,7 +167,7 @@ class ProfileHeader extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        // --- BOTÓN EDITAR (CORREGIDO A CIAN) ---
+        // --- BOTÓN EDITAR ---
         if (isMe)
           OutlinedButton.icon(
             onPressed: () async {
@@ -121,15 +180,15 @@ class ProfileHeader extends StatelessWidget {
             icon: const Icon(Icons.edit, size: 18),
             label: const Text("Editar Perfil"),
             style: OutlinedButton.styleFrom(
-              foregroundColor: brandColor, // <--- CIAN
-              side: const BorderSide(color: brandColor), // <--- CIAN
+              foregroundColor: brandColor,
+              side: const BorderSide(color: brandColor),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             ),
           ),
         
         const SizedBox(height: 30),
 
-        // --- INTERESES (CORREGIDO A CIAN) ---
+        // --- INTERESES ---
         if (user.hobbies.isNotEmpty) ...[
           const Align(
             alignment: Alignment.centerLeft,
@@ -143,8 +202,8 @@ class ProfileHeader extends StatelessWidget {
               runSpacing: 8,
               children: user.hobbies.map((hobby) => Chip(
                 label: Text(hobby.replaceAll('_', ' ').toUpperCase()),
-                backgroundColor: brandColor.withOpacity(0.1), // <--- FONDO CIAN SUAVE
-                labelStyle: const TextStyle(color: brandColor, fontSize: 12, fontWeight: FontWeight.bold), // <--- TEXTO CIAN
+                backgroundColor: brandColor.withOpacity(0.1),
+                labelStyle: const TextStyle(color: brandColor, fontSize: 12, fontWeight: FontWeight.bold),
                 side: BorderSide.none,
               )).toList(),
             ),

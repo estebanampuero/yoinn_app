@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'dart:math' show cos, sqrt, asin; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import '../models/activity_model.dart';
 import '../models/user_model.dart';
+import '../config/subscription_limits.dart'; 
+import 'subscription_service.dart'; 
 
 class DataService with ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -20,6 +23,16 @@ class DataService with ChangeNotifier {
   String _selectedCategory = 'Todas';
   DateTime? _selectedDate;
 
+  // Ubicación GPS y Radio
+  double _filterRadiusKm = SubscriptionLimits.defaultRadius; 
+  double? _userLat;
+  double? _userLng;
+  
+  double get filterRadius => _filterRadiusKm;
+  double? get currentLat => _userLat;
+  double? get currentLng => _userLng;
+
+  // Getters para filtros
   String get selectedCategory => _selectedCategory;
   DateTime? get currentFilterDate => _selectedDate;
 
@@ -50,6 +63,29 @@ class DataService with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     });
+  }
+
+  // --- MÉTODOS DE UBICACIÓN ---
+  
+  void updateUserLocation(double lat, double lng) {
+    _userLat = lat;
+    _userLng = lng;
+    _applyFilters(); 
+    notifyListeners();
+  }
+
+  void setRadiusFilter(double km) {
+    _filterRadiusKm = km;
+    _applyFilters();
+    notifyListeners();
+  }
+
+  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    var p = 0.017453292519943295; 
+    var c = cos;
+    var a = 0.5 - c((lat2 - lat1) * p)/2 + 
+            c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p))/2;
+    return 12742 * asin(sqrt(a)); 
   }
 
   // --- FILTROS ---
@@ -87,11 +123,17 @@ class DataService with ChangeNotifier {
                       actDate.day == _selectedDate!.day;
       }
 
-      return matchesSearch && matchesCategory && matchesDate;
+      bool matchesDistance = true;
+      if (_userLat != null && _userLng != null) {
+        double distance = _calculateDistance(_userLat!, _userLng!, activity.lat, activity.lng);
+        matchesDistance = distance <= (_filterRadiusKm > 0 ? _filterRadiusKm : 100);
+      }
+
+      return matchesSearch && matchesCategory && matchesDate && matchesDistance;
     }).toList();
   }
 
-  // --- USUARIOS ---
+  // --- GESTIÓN DE USUARIOS ---
   Future<UserModel?> getUserProfile(String uid) async {
     try {
       DocumentSnapshot doc = await _db.collection('users').doc(uid).get();
@@ -160,9 +202,39 @@ class DataService with ChangeNotifier {
     notifyListeners();
   }
 
-  // --- ACTIVIDADES ---
+  // --- ACTIVIDADES (CON VALIDACIÓN DE LÍMITES CORREGIDA) ---
   Future<void> createActivity(Map<String, dynamic> activityData) async {
     try {
+      final userUid = activityData['hostUid'];
+      
+      // 1. Verificar suscripción en Tienda
+      bool isPro = await SubscriptionService.isUserPremium();
+
+      // 2. CORRECCIÓN: Si no es Pro de tienda, verificar si es Manual Pro en Firebase
+      if (!isPro) {
+        final userDoc = await _db.collection('users').doc(userUid).get();
+        if (userDoc.exists && userDoc.data() != null) {
+          final userData = userDoc.data()!;
+          if (userData['isManualPro'] == true) {
+            isPro = true;
+          }
+        }
+      }
+      
+      // Validar límite de creación
+      final activeQuery = await _db.collection('activities')
+          .where('hostUid', isEqualTo: userUid)
+          .get(); 
+      
+      final currentActiveCount = activeQuery.docs.length;
+      final limit = isPro ? SubscriptionLimits.proMaxActiveActivities : SubscriptionLimits.freeMaxActiveActivities;
+
+      if (currentActiveCount >= limit) {
+        throw Exception("Límite de actividades alcanzado ($limit). ${isPro ? '' : 'Hazte PRO para más.'}");
+      }
+
+      // Guardar límite de asistentes permitido para esta actividad
+      activityData['maxAttendees'] = isPro ? SubscriptionLimits.proMaxAttendees : SubscriptionLimits.freeMaxAttendees;
       activityData['createdAt'] = FieldValue.serverTimestamp();
       activityData['acceptedCount'] = 0; 
       activityData['participantImages'] = []; 
@@ -240,10 +312,37 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
 
-  // --- SOLICITUDES Y GESTIÓN ---
-  
+  // --- SOLICITUDES (JOIN) CORREGIDO ---
   Future<void> applyToActivity(String activityId, UserModel user) async {
     try {
+      // 1. Verificar si es PRO (Tienda o Manual)
+      bool isPro = await SubscriptionService.isUserPremium() || user.isManualPro;
+
+      // 2. Validar límite semanal de uniones (Si es Free)
+      if (!isPro) {
+        final now = DateTime.now();
+        final startOfWeek = DateTime(now.year, now.month, now.day - (now.weekday - 1)); 
+        
+        final joinsThisWeek = await _db.collection('applications')
+            .where('applicantUid', isEqualTo: user.uid)
+            .where('appliedAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfWeek))
+            .get();
+        
+        if (joinsThisWeek.docs.length >= SubscriptionLimits.freeMaxJoinsPerWeek) {
+           throw Exception("Límite semanal alcanzado (${SubscriptionLimits.freeMaxJoinsPerWeek}). Hazte PRO para ilimitado.");
+        }
+      }
+
+      // 3. Validar cupos de la actividad
+      final activityDoc = await _db.collection('activities').doc(activityId).get();
+      if (activityDoc.exists) {
+        int current = activityDoc['acceptedCount'] ?? 0;
+        int max = activityDoc['maxAttendees'] ?? SubscriptionLimits.freeMaxAttendees;
+        if (current >= max) {
+          throw Exception("La actividad está llena.");
+        }
+      }
+
       await _db.collection('applications').add({
         'activityId': activityId,
         'applicantUid': user.uid,
@@ -323,8 +422,7 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // --- CHAT MODERNO ---
-  
+  // --- CHAT ---
   Future<void> sendMessage(String activityId, String text, UserModel sender) async {
     try {
       await _db.collection('activities').doc(activityId).collection('messages').add({
@@ -334,7 +432,7 @@ class DataService with ChangeNotifier {
         'senderProfilePictureUrl': sender.profilePictureUrl,
         'timestamp': FieldValue.serverTimestamp(),
         'readBy': [sender.uid],
-        'likedBy': [], // INICIALIZAMOS EL ARRAY DE LIKES
+        'likedBy': [], 
       });
     } catch (e) {
       if (kDebugMode) print("Error enviando mensaje: $e");
@@ -342,7 +440,6 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // NUEVO: DAR/QUITAR LIKE (CORAZÓN)
   Future<void> toggleMessageLike(String activityId, String messageId, String myUid, bool currentlyLiked) async {
     final docRef = _db.collection('activities')
         .doc(activityId)
@@ -350,12 +447,10 @@ class DataService with ChangeNotifier {
         .doc(messageId);
 
     if (currentlyLiked) {
-      // Quitar like
       await docRef.update({
         'likedBy': FieldValue.arrayRemove([myUid])
       });
     } else {
-      // Dar like
       await docRef.update({
         'likedBy': FieldValue.arrayUnion([myUid])
       });
@@ -439,7 +534,7 @@ class DataService with ChangeNotifier {
         .map((snapshot) => snapshot.docs.length);
   }
 
-  // --- ZONA ADMINISTRADOR ---
+  // --- ADMIN ---
   Stream<QuerySnapshot> getAdminReportsStream() {
     return _db.collection('reports')
         .where('status', isEqualTo: 'pending_review') 
@@ -482,7 +577,9 @@ class DataService with ChangeNotifier {
     });
   }
   
+  // Fuerza refresco
   Future<void> refresh() async {
+    _applyFilters();
     notifyListeners();
   }
 }

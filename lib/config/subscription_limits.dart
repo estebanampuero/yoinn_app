@@ -1,11 +1,25 @@
 class SubscriptionLimits {
-  // --- USUARIO GRATIS (FREE) ---
-  static const int freeMaxAttendees = 3;        // Máx invitados que pueden llevar
-  static const int freeMaxActiveActivities = 1; // Máx actividades creadas a la vez
-  static const int freeMaxJoinsPerWeek = 3;     // Máx actividades a las que unirse/sem
+  // --- RADIO DE BÚSQUEDA (KILÓMETROS) ---
+  static const double defaultRadius = 10.0;
+  
+  // Límite para usuarios GRATIS (30 KM)
+  static const double freeMaxRadius = 30.0; 
 
-  // --- USUARIO PRO (PREMIUM) ---
-  static const int proMaxAttendees = 20;        // Invitados casi ilimitados
-  static const int proMaxActiveActivities = 10; 
-  static const int proMaxJoinsPerWeek = 999;    // Ilimitado
+  // Límite para usuarios PRO (150 KM)
+  static const double proMaxRadius = 150.0; 
+
+  // --- LÍMITES DE EVENTOS (ASISTENCIA) ---
+  // Cuántas personas pueden ir a un evento que tú creas
+  static const int freeMaxAttendees = 5;
+  static const int proMaxAttendees = 50; 
+
+  // --- LÍMITES DE CREACIÓN ---
+  // Cuántas actividades activas puedes tener al mismo tiempo
+  static const int freeMaxActiveActivities = 1;
+  static const int proMaxActiveActivities = 10;
+
+  // --- LÍMITES DE UNIÓN (JOIN) ---
+  // A cuántas actividades puedes unirte por semana
+  static const int freeMaxJoinsPerWeek = 3;
+  static const int proMaxJoinsPerWeek = 1000; // Ilimitado
 }

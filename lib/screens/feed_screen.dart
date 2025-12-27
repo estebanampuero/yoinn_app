@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/data_service.dart';
-import '../services/subscription_service.dart'; // Importante para verificar premium
-import '../models/user_model.dart'; // <--- AGREGADO PARA LEER isManualPro
+import '../services/subscription_service.dart'; 
+import '../models/user_model.dart'; 
 import '../widgets/activity_card.dart';
 import 'activity_detail_screen.dart';
 import 'create_activity_screen.dart';
 import 'profile_screen.dart';
-import 'paywall_pro_screen.dart'; // Nueva pantalla de ventas
+import 'paywall_pro_screen.dart'; 
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -20,7 +20,7 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   final TextEditingController _searchController = TextEditingController();
   
-  // Estado para controlar la UI según suscripción (RevenueCat O Manual)
+  // Estado para controlar la UI según suscripción (solo para el borde de la foto)
   bool _isPremium = false; 
 
   final List<String> _filterCategories = [
@@ -39,19 +39,16 @@ class _FeedScreenState extends State<FeedScreen> {
     super.dispose();
   }
 
-  // Verificamos el estado premium al cargar el feed
+  // Verificamos el estado premium
   Future<void> _checkPremiumStatus() async {
-    // 1. Verificamos suscripción de pago (RevenueCat)
     final revenueCatStatus = await SubscriptionService.isUserPremium();
     
-    // 2. Verificamos suscripción manual en Firebase
     bool manualStatus = false;
-    if (mounted) { // Check mounted antes de usar context
+    if (mounted) { 
       final authService = Provider.of<AuthService>(context, listen: false);
       final dataService = Provider.of<DataService>(context, listen: false);
       
       if (authService.currentUser != null) {
-        // Obtenemos el perfil para ver si tiene isManualPro
         final user = await dataService.getUserProfile(authService.currentUser!.uid);
         manualStatus = user?.isManualPro ?? false;
       }
@@ -59,22 +56,8 @@ class _FeedScreenState extends State<FeedScreen> {
 
     if (mounted) {
       setState(() {
-        // Es Premium si pagó O si se lo activamos manualmente
         _isPremium = revenueCatStatus || manualStatus;
       });
-    }
-  }
-
-  // Abre la pantalla de ventas
-  void _openPaywall() async {
-    final result = await Navigator.push(
-      context, 
-      MaterialPageRoute(builder: (context) => const PaywallProScreen())
-    );
-    if (result == true) {
-      // Si compró, actualizamos la UI del Feed (borde dorado)
-      _checkPremiumStatus();
-      if(mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("¡Ya eres PRO!")));
     }
   }
 
@@ -104,6 +87,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Usamos el DataService para obtener actividades y filtros
     final authService = Provider.of<AuthService>(context, listen: false);
     final dataService = Provider.of<DataService>(context);
     
@@ -117,69 +101,76 @@ class _FeedScreenState extends State<FeedScreen> {
           style: TextStyle(color: Color(0xFF00BCD4), fontWeight: FontWeight.w800, fontSize: 24),
         ),
         actions: [
-          Row(
-            children: [
-              // --- INTEGRACIÓN: Botón "Pásate a PRO" si NO es premium ---
-              if (!_isPremium)
-                GestureDetector(
-                  onTap: _openPaywall,
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [Color(0xFFFFD700), Color(0xFFFFA000)]),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 4)],
-                    ),
-                    child: const Row(
-                      children: [
-                         Icon(Icons.workspace_premium, color: Colors.white, size: 16),
-                         SizedBox(width: 4),
-                         Text(
-                           "PRO",
-                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                         ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // --- INTEGRACIÓN: Foto de Perfil con lógica Premium ---
-              Padding(
-                padding: const EdgeInsets.only(right: 16.0),
-                child: GestureDetector(
-                  onTap: () {
-                     final myUid = authService.currentUser?.uid;
-                     if (myUid != null) {
-                       Navigator.push(
-                         context,
-                         MaterialPageRoute(builder: (context) => ProfileScreen(uid: myUid)),
-                       ).then((_) => _checkPremiumStatus()); // Actualizar al volver del perfil
-                     }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(2), // Espacio para el borde
+          // --- FOTO DE PERFIL CON ESTILO PRO/FREE ---
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () {
+                 final myUid = authService.currentUser?.uid;
+                 if (myUid != null) {
+                   Navigator.push(
+                     context,
+                     MaterialPageRoute(builder: (context) => ProfileScreen(uid: myUid)),
+                   ).then((_) => _checkPremiumStatus()); // Actualizar al volver
+                 }
+              },
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // El contenedor del borde (Solo si es Premium)
+                  Container(
+                    padding: const EdgeInsets.all(3.0), 
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      // Si es Premium: Borde Dorado. Si no: Transparente (o color normal)
-                      border: _isPremium 
-                          ? Border.all(color: const Color(0xFFFFD700), width: 2.5) 
-                          : null, 
+                      // Si es Premium: GRADIENTE METÁLICO REAL
+                      gradient: _isPremium 
+                          ? const LinearGradient(
+                              colors: [
+                                Color(0xFFB8860B), // Dorado Oscuro
+                                Color(0xFFFFD700), // Oro Brillante
+                                Color(0xFFD4AF37), // Oro Metálico
+                                Color(0xFFFFD700), 
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              stops: [0.0, 0.4, 0.7, 1.0]
+                            )
+                          : null,
+                      color: _isPremium ? null : Colors.transparent, 
                     ),
                     child: CircleAvatar(
                       radius: 18,
                       backgroundImage: NetworkImage(authService.currentUser?.profilePictureUrl ?? ''),
                       backgroundColor: const Color(0xFFB2EBF2),
+                      child: authService.currentUser?.profilePictureUrl == null || authService.currentUser!.profilePictureUrl.isEmpty
+                          ? const Icon(Icons.person, color: Colors.white)
+                          : null,
                     ),
                   ),
-                ),
+                  
+                  // Pequeña estrella VERIFICADA si es Premium
+                  if (_isPremium)
+                    Positioned(
+                      bottom: -2,
+                      right: -2,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.verified, color: Color(0xFFD4AF37), size: 14),
+                      ),
+                    )
+                ],
               ),
-            ],
-          )
+            ),
+          ),
         ],
       ),
       body: Column(
         children: [
+          // --- BARRA DE BÚSQUEDA Y FILTROS ---
           Container(
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -241,6 +232,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 ),
                 const SizedBox(height: 12),
                 
+                // Categorías horizontales
                 SizedBox(
                   height: 32,
                   child: ListView.separated(
@@ -283,6 +275,7 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
           ),
           
+          // --- LISTA DE ACTIVIDADES ---
           Expanded(
             child: dataService.isLoading
               ? const Center(child: CircularProgressIndicator(color: Color(0xFF00BCD4)))
@@ -306,7 +299,8 @@ class _FeedScreenState extends State<FeedScreen> {
                     ),
                   )
                 : RefreshIndicator(
-                    onRefresh: dataService.refresh,
+                    // ESTE MÉTODO AHORA EXISTE GRACIAS AL NUEVO DATA_SERVICE
+                    onRefresh: dataService.refresh, 
                     color: const Color(0xFF00BCD4),
                     child: ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),

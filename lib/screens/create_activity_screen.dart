@@ -8,7 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../services/auth_service.dart';
 import '../services/data_service.dart';
-import '../config/subscription_limits.dart'; // <--- NUEVO
+import '../config/subscription_limits.dart'; 
 import 'map_picker_screen.dart'; 
 
 class CreateActivityScreen extends StatefulWidget {
@@ -26,7 +26,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   final _locationController = TextEditingController();
   
   String _selectedCategory = 'Otro'; 
-  int _maxAttendees = 2; // Valor inicial
+  int _maxAttendees = 2; 
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
   bool _isSaving = false;
@@ -41,7 +41,6 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
     'Deportes', 'Comida', 'Arte', 'Fiestas', 'Viajes', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
   ];
 
-  // La lista ahora se genera dinámicamente
   List<int> _attendeesOptions = [];
 
   final Color _activeColor = const Color(0xFFF97316); 
@@ -58,19 +57,21 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // --- LÓGICA DE LÍMITES FREEMIUM ---
+    // --- LÓGICA DE LÍMITES (MEJORADA) ---
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
-    final isPremium = user?.isPremium ?? false;
+    
+    // Verificamos AMBOS estados: Tienda o Manual
+    final bool isPro = (user?.isPremium ?? false) || (user?.isManualPro ?? false);
 
     // Definir límite según plan
-    final int maxLimit = isPremium 
+    final int maxLimit = isPro 
         ? SubscriptionLimits.proMaxAttendees 
         : SubscriptionLimits.freeMaxAttendees;
 
-    // Generar la lista de opciones (Ej: Free [1,2,3], Pro [1..20])
+    // Generar la lista de opciones
     _attendeesOptions = List.generate(maxLimit, (index) => index + 1);
 
-    // Seguridad: Si el valor actual excede el límite (raro en create), ajustarlo
+    // Seguridad: Si el valor actual excede el límite, ajustarlo
     if (_maxAttendees > maxLimit) {
       _maxAttendees = maxLimit;
     }
@@ -103,9 +104,14 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   }
 
   Future<void> _openLocationSearch() async {
+    // Calcular estado PRO para enviarlo al mapa
+    final user = Provider.of<AuthService>(context, listen: false).currentUser;
+    final bool isPro = (user?.isPremium ?? false) || (user?.isManualPro ?? false);
+
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const MapPickerScreen()),
+      // Pasamos 'isPro' al mapa para que decida si bloquear la cámara o dejarlo libre
+      MaterialPageRoute(builder: (context) => MapPickerScreen(isPro: isPro)),
     );
 
     if (result != null && result is Map<String, dynamic>) {
@@ -301,7 +307,6 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
 
   // --- WIDGET DE ACOMPAÑANTES ---
   Widget _buildAttendeesInput() {
-    // Si la lista está vacía (carga inicial), ponemos un valor seguro
     if (_attendeesOptions.isEmpty) return const SizedBox();
 
     if (Platform.isIOS) {
@@ -506,7 +511,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
               ),
               const SizedBox(height: 16),
 
-              // CATEGORÍA (NATIVA)
+              // CATEGORÍA
               _buildCategoryInput(),
               const SizedBox(height: 16),
 
@@ -533,7 +538,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
               ),
               const SizedBox(height: 16),
 
-              // UBICACIÓN
+              // UBICACIÓN (Dispara la búsqueda con permiso PRO)
               TextFormField(
                 controller: _locationController,
                 readOnly: true, 
@@ -548,7 +553,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
               ),
               const SizedBox(height: 16),
 
-              // ACOMPAÑANTES (DINÁMICO SEGÚN PLAN)
+              // ACOMPAÑANTES
               _buildAttendeesInput(),
               
               const SizedBox(height: 30),
