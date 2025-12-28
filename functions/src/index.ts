@@ -1,4 +1,4 @@
-import * as functions from "firebase-functions/v1"; // <-- FORZAMOS V1
+import * as functions from "firebase-functions/v1"; 
 import * as admin from "firebase-admin";
 
 // Inicializar Firebase Admin
@@ -8,6 +8,7 @@ const fcm = admin.messaging();
 
 /**
  * Envia una notificacion Push a un dispositivo especifico.
+ * (Mantenido para usar en solicitudes individuales)
  */
 async function sendPushNotification(
   userId: string,
@@ -67,10 +68,9 @@ async function saveInAppNotification(
   }
 }
 
-// 1. Trigger: Nueva Solicitud
+// 1. Trigger: Nueva Solicitud (SIN CAMBIOS)
 export const onNewApplication = functions.firestore
   .document("applications/{appId}")
-  // Agregamos tipos explícitos a 'snap' y 'context'
   .onCreate(async (snap: functions.firestore.QueryDocumentSnapshot, context: functions.EventContext) => {
     const appData = snap.data();
     const activityId = appData.activityId;
@@ -89,7 +89,7 @@ export const onNewApplication = functions.firestore
         hostUid,
         "Nueva Solicitud",
         msg,
-        {type: "application", activityId}
+        {type: "application", relatedActivityId: activityId}
       );
       
       await saveInAppNotification(
@@ -101,10 +101,9 @@ export const onNewApplication = functions.firestore
     }
   });
 
-// 2. Trigger: Cambio de Estado (Aceptado)
+// 2. Trigger: Cambio de Estado - Aceptado (SIN CAMBIOS)
 export const onApplicationStatusChange = functions.firestore
   .document("applications/{appId}")
-  // Agregamos tipos explícitos a 'change' y 'context'
   .onUpdate(async (change: functions.Change<functions.firestore.QueryDocumentSnapshot>, context: functions.EventContext) => {
     const newData = change.after.data();
     const oldData = change.before.data();
@@ -121,7 +120,7 @@ export const onApplicationStatusChange = functions.firestore
         newData.applicantUid,
         "Solicitud Aceptada",
         msg,
-        {type: "application", activityId: newData.activityId}
+        {type: "application", relatedActivityId: newData.activityId}
       );
 
       await saveInAppNotification(
@@ -133,30 +132,100 @@ export const onApplicationStatusChange = functions.firestore
     }
   });
 
-// 3. Trigger: Nuevo Mensaje de Chat
+// 3. Trigger: Nuevo Mensaje de Chat (MEJORADO - GRUPAL)
 export const onNewChatMessage = functions.firestore
   .document("activities/{activityId}/messages/{msgId}")
-  // Agregamos tipos explícitos
   .onCreate(async (snap: functions.firestore.QueryDocumentSnapshot, context: functions.EventContext) => {
     const msgData = snap.data();
     const activityId = context.params.activityId;
 
-    const activityDoc = await db.collection("activities")
-      .doc(activityId)
-      .get();
+    // Datos del mensaje
+    const senderUid = msgData.senderUid;
+    const senderName = msgData.senderName || "Alguien";
+    const text = msgData.text || "Envió un mensaje";
 
-    const hostUid = activityDoc.data()?.hostUid;
-    const title = activityDoc.data()?.title;
+    try {
+      // A. Obtener datos de la Actividad
+      const activityDoc = await db.collection("activities").doc(activityId).get();
+      if (!activityDoc.exists) return;
 
-    // Si no soy el dueño y escribo, le aviso al dueño
-    if (msgData.senderUid !== hostUid && hostUid) {
-      const body = `${msgData.senderName}: ${msgData.text}`;
-      
-      await sendPushNotification(
-        hostUid,
-        `Nuevo mensaje en ${title}`,
-        body,
-        {type: "chat", activityId}
-      );
+      const activityData = activityDoc.data();
+      const activityTitle = activityData?.title || "Chat Actividad";
+      const hostUid = activityData?.hostUid;
+
+      // B. Buscar participantes ACEPTADOS
+      const applicationsSnapshot = await db.collection("applications")
+        .where("activityId", "==", activityId)
+        .where("status", "==", "accepted")
+        .get();
+
+      // C. Crear lista de UIDs destinatarios (Set evita duplicados)
+      const recipientUids = new Set<string>();
+
+      // Agregar al Host (si no es quien envió)
+      if (hostUid && hostUid !== senderUid) {
+        recipientUids.add(hostUid);
+      }
+
+      // Agregar participantes aceptados (si no son quien envió)
+      applicationsSnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.applicantUid && data.applicantUid !== senderUid) {
+          recipientUids.add(data.applicantUid);
+        }
+      });
+
+      if (recipientUids.size === 0) {
+        console.log("Nadie a quien notificar en el chat.");
+        return;
+      }
+
+      // D. Buscar Tokens FCM de los destinatarios
+      const tokens: string[] = [];
+      const userReads: Promise<FirebaseFirestore.DocumentSnapshot>[] = [];
+
+      recipientUids.forEach((uid) => {
+        userReads.push(db.collection("users").doc(uid).get());
+      });
+
+      const userDocs = await Promise.all(userReads);
+
+      userDocs.forEach((doc) => {
+        if (doc.exists) {
+          const userData = doc.data();
+          if (userData?.fcmToken) {
+            tokens.push(userData.fcmToken);
+          }
+        }
+      });
+
+      if (tokens.length === 0) return;
+
+      // E. Enviar Notificación Multicast (Más eficiente para grupos)
+      const payload: admin.messaging.MulticastMessage = {
+        tokens: tokens,
+        notification: {
+          title: activityTitle,
+          body: `${senderName}: ${text}`,
+        },
+        data: {
+          click_action: "FLUTTER_NOTIFICATION_CLICK",
+          type: "chat_message",
+          relatedActivityId: activityId, // Usamos relatedActivityId para consistencia
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: "default",
+            },
+          },
+        },
+      };
+
+      const response = await fcm.sendEachForMulticast(payload);
+      console.log(`Chat: ${response.successCount} notificaciones enviadas.`);
+
+    } catch (error) {
+      console.error("Error en onNewChatMessage:", error);
     }
   });

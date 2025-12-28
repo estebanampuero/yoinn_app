@@ -388,12 +388,11 @@ $deepLink
                 } catch (_) {}
               }
 
-              // --- 1. VISTA DEL ANFITRIÓN (HOST) ---
+              // --- 1. VISTA ANFITRIÓN ---
               if (isHost) {
                  return Column(
                    mainAxisSize: MainAxisSize.min,
                    children: [
-                     // Botón Chat
                      SizedBox(
                        width: double.infinity, height: 45,
                        child: ElevatedButton(
@@ -403,33 +402,18 @@ $deepLink
                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                          ),
                          onPressed: () {
-                           // NAVEGACIÓN CORREGIDA AL CHAT
-                           Navigator.push(
-                             context,
-                             MaterialPageRoute(builder: (context) => ChatScreen(activity: widget.activity))
-                           );
+                           Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(activity: widget.activity)));
                          },
                          child: const Text("Ir al Chat del Grupo", style: TextStyle(fontSize: 16, color: Color(0xFF00BCD4), fontWeight: FontWeight.bold)),
                        ),
                      ),
                      const SizedBox(height: 12),
-                     // Botón Gestionar (RESTAURADO)
                      SizedBox(
                        width: double.infinity, height: 45,
                        child: ElevatedButton.icon(
-                         style: ElevatedButton.styleFrom(
-                           backgroundColor: const Color(0xFF00BCD4),
-                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                         ),
+                         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00BCD4), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                          onPressed: () {
-                           // NAVEGACIÓN CORREGIDA A GESTIONAR
-                           Navigator.push(
-                             context,
-                             MaterialPageRoute(builder: (context) => ManageRequestsScreen(
-                               activityId: widget.activity.id,
-                               activityTitle: widget.activity.title,
-                             ))
-                           );
+                           Navigator.push(context, MaterialPageRoute(builder: (_) => ManageRequestsScreen(activityId: widget.activity.id, activityTitle: widget.activity.title)));
                          },
                          icon: const Icon(Icons.people, color: Colors.white),
                          label: const Text("Gestionar Solicitudes", style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
@@ -439,18 +423,14 @@ $deepLink
                  );
               }
 
-              // --- 2. VISTA PARTICIPANTE ACEPTADO ---
+              // --- 2. VISTA ACEPTADO ---
               if (status == 'accepted') {
                 return SizedBox(
                   width: double.infinity, height: 50,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.green, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                     onPressed: () {
-                       // NAVEGACIÓN CORREGIDA AL CHAT
-                       Navigator.push(
-                         context,
-                         MaterialPageRoute(builder: (context) => ChatScreen(activity: widget.activity))
-                       );
+                       Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(activity: widget.activity)));
                     },
                     icon: const Icon(Icons.chat),
                     label: const Text("¡Estás dentro! Ir al Chat", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -470,7 +450,7 @@ $deepLink
                 );
               }
 
-              // --- 4. VISTA USUARIO NUEVO (UNIRSE) ---
+              // --- 4. VISTA NUEVO USUARIO ---
               final spotsLeft = widget.activity.maxAttendees - widget.activity.acceptedCount;
               final isFull = spotsLeft <= 0;
 

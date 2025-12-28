@@ -12,6 +12,7 @@
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		528A4FF12EF9D9AB006311CF /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 528A4FF02EF9D9AB006311CF /* StoreKit.framework */; };
 		528A4FF52EFA701A006311CF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 528A4FF42EFA701A006311CF /* GoogleService-Info.plist */; };
+		52ED3E452F0130DA00A1ED70 /* PuertoVaras.gpx in Resources */ = {isa = PBXBuildFile; fileRef = 52ED3E442F0130D900A1ED70 /* PuertoVaras.gpx */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
@@ -55,6 +56,7 @@
 		52620BBB2EF6E73C00C0DD4F /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		528A4FF02EF9D9AB006311CF /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		528A4FF42EFA701A006311CF /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		52ED3E442F0130D900A1ED70 /* PuertoVaras.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PuertoVaras.gpx; sourceTree = "<group>"; };
 		6E8CB8F3F28BC23B1D447234 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		6F182D758CDA39686AAF252B /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 			isa = PBXGroup;
 			children = (
 				52620BBB2EF6E73C00C0DD4F /* Runner.entitlements */,
+				52ED3E442F0130D900A1ED70 /* PuertoVaras.gpx */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				528A4FF42EFA701A006311CF /* GoogleService-Info.plist */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
@@ -271,6 +274,7 @@
 			files = (
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
+				52ED3E452F0130DA00A1ED70 /* PuertoVaras.gpx in Resources */,
 				528A4FF52EFA701A006311CF /* GoogleService-Info.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
