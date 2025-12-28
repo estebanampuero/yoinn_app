@@ -33,6 +33,9 @@ class Activity {
     this.participantImages = const [],
   });
 
+  // Getter auxiliar para GeoFlutterFire
+  GeoPoint get geoPoint => GeoPoint(lat, lng);
+
   factory Activity.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     

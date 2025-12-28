@@ -1,8 +1,13 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math' show cos, sqrt, asin; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart'; 
+import 'package:geolocator/geolocator.dart'; 
+import 'package:rxdart/rxdart.dart'; 
+
 import '../models/activity_model.dart';
 import '../models/user_model.dart';
 import '../config/subscription_limits.dart'; 
@@ -16,6 +21,9 @@ class DataService with ChangeNotifier {
   List<Activity> _filteredActivities = [];
   bool _isLoading = true;
 
+  final BehaviorSubject<double> _radiusController = BehaviorSubject<double>.seeded(SubscriptionLimits.defaultRadius);
+  StreamSubscription? _feedSubscription;
+
   List<Activity> get activities => _filteredActivities;
   bool get isLoading => _isLoading;
 
@@ -23,7 +31,6 @@ class DataService with ChangeNotifier {
   String _selectedCategory = 'Todas';
   DateTime? _selectedDate;
 
-  // Ubicación GPS y Radio
   double _filterRadiusKm = SubscriptionLimits.defaultRadius; 
   double? _userLat;
   double? _userLng;
@@ -32,51 +39,89 @@ class DataService with ChangeNotifier {
   double? get currentLat => _userLat;
   double? get currentLng => _userLng;
 
-  // Getters para filtros
   String get selectedCategory => _selectedCategory;
   DateTime? get currentFilterDate => _selectedDate;
 
   DataService() {
-    _listenToActivities();
+    _initRealtimeFeed(); 
   }
 
-  void _listenToActivities() {
-    final now = DateTime.now();
-    final todayStart = DateTime(now.year, now.month, now.day); 
+  void _initRealtimeFeed() async {
+    try {
+       Position position = await Geolocator.getCurrentPosition();
+       _userLat = position.latitude;
+       _userLng = position.longitude;
+    } catch (e) {
+       if (kDebugMode) print("Error obteniendo ubicación inicial: $e");
+    }
 
-    _db.collection('activities')
-       .where('dateTime', isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart))
-       .orderBy('dateTime')
-       .snapshots()
-       .listen((snapshot) {
-      
-      _allActivities = snapshot.docs.map((doc) {
-        return Activity.fromFirestore(doc);
-      }).toList();
-
-      _applyFilters();
-      
-      _isLoading = false;
-      notifyListeners();
-    }, onError: (error) {
-      if (kDebugMode) print("Error escuchando actividades: $error");
-      _isLoading = false;
-      notifyListeners();
+    Stream<GeoPoint> userLocationStream = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 2000, // 2km
+      )
+    ).map((p) {
+      _userLat = p.latitude;
+      _userLng = p.longitude;
+      return GeoPoint(p.latitude, p.longitude);
     });
+
+    _feedSubscription = Rx.combineLatest2<GeoPoint, double, void>(
+      userLocationStream,
+      _radiusController.stream,
+      (userLoc, radius) {
+        _queryActivitiesByLoc(userLoc, radius);
+      }
+    ).listen(null);
   }
 
-  // --- MÉTODOS DE UBICACIÓN ---
+  void _queryActivitiesByLoc(GeoPoint center, double radiusInKm) {
+    _isLoading = true;
+    notifyListeners();
+
+    final collectionRef = _db.collection('activities').withConverter<Activity>(
+      fromFirestore: (snapshot, _) => Activity.fromFirestore(snapshot),
+      toFirestore: (activity, _) => activity.toMap(),
+    );
+
+    GeoCollectionReference(collectionRef)
+      .subscribeWithin(
+        center: GeoFirePoint(center),
+        radiusInKm: radiusInKm,
+        field: 'geo', 
+        geopointFrom: (activity) => activity.geoPoint, 
+        strictMode: true, 
+      )
+      .listen((List<DocumentSnapshot<Activity>> docs) {
+        
+        final now = DateTime.now();
+        final todayStart = DateTime(now.year, now.month, now.day);
+
+        _allActivities = docs
+            .map((d) => d.data()!)
+            .where((a) => a.dateTime.isAfter(todayStart)) 
+            .toList();
+
+        _applyFilters();
+        
+        _isLoading = false;
+        notifyListeners();
+      }, onError: (e) {
+        if (kDebugMode) print("Error en GeoQuery: $e");
+        _isLoading = false;
+        notifyListeners();
+      });
+  }
   
   void updateUserLocation(double lat, double lng) {
     _userLat = lat;
     _userLng = lng;
-    _applyFilters(); 
     notifyListeners();
   }
 
   void setRadiusFilter(double km) {
     _filterRadiusKm = km;
-    _applyFilters();
+    _radiusController.add(km); 
     notifyListeners();
   }
 
@@ -88,7 +133,6 @@ class DataService with ChangeNotifier {
     return 12742 * asin(sqrt(a)); 
   }
 
-  // --- FILTROS ---
   void setSearchQuery(String query) {
     _searchQuery = query;
     _applyFilters();
@@ -123,17 +167,10 @@ class DataService with ChangeNotifier {
                       actDate.day == _selectedDate!.day;
       }
 
-      bool matchesDistance = true;
-      if (_userLat != null && _userLng != null) {
-        double distance = _calculateDistance(_userLat!, _userLng!, activity.lat, activity.lng);
-        matchesDistance = distance <= (_filterRadiusKm > 0 ? _filterRadiusKm : 100);
-      }
-
-      return matchesSearch && matchesCategory && matchesDate && matchesDistance;
+      return matchesSearch && matchesCategory && matchesDate;
     }).toList();
   }
 
-  // --- GESTIÓN DE USUARIOS ---
   Future<UserModel?> getUserProfile(String uid) async {
     try {
       DocumentSnapshot doc = await _db.collection('users').doc(uid).get();
@@ -178,7 +215,6 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // --- SEGURIDAD ---
   Future<void> reportContent({
     required String reporterUid,
     required String reportedId,
@@ -202,15 +238,11 @@ class DataService with ChangeNotifier {
     notifyListeners();
   }
 
-  // --- ACTIVIDADES (CON VALIDACIÓN DE LÍMITES CORREGIDA) ---
   Future<void> createActivity(Map<String, dynamic> activityData) async {
     try {
       final userUid = activityData['hostUid'];
       
-      // 1. Verificar suscripción en Tienda
       bool isPro = await SubscriptionService.isUserPremium();
-
-      // 2. CORRECCIÓN: Si no es Pro de tienda, verificar si es Manual Pro en Firebase
       if (!isPro) {
         final userDoc = await _db.collection('users').doc(userUid).get();
         if (userDoc.exists && userDoc.data() != null) {
@@ -221,7 +253,6 @@ class DataService with ChangeNotifier {
         }
       }
       
-      // Validar límite de creación
       final activeQuery = await _db.collection('activities')
           .where('hostUid', isEqualTo: userUid)
           .get(); 
@@ -233,7 +264,11 @@ class DataService with ChangeNotifier {
         throw Exception("Límite de actividades alcanzado ($limit). ${isPro ? '' : 'Hazte PRO para más.'}");
       }
 
-      // Guardar límite de asistentes permitido para esta actividad
+      final GeoFirePoint geoPoint = GeoFirePoint(
+        GeoPoint(activityData['lat'], activityData['lng'])
+      );
+      activityData['geo'] = geoPoint.data; 
+
       activityData['maxAttendees'] = isPro ? SubscriptionLimits.proMaxAttendees : SubscriptionLimits.freeMaxAttendees;
       activityData['createdAt'] = FieldValue.serverTimestamp();
       activityData['acceptedCount'] = 0; 
@@ -244,9 +279,6 @@ class DataService with ChangeNotifier {
       _searchQuery = '';
       _selectedCategory = 'Todas';
       _selectedDate = null;
-      _applyFilters(); 
-      notifyListeners(); 
-      
     } catch (e) {
       if (kDebugMode) print("Error creando actividad: $e");
       rethrow;
@@ -256,6 +288,14 @@ class DataService with ChangeNotifier {
   Future<void> updateActivity(String activityId, Map<String, dynamic> newData) async {
     try {
       newData['lastUpdate'] = FieldValue.serverTimestamp();
+      
+      if (newData.containsKey('lat') && newData.containsKey('lng')) {
+         final GeoFirePoint geoPoint = GeoFirePoint(
+            GeoPoint(newData['lat'], newData['lng'])
+         );
+         newData['geo'] = geoPoint.data;
+      }
+
       await _db.collection('activities').doc(activityId).update(newData);
       notifyListeners();
     } catch (e) {
@@ -312,13 +352,37 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
 
-  // --- SOLICITUDES (JOIN) CORREGIDO ---
+  // --- SOLICITUDES (JOIN) + GAMIFICACIÓN ---
+
+  // NUEVO: Cuenta tickets restantes
+  Future<int> getRemainingFreeJoins(String uid) async {
+    bool isPro = await SubscriptionService.isUserPremium();
+    if (!isPro) {
+        final userDoc = await _db.collection('users').doc(uid).get();
+        if (userDoc.exists && userDoc.data() != null) {
+          if (userDoc.data()!['isManualPro'] == true) isPro = true;
+        }
+    }
+
+    if (isPro) return -1; // -1 = Ilimitado
+
+    final now = DateTime.now();
+    final startOfWeek = DateTime(now.year, now.month, now.day - (now.weekday - 1)); 
+
+    final joinsQuery = await _db.collection('applications')
+        .where('applicantUid', isEqualTo: uid)
+        .where('appliedAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfWeek))
+        .get();
+    
+    int used = joinsQuery.docs.length;
+    int remaining = SubscriptionLimits.freeMaxJoinsPerWeek - used;
+    return remaining < 0 ? 0 : remaining;
+  }
+
   Future<void> applyToActivity(String activityId, UserModel user) async {
     try {
-      // 1. Verificar si es PRO (Tienda o Manual)
       bool isPro = await SubscriptionService.isUserPremium() || user.isManualPro;
 
-      // 2. Validar límite semanal de uniones (Si es Free)
       if (!isPro) {
         final now = DateTime.now();
         final startOfWeek = DateTime(now.year, now.month, now.day - (now.weekday - 1)); 
@@ -329,11 +393,10 @@ class DataService with ChangeNotifier {
             .get();
         
         if (joinsThisWeek.docs.length >= SubscriptionLimits.freeMaxJoinsPerWeek) {
-           throw Exception("Límite semanal alcanzado (${SubscriptionLimits.freeMaxJoinsPerWeek}). Hazte PRO para ilimitado.");
+           throw Exception("Sin Tickets. Has usado tus ${SubscriptionLimits.freeMaxJoinsPerWeek} intentos semanales. Hazte PRO para seguir apostando.");
         }
       }
 
-      // 3. Validar cupos de la actividad
       final activityDoc = await _db.collection('activities').doc(activityId).get();
       if (activityDoc.exists) {
         int current = activityDoc['acceptedCount'] ?? 0;
@@ -577,9 +640,15 @@ class DataService with ChangeNotifier {
     });
   }
   
-  // Fuerza refresco
   Future<void> refresh() async {
     _applyFilters();
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _radiusController.close();
+    _feedSubscription?.cancel();
+    super.dispose();
   }
 }

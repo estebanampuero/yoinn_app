@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import '../models/activity_model.dart';
 import '../services/data_service.dart';
 import '../services/subscription_service.dart';
+import '../services/auth_service.dart'; // <--- Agregado para validar usuario
 import '../config/subscription_limits.dart';
 import 'activity_detail_screen.dart';
 import 'paywall_pro_screen.dart';
@@ -69,9 +70,25 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _checkPremiumAndLocation() async {
-    bool premiumStatus = await SubscriptionService.isUserPremium();
-    if (mounted) setState(() => _isPremium = premiumStatus);
+    // 1. Verificar Tienda (RevenueCat)
+    bool isStorePro = await SubscriptionService.isUserPremium();
+    bool isManualPro = false;
 
+    // 2. Verificar Firebase (Manual PRO)
+    if (mounted) {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final dataService = Provider.of<DataService>(context, listen: false);
+      
+      if (authService.currentUser != null) {
+        final userProfile = await dataService.getUserProfile(authService.currentUser!.uid);
+        isManualPro = userProfile?.isManualPro ?? false;
+      }
+    }
+
+    // 3. Combinar resultados
+    if (mounted) setState(() => _isPremium = isStorePro || isManualPro);
+
+    // --- LÓGICA DE UBICACIÓN ---
     try {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -84,8 +101,11 @@ class _MapScreenState extends State<MapScreen> {
         
         if (mounted) {
           setState(() => _currentCenter = userPos);
+          
           // Actualizamos DataService con la ubicación REAL
-          Provider.of<DataService>(context, listen: false).updateUserLocation(userPos.latitude, userPos.longitude);
+          final ds = Provider.of<DataService>(context, listen: false);
+          ds.updateUserLocation(userPos.latitude, userPos.longitude);
+          
           _moveCameraSafe(CameraUpdate.newLatLng(userPos));
         }
       }
@@ -207,9 +227,13 @@ class _MapScreenState extends State<MapScreen> {
                             overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
                           ),
                           child: Slider(
-                            // Clamp para evitar error rojo
-                            value: dataService.filterRadius.clamp(1.0, _isPremium ? SubscriptionLimits.proMaxRadius : SubscriptionLimits.freeMaxRadius),
+                            // Clamp para evitar error rojo si cambia de plan
+                            value: dataService.filterRadius.clamp(
+                              1.0, 
+                              _isPremium ? SubscriptionLimits.proMaxRadius : SubscriptionLimits.freeMaxRadius
+                            ),
                             min: 1,
+                            // Aquí el máximo depende de la variable _isPremium que ahora se calcula correctamente
                             max: _isPremium ? SubscriptionLimits.proMaxRadius : SubscriptionLimits.freeMaxRadius,
                             activeColor: const Color(0xFF00BCD4),
                             inactiveColor: Colors.grey[200],

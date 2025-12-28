@@ -1,28 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:share_plus/share_plus.dart'; 
-import 'package:purchases_flutter/purchases_flutter.dart'; 
 import 'package:firebase_analytics/firebase_analytics.dart'; 
+import 'package:cloud_firestore/cloud_firestore.dart'; 
+import 'package:intl/intl.dart'; 
 
 import '../models/activity_model.dart';
-import '../models/user_model.dart';
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
 import '../services/subscription_service.dart'; 
-import '../config/subscription_limits.dart'; // <--- NUEVO
 
-import 'chat_screen.dart';
 import 'edit_activity_screen.dart';
-import 'profile_screen.dart';
-import 'manage_requests_screen.dart'; 
+// --- IMPORTS RESTAURADOS PARA NAVEGACIÓN ---
+import 'chat_screen.dart'; 
+import 'manage_requests_screen.dart';
+
+import '../widgets/activity_detail_components.dart'; 
+import '../widgets/activity_limit_paywall.dart';
 
 class ActivityDetailScreen extends StatefulWidget {
   final Activity activity;
-
   const ActivityDetailScreen({super.key, required this.activity});
 
   @override
@@ -32,16 +29,80 @@ class ActivityDetailScreen extends StatefulWidget {
 class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   bool _isJoining = false;
 
-  void _joinActivity() async {
-    // 1. VERIFICACIÓN DE SUSCRIPCIÓN (LÓGICA FREEMIUM)
+  // --- LÓGICA DE APUESTA (BETTING) ---
+  void _confirmAndJoin() async {
+    final dataService = Provider.of<DataService>(context, listen: false);
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
-    bool isPremium = user?.isPremium ?? false;
 
+    if (user == null) return;
+
+    // 1. Verificar tickets restantes
+    int remaining = await dataService.getRemainingFreeJoins(user.uid);
+    
+    // Si es -1 (PRO), pasa directo
+    if (remaining == -1) {
+      _joinActivity();
+      return;
+    }
+
+    // Si tiene 0, mostramos paywall directo (sin preguntar)
+    if (remaining == 0) {
+      if (mounted) _showPaywall(context);
+      return;
+    }
+
+    // 2. DIALOGO DE APUESTA (PSICOLOGÍA)
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text("¿Usar 1 Ticket?"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Estás a punto de usar 1 de tus tickets semanales para postular a esta actividad."),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const Icon(Icons.confirmation_number, color: Colors.orange),
+                  const SizedBox(width: 8),
+                  Text("Te quedarán: ${remaining - 1} tickets", style: const TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("Cancelar"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF97316)),
+              onPressed: () {
+                Navigator.pop(ctx); 
+                _joinActivity(); 
+              },
+              child: const Text("USAR TICKET", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _joinActivity() async {
+    setState(() => _isJoining = true);
+    
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final dataService = Provider.of<DataService>(context, listen: false);
+    final user = authService.currentUser;
+
+    bool isPremium = user?.isPremium ?? false;
     if (!isPremium) {
       isPremium = await SubscriptionService.isUserPremium();
     }
     
-    // --- ANALYTICS ---
     await FirebaseAnalytics.instance.logEvent(
        name: 'join_activity_request',
        parameters: {
@@ -51,93 +112,69 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
        },
     );
 
-    // --- NUEVA LÓGICA DE LÍMITES CENTRALIZADA ---
-    // Obtenemos el límite desde el archivo de configuración
-    final int weeklyLimit = isPremium 
-        ? SubscriptionLimits.proMaxJoinsPerWeek 
-        : SubscriptionLimits.freeMaxJoinsPerWeek;
-
-    // TODO: Conectar esto con DataService para contar las uniones reales de esta semana.
-    // Por ahora, simulamos '0' uniones para permitir el flujo, pero ya respeta la constante 'weeklyLimit'.
-    // Si quieres probar el Paywall, cambia currentJoins a un valor mayor que weeklyLimit.
-    int currentJoins = 0; 
-    
-    bool limitReached = currentJoins >= weeklyLimit;
-    
-    if (!isPremium && limitReached) {
-      await FirebaseAnalytics.instance.logEvent(name: 'paywall_shown', parameters: {'source': 'activity_limit'});
-      _showPaywall(context);
-      return; 
-    }
-
-    // 2. LÓGICA NORMAL DE UNIRSE
-    setState(() => _isJoining = true);
-    final dataService = Provider.of<DataService>(context, listen: false);
-
     if (user != null) {
       try {
         final userModel = await dataService.getUserProfile(user.uid);
         if (userModel != null) {
           await dataService.applyToActivity(widget.activity.id, userModel);
-          
           await FirebaseAnalytics.instance.logEvent(name: 'join_activity_success');
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Solicitud enviada al anfitrión")),
+              const SnackBar(content: Text("¡Solicitud enviada! Ticket usado.")),
             );
           }
         }
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error al unirse: $e")),
-          );
+        if (e.toString().contains("Ticket") || e.toString().contains("Límite") || e.toString().contains("Limit")) {
+          if (mounted) {
+            await FirebaseAnalytics.instance.logEvent(name: 'paywall_shown', parameters: {'source': 'activity_limit'});
+            _showPaywall(context);
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Error: ${e.toString().replaceAll('Exception:', '')}")),
+            );
+          }
         }
       }
     }
+    
     if (mounted) setState(() => _isJoining = false);
   }
 
   void _showPaywall(BuildContext context) async {
     final package = await SubscriptionService.getCurrentOffering();
-    
     if (package != null && mounted) {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
-        builder: (ctx) => _PaywallBottomSheet(package: package),
+        backgroundColor: Colors.transparent,
+        builder: (ctx) => ActivityLimitPaywall(package: package),
       );
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("No hay ofertas disponibles en este momento.")));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Hazte PRO para unirte a más actividades.")));
       }
     }
   }
 
-  // --- ELIMINAR ---
-  void _mostrarConfirmacionEliminar(BuildContext context) {
+  void _mostrarConfirmacionEliminar() {
     showDialog(
       context: context,
       builder: (BuildContext ctx) {
         return AlertDialog(
           title: const Text("Eliminar Actividad"),
-          content: const Text("¿Estás seguro de que quieres eliminar esta actividad? Esta acción no se puede deshacer."),
+          content: const Text("¿Estás seguro? Esta acción no se puede deshacer."),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text("Cancelar"),
-            ),
+            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text("Cancelar")),
             TextButton(
               onPressed: () {
                 Navigator.of(ctx).pop(); 
                 _eliminarActividad(); 
               },
-              child: const Text(
-                "Eliminar",
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-              ),
+              child: const Text("Eliminar", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -146,92 +183,77 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   }
 
   void _eliminarActividad() async {
-    final dataService = Provider.of<DataService>(context, listen: false);
     try {
-      await dataService.deleteActivity(widget.activity.id); 
+      await Provider.of<DataService>(context, listen: false).deleteActivity(widget.activity.id); 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Actividad eliminada correctamente")),
-        );
         Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Actividad eliminada")));
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error al eliminar: $e")),
-        );
-      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 
-  // --- COMPARTIR ---
   void _compartirActividad() {
     final String deepLink = 'https://yoinn.app/activity/${widget.activity.id}';
-    final String mensaje = '¡Hola! Únete a mi actividad "${widget.activity.title}" en Yoinn. Mira los detalles aquí: $deepLink';
+    final dateFormatted = DateFormat('EEEE d, h:mm a', 'es_ES').format(widget.activity.dateTime);
+    final String mensaje = '''
+¡Hey! 🌟 Encontré esta actividad en Yoinn y pensé que te gustaría:
+
+"${widget.activity.title}"
+📅 $dateFormatted
+📍 ${widget.activity.location}
+
+👇 Toca aquí para ver detalles o descargar la app:
+$deepLink
+''';
     Share.share(mensaje);
     FirebaseAnalytics.instance.logEvent(name: 'share_activity', parameters: {'activity_id': widget.activity.id});
   }
 
-  void _showOptions(BuildContext context, bool isHost) {
+  void _showOptions(bool isHost) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.share, color: Colors.blue),
-                title: const Text("Compartir Actividad"),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.share, color: Colors.blue),
+              title: const Text("Compartir Actividad"),
+              onTap: () { Navigator.pop(ctx); _compartirActividad(); },
+            ),
+            const Divider(),
+            if (isHost) ...[
+               ListTile(
+                leading: const Icon(Icons.edit, color: Colors.blueGrey),
+                title: const Text("Editar Actividad"),
                 onTap: () {
                   Navigator.pop(ctx);
-                  _compartirActividad();
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditActivityScreen(activity: widget.activity)));
                 },
               ),
-              const Divider(),
-
-              if (isHost) ...[
-                 ListTile(
-                  leading: const Icon(Icons.edit, color: Colors.blueGrey),
-                  title: const Text("Editar Actividad"),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => EditActivityScreen(activity: widget.activity)));
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.delete_outline, color: Colors.red),
-                  title: const Text("Eliminar Actividad", style: TextStyle(color: Colors.red)),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _mostrarConfirmacionEliminar(context);
-                  },
-                ),
-              ],
-              
-              if (!isHost) ...[
-                ListTile(
-                  leading: const Icon(Icons.flag, color: Colors.orange),
-                  title: const Text("Reportar Actividad"),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _showReportDialog();
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.block, color: Colors.grey),
-                  title: const Text("Bloquear Usuario"),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _showBlockDialog();
-                  },
-                ),
-              ],
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: const Text("Eliminar", style: TextStyle(color: Colors.red)),
+                onTap: () { Navigator.pop(ctx); _mostrarConfirmacionEliminar(); },
+              ),
+            ] else ...[
+              ListTile(
+                leading: const Icon(Icons.flag, color: Colors.orange),
+                title: const Text("Reportar"),
+                onTap: () { Navigator.pop(ctx); _showReportDialog(); },
+              ),
+              ListTile(
+                leading: const Icon(Icons.block, color: Colors.grey),
+                title: const Text("Bloquear Usuario"),
+                onTap: () { Navigator.pop(ctx); _showBlockDialog(); },
+              ),
             ],
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 
@@ -250,10 +272,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
             child: const Text("Contenido Ofensivo"),
             onPressed: () => _submitReport(ctx, "Ofensivo/Inapropiado"),
           ),
-          TextButton(
-            child: const Text("Cancelar"),
-            onPressed: () => Navigator.pop(ctx),
-          ),
+          TextButton(child: const Text("Cancelar"), onPressed: () => Navigator.pop(ctx)),
         ],
       ),
     );
@@ -261,7 +280,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
   Future<void> _submitReport(BuildContext ctx, String reason) async {
     Navigator.pop(ctx); 
-    
     try {
       await FirebaseFirestore.instance.collection('reports').add({
         'activityId': widget.activity.id, 
@@ -270,13 +288,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         'reportedBy': Provider.of<AuthService>(context, listen: false).currentUser?.uid ?? 'anon',
         'type': 'activity_report'
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Gracias. Revisaremos este contenido en menos de 24h."),
-          backgroundColor: Colors.green,
-        )
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Gracias. Revisaremos este contenido en menos de 24h."), backgroundColor: Colors.green));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error al enviar reporte.")));
     }
@@ -293,9 +305,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Usuario bloqueado."))
-              );
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Usuario bloqueado.")));
             },
             child: const Text("BLOQUEAR", style: TextStyle(color: Colors.red)),
           ),
@@ -304,60 +314,21 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final currentUser = Provider.of<AuthService>(context).currentUser;
-    final isHost = currentUser?.uid == widget.activity.hostUid;
-    final dateStr = DateFormat('EEEE, d MMMM yyyy', 'es_ES').format(widget.activity.dateTime);
-    final timeStr = DateFormat('h:mm a').format(widget.activity.dateTime);
-    final dataService = Provider.of<DataService>(context, listen: false);
-
-    final spotsLeft = widget.activity.maxAttendees - widget.activity.acceptedCount;
-    final isFull = spotsLeft <= 0;
-    
-    final spotsColor = spotsLeft <= 2 ? Colors.red : Colors.green;
-    final spotsText = isFull 
-        ? "¡Actividad Llena!" 
-        : "Quedan $spotsLeft cupos disponibles";
+    final user = Provider.of<AuthService>(context).currentUser;
+    final isHost = user?.uid == widget.activity.hostUid;
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            expandedHeight: 250,
-            pinned: true,
-            leading: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CircleAvatar(
-                backgroundColor: Colors.white, 
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  onPressed: () => Navigator.pop(context),
-                  padding: EdgeInsets.zero, 
-                  constraints: const BoxConstraints(),
-                ),
-              ),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: widget.activity.imageUrl.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: widget.activity.imageUrl,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.network('https://via.placeholder.com/400x300', fit: BoxFit.cover),
-            ),
-            actions: [
-               IconButton(
-                icon: const CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.share, color: Colors.black, size: 20)),
-                onPressed: _compartirActividad,
-              ),
-               IconButton(
-                icon: const CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.more_vert, color: Colors.black)),
-                onPressed: () => _showOptions(context, isHost),
-              ),
-            ],
+          ActivitySliverAppBar(
+            activity: widget.activity, 
+            isHost: isHost,
+            onShare: _compartirActividad,
+            onOptions: () => _showOptions(isHost),
           ),
+          
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -366,175 +337,31 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE0F7FA),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      widget.activity.category.toUpperCase(),
-                      style: const TextStyle(color: Color(0xFF006064), fontWeight: FontWeight.bold, fontSize: 12),
-                    ),
+                    decoration: BoxDecoration(color: const Color(0xFFE0F7FA), borderRadius: BorderRadius.circular(20)),
+                    child: Text(widget.activity.category.toUpperCase(), style: const TextStyle(color: Color(0xFF006064), fontWeight: FontWeight.bold, fontSize: 12)),
                   ),
                   const SizedBox(height: 12),
+                  Text(widget.activity.title, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF006064))),
                   
-                  Text(
-                    widget.activity.title,
-                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF006064)),
-                  ),
                   const SizedBox(height: 20),
-
-                  FutureBuilder<UserModel?>(
-                    future: dataService.getUserProfile(widget.activity.hostUid),
-                    builder: (context, snapshot) {
-                      final host = snapshot.data;
-                      if (host == null) return const SizedBox();
-
-                      final isPro = host.activitiesCreatedCount > 5;
-                      
-                      return InkWell(
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileScreen(uid: host.uid)));
-                        },
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: isPro ? Border.all(color: Colors.amber, width: 2) : null,
-                              ),
-                              child: CircleAvatar(
-                                radius: 22,
-                                backgroundImage: host.profilePictureUrl.isNotEmpty 
-                                    ? NetworkImage(host.profilePictureUrl) 
-                                    : null,
-                                child: host.profilePictureUrl.isEmpty ? const Icon(Icons.person) : null,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      host.name,
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                    ),
-                                    if (host.isVerified) ...[
-                                      const SizedBox(width: 4),
-                                      const Icon(Icons.verified, color: Colors.blue, size: 16),
-                                    ]
-                                  ],
-                                ),
-                                const Text("Organizador", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                              ],
-                            ),
-                            const Spacer(),
-                            const Icon(Icons.chevron_right, color: Colors.grey),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-
+                  HostInfoTile(hostUid: widget.activity.hostUid),
+                  
                   const SizedBox(height: 20),
                   const Divider(),
                   const SizedBox(height: 20),
 
-                  _buildDetailRow(Icons.calendar_today, Colors.orange, dateStr, timeStr),
-                  const SizedBox(height: 16),
-                  _buildDetailRow(Icons.location_on, Colors.blue, widget.activity.location, "Ubicación del evento", 
-                    onTap: () async {
-                       final googleUrl = 'http://googleusercontent.com/maps.google.com/?q=${widget.activity.lat},${widget.activity.lng}';
-                       if (await canLaunchUrl(Uri.parse(googleUrl))) {
-                         await launchUrl(Uri.parse(googleUrl));
-                       }
-                    },
-                    isLink: true
-                  ),
-                  const SizedBox(height: 16),
-                  _buildDetailRow(Icons.people, spotsColor, spotsText, "Capacidad total: ${widget.activity.maxAttendees} personas"),
+                  ActivityInfoRow(activity: widget.activity),
 
                   const SizedBox(height: 24),
-
-                  // --- DESCRIPCIÓN ---
                   const Text("Sobre la actividad", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
-                  Text(
-                    widget.activity.description,
-                    style: TextStyle(fontSize: 16, color: Colors.grey[800], height: 1.5),
-                  ),
+                  Text(widget.activity.description, style: TextStyle(fontSize: 16, color: Colors.grey[800], height: 1.5)),
 
                   const SizedBox(height: 24),
-
-                  // --- ASISTENTES ---
                   const Text("Asistentes Confirmados", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   
-                  StreamBuilder<QuerySnapshot>(
-                    stream: dataService.getActivityApplications(widget.activity.id),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      
-                      final acceptedDocs = snapshot.data?.docs.where((doc) => doc['status'] == 'accepted').toList() ?? [];
-
-                      if (acceptedDocs.isEmpty) {
-                        return Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Center(
-                            child: Text("Aún nadie se ha unido. ¡Sé el primero!", style: TextStyle(color: Colors.grey)),
-                          ),
-                        );
-                      }
-
-                      return SizedBox(
-                        height: 70,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: acceptedDocs.length,
-                          itemBuilder: (context, index) {
-                            final data = acceptedDocs[index].data() as Map<String, dynamic>;
-                            final name = data['applicantName'] ?? '';
-                            final pic = data['applicantProfilePictureUrl'] ?? '';
-                            final uid = data['applicantUid'] ?? '';
-
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileScreen(uid: uid)));
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 12.0),
-                                child: Column(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 22,
-                                      backgroundImage: pic.isNotEmpty ? NetworkImage(pic) : null,
-                                      backgroundColor: Colors.blue[100],
-                                      child: pic.isEmpty ? Text(name.isNotEmpty ? name[0] : '?', style: const TextStyle(fontWeight: FontWeight.bold)) : null,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      name.split(' ')[0], 
-                                      style: const TextStyle(fontSize: 10),
-                                      overflow: TextOverflow.ellipsis,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
+                  ParticipantsSection(activityId: widget.activity.id),
                   
                   const SizedBox(height: 100), 
                 ],
@@ -551,26 +378,24 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         ),
         child: SafeArea(
           child: StreamBuilder<QuerySnapshot>(
-            stream: dataService.getActivityApplications(widget.activity.id),
+            stream: Provider.of<DataService>(context, listen: false).getActivityApplications(widget.activity.id),
             builder: (context, snapshot) {
               String? status;
-              
-              if (snapshot.hasData && currentUser != null) {
+              if (snapshot.hasData && user != null) {
                 try {
-                  final myDoc = snapshot.data!.docs.firstWhere((doc) => doc['applicantUid'] == currentUser.uid);
+                  final myDoc = snapshot.data!.docs.firstWhere((doc) => doc['applicantUid'] == user.uid);
                   status = myDoc['status'];
-                } catch (e) {
-                  status = null; 
-                }
+                } catch (_) {}
               }
 
+              // --- 1. VISTA DEL ANFITRIÓN (HOST) ---
               if (isHost) {
                  return Column(
                    mainAxisSize: MainAxisSize.min,
                    children: [
+                     // Botón Chat
                      SizedBox(
-                       width: double.infinity,
-                       height: 45,
+                       width: double.infinity, height: 45,
                        child: ElevatedButton(
                          style: ElevatedButton.styleFrom(
                            backgroundColor: Colors.white,
@@ -578,32 +403,32 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                          ),
                          onPressed: () {
+                           // NAVEGACIÓN CORREGIDA AL CHAT
                            Navigator.push(
                              context,
-                             MaterialPageRoute(builder: (context) => ChatScreen(
-                               activity: widget.activity
-                             )),
+                             MaterialPageRoute(builder: (context) => ChatScreen(activity: widget.activity))
                            );
                          },
                          child: const Text("Ir al Chat del Grupo", style: TextStyle(fontSize: 16, color: Color(0xFF00BCD4), fontWeight: FontWeight.bold)),
                        ),
                      ),
                      const SizedBox(height: 12),
+                     // Botón Gestionar (RESTAURADO)
                      SizedBox(
-                       width: double.infinity,
-                       height: 45,
+                       width: double.infinity, height: 45,
                        child: ElevatedButton.icon(
                          style: ElevatedButton.styleFrom(
                            backgroundColor: const Color(0xFF00BCD4),
                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                          ),
                          onPressed: () {
+                           // NAVEGACIÓN CORREGIDA A GESTIONAR
                            Navigator.push(
                              context,
                              MaterialPageRoute(builder: (context) => ManageRequestsScreen(
                                activityId: widget.activity.id,
                                activityTitle: widget.activity.title,
-                             )),
+                             ))
                            );
                          },
                          icon: const Icon(Icons.people, color: Colors.white),
@@ -614,22 +439,18 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                  );
               }
 
+              // --- 2. VISTA PARTICIPANTE ACEPTADO ---
               if (status == 'accepted') {
                 return SizedBox(
-                  width: double.infinity,
-                  height: 50,
+                  width: double.infinity, height: 50,
                   child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                     onPressed: () {
+                       // NAVEGACIÓN CORREGIDA AL CHAT
                        Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ChatScreen(
-                          activity: widget.activity
-                        )),
-                      );
+                         context,
+                         MaterialPageRoute(builder: (context) => ChatScreen(activity: widget.activity))
+                       );
                     },
                     icon: const Icon(Icons.chat),
                     label: const Text("¡Estás dentro! Ir al Chat", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -637,191 +458,38 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                 );
               }
 
+              // --- 3. VISTA PENDIENTE ---
               if (status == 'pending') {
-                return SizedBox(
-                  width: double.infinity,
-                  height: 50,
+                 return SizedBox(
+                  width: double.infinity, height: 50,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.grey, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                     onPressed: null,
                     child: const Text("Solicitud enviada...", style: TextStyle(fontSize: 16, color: Colors.white)),
                   ),
                 );
               }
 
+              // --- 4. VISTA USUARIO NUEVO (UNIRSE) ---
+              final spotsLeft = widget.activity.maxAttendees - widget.activity.acceptedCount;
+              final isFull = spotsLeft <= 0;
+
               return SizedBox(
-                width: double.infinity,
-                height: 50,
+                width: double.infinity, height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isFull ? Colors.grey : const Color(0xFF00BCD4),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  onPressed: isFull ? null : (_isJoining ? null : _joinActivity),
+                  onPressed: isFull ? null : (_isJoining ? null : _confirmAndJoin),
                   child: _isJoining
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          isFull ? "AGOTADO" : "Solicitar Unirme", 
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
-                        ),
+                      : Text(isFull ? "AGOTADO" : "Solicitar Unirme", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               );
             },
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(IconData icon, Color color, String title, String subtitle, {VoidCallback? onTap, bool isLink = false}) {
-    return InkWell(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-            child: Icon(icon, color: color),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-              ],
-            ),
-          ),
-          if (isLink)
-             IconButton(icon: Icon(Icons.open_in_new, color: color, size: 20), onPressed: onTap),
-        ],
-      ),
-    );
-  }
-}
-
-class _PaywallBottomSheet extends StatelessWidget {
-  final Package package;
-  const _PaywallBottomSheet({required this.package});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      height: 600, 
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 40, height: 4,
-            decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
-          ),
-          const SizedBox(height: 20),
-          
-          const Icon(Icons.verified, size: 60, color: Color(0xFF00BCD4)),
-          const SizedBox(height: 10),
-          const Text("Desbloquea Yoinn Pro", style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 10),
-          const Text(
-            "Únete a actividades ilimitadas y destaca en la comunidad.",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 16),
-          ),
-          
-          const SizedBox(height: 30),
-          
-          _buildBenefit(Icons.check_circle, "Unirse a grupos ilimitados"),
-          _buildBenefit(Icons.star, "Insignia PRO en tu perfil"),
-          _buildBenefit(Icons.flash_on, "Acceso prioritario a eventos"),
-          
-          const Spacer(),
-          
-          Text(
-            package.storeProduct.priceString, 
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
-          ),
-          const Text("por mes, cancela cuando quieras", style: TextStyle(color: Colors.grey, fontSize: 12)),
-          
-          const SizedBox(height: 20),
-          
-          SizedBox(
-            width: double.infinity,
-            height: 55,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00BCD4),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 5,
-              ),
-              onPressed: () async {
-                final success = await SubscriptionService.purchasePackage(package);
-                if (success) {
-                  final user = Provider.of<AuthService>(context, listen: false).currentUser;
-                  if (user != null) {
-                    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-                      'isPremium': true
-                    });
-                  }
-
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("¡Bienvenido a Yoinn Pro! 🚀")));
-                  }
-                }
-              },
-              child: const Text("SUSCRIBIRME AHORA", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          TextButton(
-            onPressed: () async {
-              final restored = await SubscriptionService.restorePurchases();
-              if (restored) {
-                final user = Provider.of<AuthService>(context, listen: false).currentUser;
-                if (user != null) {
-                  await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-                    'isPremium': true
-                  });
-                }
-                
-                if (context.mounted) Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Compras restauradas con éxito.")));
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("No se encontraron compras activas.")));
-              }
-            },
-            child: const Text("Restaurar Compras", style: TextStyle(color: Colors.grey, decoration: TextDecoration.underline)),
-          ),
-          
-          const SizedBox(height: 10),
-          const Text(
-            "Términos de Uso • Política de Privacidad",
-            style: TextStyle(fontSize: 10, color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBenefit(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, color: const Color(0xFF00BCD4), size: 24),
-          const SizedBox(width: 12),
-          Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-        ],
       ),
     );
   }

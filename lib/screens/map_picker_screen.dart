@@ -7,11 +7,11 @@ import 'package:uuid/uuid.dart';
 import '../services/location_service.dart';
 
 class MapPickerScreen extends StatefulWidget {
-  final bool isPro; // <--- Nuevo parámetro recibido
+  final bool isPro; 
 
   const MapPickerScreen({
     super.key, 
-    this.isPro = false // Por defecto false
+    this.isPro = false 
   });
 
   @override
@@ -21,8 +21,9 @@ class MapPickerScreen extends StatefulWidget {
 class _MapPickerScreenState extends State<MapPickerScreen> {
   GoogleMapController? _mapController;
   LatLng _center = const LatLng(-41.469, -72.942); 
-  String _address = "Mueve el mapa para seleccionar...";
+  String _address = "Ubicación seleccionada"; 
   bool _isLoadingAddress = false;
+  bool _addressFetched = false; // Controla si ya tenemos la dirección real
   
   final LocationService _locationService = LocationService();
   final TextEditingController _searchController = TextEditingController();
@@ -66,12 +67,18 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     final latLng = LatLng(position.latitude, position.longitude);
     
     _moveCamera(latLng);
+    // Al inicio sí cargamos la dirección (1 llamada gratis del GPS inicial)
+    _getAddressFromLatLng(latLng);
   }
 
   void _moveCamera(LatLng latLng) {
-    setState(() => _center = latLng);
+    setState(() {
+      _center = latLng;
+      _addressFetched = false; // Marcamos que necesitamos buscar dirección de nuevo si confirman
+      // Mostramos coordenadas temporalmente mientras mueve, pero NO se guardarán
+      _address = "${latLng.latitude.toStringAsFixed(4)}, ${latLng.longitude.toStringAsFixed(4)}";
+    });
     _mapController?.animateCamera(CameraUpdate.newLatLng(latLng));
-    _getAddressFromLatLng(latLng);
   }
 
   Future<void> _getAddressFromLatLng(LatLng position) async {
@@ -88,15 +95,39 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
         String number = p.subThoroughfare ?? '';
         String city = p.locality ?? '';
         
+        // Si no hay calle, intentamos usar otros campos
+        if (street.isEmpty) street = p.name ?? '';
+        if (city.isEmpty) city = p.administrativeArea ?? '';
+
         setState(() {
           _address = "$street $number, $city".trim();
-          if (_address.startsWith(',')) _address = p.name ?? _address;
+          // Limpieza de comas si faltan datos
+          if (_address.startsWith(',')) _address = _address.substring(1).trim();
+          _addressFetched = true;
         });
       }
     } catch (e) {
-      // Ignoramos errores momentáneos
+      print("Error obteniendo dirección: $e");
     } finally {
       if (mounted) setState(() => _isLoadingAddress = false);
+    }
+  }
+
+  // --- CONFIRMACIÓN FINAL (AQUÍ ESTÁ LA MAGIA) ---
+  Future<void> _confirmSelection() async {
+    // 1. Si el usuario no ha buscado la dirección (solo movió el mapa),
+    // la buscamos AHORA antes de cerrar.
+    if (!_addressFetched) {
+      await _getAddressFromLatLng(_center);
+    }
+
+    // 2. Devolvemos la dirección real (no las coordenadas)
+    if (mounted) {
+      Navigator.pop(context, {
+        'lat': _center.latitude,
+        'lng': _center.longitude,
+        'address': _address // Ahora garantiza ser texto legible
+      });
     }
   }
 
@@ -133,7 +164,11 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     if (details != null) {
       final lat = details['lat'];
       final lng = details['lng'];
-      _moveCamera(LatLng(lat, lng));
+      final latLng = LatLng(lat, lng);
+      
+      _moveCamera(latLng);
+      // Si buscó explícitamente, traemos la dirección de inmediato
+      _getAddressFromLatLng(latLng); 
       _sessionToken = _uuid.v4();
     }
   }
@@ -144,7 +179,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
       resizeToAvoidBottomInset: false, 
       body: Stack(
         children: [
-          // 1. MAPA DE FONDO
+          // 1. MAPA
           GoogleMap(
             initialCameraPosition: CameraPosition(target: _center, zoom: 15),
             myLocationEnabled: true,
@@ -152,14 +187,16 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             zoomControlsEnabled: false,
             onMapCreated: (controller) => _mapController = controller,
             onCameraMove: (position) {
-              _center = position.target;
-            },
-            onCameraIdle: () {
-              _getAddressFromLatLng(_center);
+              // Solo actualizamos visualmente, sin gastar API
+              setState(() {
+                _center = position.target;
+                _addressFetched = false; 
+                _address = "${_center.latitude.toStringAsFixed(4)}, ${_center.longitude.toStringAsFixed(4)}";
+              });
             },
           ),
           
-          // 2. PIN CENTRAL FIJO
+          // 2. PIN CENTRAL
           const Center(
             child: Padding(
               padding: EdgeInsets.only(bottom: 40), 
@@ -167,7 +204,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             ),
           ),
 
-          // 3. BARRA DE BÚSQUEDA Y BOTÓN ATRÁS (Condicional para PRO)
+          // 3. BARRA DE BÚSQUEDA (PRO)
           Column(
             children: [
               Container(
@@ -186,7 +223,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                       children: [
                         Row(
                           children: [
-                            // Botón Atrás (Siempre visible)
                             Container(
                               decoration: const BoxDecoration(
                                 color: Colors.white,
@@ -200,7 +236,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                             ),
                             const SizedBox(width: 10),
                             
-                            // Buscador (SOLO SI ES PRO)
                             if (widget.isPro) 
                               Expanded(
                                 child: Container(
@@ -234,7 +269,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                           ],
                         ),
                         
-                        // Lista de Resultados (Solo si hay texto y es PRO)
                         if (widget.isPro && _predictions.isNotEmpty)
                           Container(
                             margin: const EdgeInsets.only(top: 8, left: 50), 
@@ -298,12 +332,24 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text("Ubicación seleccionada:", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Ubicación seleccionada:", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                        // Opción para ver la dirección antes de confirmar (Manual)
+                        if (!_addressFetched && !_isLoadingAddress)
+                          GestureDetector(
+                            onTap: () => _getAddressFromLatLng(_center),
+                            child: const Text("🔍 Ver dirección", style: TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 12)),
+                          )
+                      ],
+                    ),
                     const SizedBox(height: 5),
                     if (_isLoadingAddress)
                       const LinearProgressIndicator(color: Color(0xFFF97316))
                     else
                       Text(
+                        // Aquí muestra coordenadas SI NO se ha hecho fetch, o Dirección SI YA se hizo
                         _address,
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
@@ -313,13 +359,8 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _isLoadingAddress ? null : () {
-                          Navigator.pop(context, {
-                            'lat': _center.latitude,
-                            'lng': _center.longitude,
-                            'address': _address
-                          });
-                        },
+                        // Llamamos a la nueva función _confirmSelection
+                        onPressed: _isLoadingAddress ? null : _confirmSelection,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFF97316),
                           padding: const EdgeInsets.symmetric(vertical: 15),

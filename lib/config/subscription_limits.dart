@@ -11,7 +11,7 @@ class SubscriptionLimits {
   // --- LÍMITES DE EVENTOS (ASISTENCIA) ---
   // Cuántas personas pueden ir a un evento que tú creas
   static const int freeMaxAttendees = 5;
-  static const int proMaxAttendees = 50; 
+  static const int proMaxAttendees = 20; 
 
   // --- LÍMITES DE CREACIÓN ---
   // Cuántas actividades activas puedes tener al mismo tiempo
@@ -19,7 +19,7 @@ class SubscriptionLimits {
   static const int proMaxActiveActivities = 10;
 
   // --- LÍMITES DE UNIÓN (JOIN) ---
-  // A cuántas actividades puedes unirte por semana
+  // A cuántas actividades puedes postular por semana (Tickets de apuesta)
   static const int freeMaxJoinsPerWeek = 3;
   static const int proMaxJoinsPerWeek = 1000; // Ilimitado
 }
