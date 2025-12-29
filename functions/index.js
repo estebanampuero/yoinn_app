@@ -1,5 +1,6 @@
 /**
- * Lógica de Notificaciones Yoinn (Chat + Solicitudes + Aceptados)
+ * Lógica de Notificaciones Yoinn - VERSIÓN CORREGIDA JS
+ * Fecha: 29 Dic 2025
  */
 
 const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
@@ -8,14 +9,14 @@ const admin = require("firebase-admin");
 
 admin.initializeApp();
 
-// Configuración regional (Chile)
+// CONFIGURACIÓN REGIONAL: Santiago, Chile
 setGlobalOptions({ 
     maxInstances: 10,
     region: "southamerica-west1" 
 });
 
-// --- 1. NOTIFICACIÓN DE CHAT ---
-exports.sendChatNotification = onDocumentCreated("activities/{activityId}/messages/{messageId}", async (event) => {
+// --- 1. NOTIFICACIÓN DE CHAT (Nuevo nombre: onNewChatMessage) ---
+exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{messageId}", async (event) => {
     const snapshot = event.data;
     if (!snapshot) return;
 
@@ -52,33 +53,37 @@ exports.sendChatNotification = onDocumentCreated("activities/{activityId}/messag
             const dbPromise = admin.firestore().collection('users').doc(uid).collection('notifications').add({
                 title: `Nuevo mensaje en "${activityTitle}"`,
                 body: text,
-                type: 'chat', // Importante para navegar al chat
+                type: 'chat',
                 activityId: activityId,
                 read: false,
                 timestamp: admin.firestore.FieldValue.serverTimestamp()
             });
             promises.push(dbPromise);
 
-            // B. Enviar Push (FCM)
-            const userDoc = await admin.firestore().collection('users').doc(uid).get();
-            const token = userDoc.data()?.fcmToken;
-            
-            if (token) {
-                const payload = {
-                    notification: {
-                        title: `💬 ${activityTitle}`,
-                        body: text,
-                    },
-                    data: {
-                        type: "chat",
-                        activityId: activityId,
-                        click_action: "FLUTTER_NOTIFICATION_CLICK"
-                    }
-                };
-                promises.push(admin.messaging().sendToDevice(token, payload));
-            }
+            // B. Enviar Push (FCM) - MÉTODO .send() CORREGIDO
+            const userPushPromise = admin.firestore().collection('users').doc(uid).get().then(userDoc => {
+                const token = userDoc.data()?.fcmToken;
+                if (token) {
+                    const message = {
+                        token: token, 
+                        notification: {
+                            title: `💬 ${activityTitle}`,
+                            body: text,
+                        },
+                        data: {
+                            type: "chat",
+                            activityId: activityId,
+                            click_action: "FLUTTER_NOTIFICATION_CLICK"
+                        }
+                    };
+                    // Usamos .send() en lugar de .sendToDevice()
+                    return admin.messaging().send(message);
+                }
+            });
+            promises.push(userPushPromise);
         }
         await Promise.all(promises);
+        console.log(`Chat notificado a ${uidsToNotify.size} usuarios.`);
 
     } catch (error) {
         console.error("Error en chat notification:", error);
@@ -102,26 +107,26 @@ exports.onNewApplication = onDocumentCreated("applications/{applicationId}", asy
         const hostUid = activityDoc.data().hostUid;
         const activityTitle = activityDoc.data().title;
 
-        // No notificar si el host se une a sí mismo
         if (hostUid === applicantUid) return;
 
-        // A. Guardar en Campanita del Host
+        // A. Guardar en Campanita
         await admin.firestore().collection('users').doc(hostUid).collection('notifications').add({
             title: "Nueva Solicitud",
             body: `${applicantName} quiere unirse a "${activityTitle}"`,
             type: 'request_join', 
             activityId: activityId,
-            applicantUid: applicantUid, // <--- MEJORA INTEGRADA: Necesario para ver el perfil del solicitante
+            applicantUid: applicantUid,
             read: false,
             timestamp: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        // B. Enviar Push al Host
+        // B. Enviar Push - CORREGIDO
         const hostUserDoc = await admin.firestore().collection('users').doc(hostUid).get();
         const token = hostUserDoc.data()?.fcmToken;
         
         if (token) {
-            await admin.messaging().sendToDevice(token, {
+            const message = {
+                token: token,
                 notification: {
                     title: "🙋‍♂️ Nueva Solicitud",
                     body: `${applicantName} quiere unirse a tu actividad`,
@@ -131,7 +136,8 @@ exports.onNewApplication = onDocumentCreated("applications/{applicationId}", asy
                     activityId: activityId,
                     click_action: "FLUTTER_NOTIFICATION_CLICK"
                 }
-            });
+            };
+            await admin.messaging().send(message);
         }
     } catch (error) {
         console.error("Error en application notification:", error);
@@ -143,7 +149,6 @@ exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}"
     const before = event.data.before.data();
     const after = event.data.after.data();
 
-    // Solo disparar si cambió de 'pending' a 'accepted'
     if (before.status !== 'accepted' && after.status === 'accepted') {
         const applicantUid = after.applicantUid;
         const activityId = after.activityId;
@@ -152,7 +157,7 @@ exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}"
             const activityDoc = await admin.firestore().collection('activities').doc(activityId).get();
             const activityTitle = activityDoc.data()?.title || "Actividad";
 
-            // A. Guardar en Campanita del Participante
+            // A. Guardar en Campanita
             await admin.firestore().collection('users').doc(applicantUid).collection('notifications').add({
                 title: "¡Solicitud Aceptada!",
                 body: `Ya eres parte de "${activityTitle}".`,
@@ -162,12 +167,13 @@ exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}"
                 timestamp: admin.firestore.FieldValue.serverTimestamp()
             });
 
-            // B. Enviar Push
+            // B. Enviar Push - CORREGIDO
             const userDoc = await admin.firestore().collection('users').doc(applicantUid).get();
             const token = userDoc.data()?.fcmToken;
             
             if (token) {
-                await admin.messaging().sendToDevice(token, {
+                const message = {
+                    token: token,
                     notification: {
                         title: "🚀 ¡Estás dentro!",
                         body: `Te aceptaron en "${activityTitle}"`,
@@ -177,7 +183,8 @@ exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}"
                         activityId: activityId,
                         click_action: "FLUTTER_NOTIFICATION_CLICK"
                     }
-                });
+                };
+                await admin.messaging().send(message);
             }
         } catch (error) {
             console.error("Error en accepted notification:", error);
