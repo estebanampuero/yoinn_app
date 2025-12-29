@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:url_launcher/url_launcher.dart'; // NECESARIO PARA LOS LINKS
 import 'dart:ui';
 import '../config/subscription_limits.dart';
 
@@ -26,10 +27,14 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
   String _selectedPlanKey = 'annual'; 
   bool _isLoading = true;
 
+  // LINKS LEGALES (CORREGIDOS PARA GITHUB PAGES)
+  final String _termsUrl = "https://estebanampuero.github.io/yoinn.info/#terminos"; 
+  final String _privacyUrl = "https://estebanampuero.github.io/yoinn.info/#privacidad"; 
+
   @override
   void initState() {
     super.initState();
-    Purchases.setLogLevel(LogLevel.debug);
+    // Purchases.setLogLevel(LogLevel.debug); // Comentar en producción
     _fetchOfferings();
   }
 
@@ -107,9 +112,16 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
     }
   }
 
+  // FUNCIÓN PARA ABRIR LINKS (REQUERIDO POR APPLE)
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri)) {
+      debugPrint('No se pudo abrir $uri');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Cálculo de precio mensual equivalente
     String monthlyEquivalent = "";
     if (_annualPackage != null) {
       final price = _annualPackage!.storeProduct.price;
@@ -212,16 +224,13 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                   child: Column(
                     children: [
-                      // TABLA COMPARATIVA
                       _buildComparisonTable(),
                       
                       const SizedBox(height: 30),
 
-                      // SELECTOR DE PLANES
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // ANUAL
                           Expanded(
                             child: _buildPlanCard(
                               keyName: 'annual',
@@ -236,7 +245,6 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                           
                           const SizedBox(width: 12),
 
-                          // MENSUAL
                           Expanded(
                             child: _buildPlanCard(
                               keyName: 'monthly',
@@ -253,7 +261,6 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
 
                       const SizedBox(height: 25),
 
-                      // BOTÓN
                       GestureDetector(
                         onTap: _buyPro,
                         child: Container(
@@ -296,7 +303,38 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 10),
+
+                      // --- SECCIÓN DE LEGALES RESPONSIVA ---
+                      const SizedBox(height: 20),
+                      
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 80), 
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 15,    
+                          runSpacing: 10, 
+                          children: [
+                            GestureDetector(
+                              onTap: () => _launchURL(_termsUrl),
+                              child: const Text(
+                                "Términos de Uso",
+                                style: TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.underline),
+                              ),
+                            ),
+                            
+                            const Text("|", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                            
+                            GestureDetector(
+                              onTap: () => _launchURL(_privacyUrl),
+                              child: const Text(
+                                "Privacidad",
+                                style: TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.underline),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -306,7 +344,7 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
     );
   }
 
-  // --- TABLA COMPARATIVA ACTUALIZADA ---
+  // --- WIDGETS AUXILIARES ---
   Widget _buildComparisonTable() {
     return Container(
       decoration: BoxDecoration(
@@ -355,20 +393,15 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
             "${SubscriptionLimits.freeMaxRadius.toInt()} km", 
             "${SubscriptionLimits.proMaxRadius.toInt()} km"
           ),
-          
-          // AQUÍ ESTÁ EL CAMBIO CLAVE:
           _buildTableRow("Crear en otras ciudades", "❌", "Todo el Mundo 🌍"),
-          
           _buildTableRow("Invitados por Evento", 
             "${SubscriptionLimits.freeMaxAttendees} máx", 
             "${SubscriptionLimits.proMaxAttendees} (Grupos)"
           ),
-          
           _buildTableRow("Unirse a Eventos", 
             "${SubscriptionLimits.freeMaxJoinsPerWeek} / sem", 
             "Ilimitado ∞"
           ),
-          
           _buildTableRow("Insignia Verificado", "❌", "✅", isLast: true),
         ],
       ),
