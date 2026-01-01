@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:badges/badges.dart' as badges; // Asegúrate de tener: flutter pub add badges
+import 'package:badges/badges.dart' as badges; 
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../services/auth_service.dart';
 import '../services/data_service.dart';
 import 'feed_screen.dart';
 import 'map_screen.dart';
-import 'notifications_screen.dart'; // Tu pantalla de lista de notificaciones
+import 'notifications_screen.dart'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,6 +27,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <--- Instancia de traducción
+
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
@@ -40,33 +44,29 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         indicatorColor: const Color(0xFFF97316).withOpacity(0.2),
         destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.list_alt_outlined),
-            selectedIcon: Icon(Icons.list_alt, color: Color(0xFFF97316)),
-            label: 'Actividades',
+          NavigationDestination(
+            icon: const Icon(Icons.list_alt_outlined),
+            selectedIcon: const Icon(Icons.list_alt, color: Color(0xFFF97316)),
+            label: l10n.navActivities, // "Actividades"
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.map_outlined),
-            selectedIcon: Icon(Icons.map, color: Color(0xFFF97316)),
-            label: 'Mapa',
+          NavigationDestination(
+            icon: const Icon(Icons.map_outlined),
+            selectedIcon: const Icon(Icons.map, color: Color(0xFFF97316)),
+            label: l10n.navMap, // "Mapa"
           ),
-          // --- AQUÍ ESTÁ LA CAMPANA CON BADGE ---
           NavigationDestination(
             icon: Consumer<DataService>(
               builder: (context, data, child) {
                 final uid = Provider.of<AuthService>(context, listen: false).currentUser?.uid;
                 
-                // Si no hay usuario, mostramos icono sin badge
                 if (uid == null) return const Icon(Icons.notifications_outlined);
 
                 return StreamBuilder<int>(
-                  // Escucha la cantidad de no leídas
                   stream: data.getUnreadCount(uid),
                   builder: (context, snapshot) {
                     final count = snapshot.data ?? 0;
                     
                     return badges.Badge(
-                      // Solo mostramos el badge si hay algo nuevo
                       showBadge: count > 0,
                       badgeContent: Text(
                         '$count', 
@@ -80,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             selectedIcon: const Icon(Icons.notifications, color: Color(0xFFF97316)),
-            label: 'Alertas',
+            label: l10n.navAlerts, // "Alertas"
           ),
         ],
       ),

@@ -1,46 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart'; // <--- IMPORTANTE
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:purchases_flutter/purchases_flutter.dart'; // <--- AGREGADO PARA EL LISTENER
-
-// Asegúrate de que estos imports sean correctos según la estructura de tus carpetas
+import 'package:purchases_flutter/purchases_flutter.dart';
+// IMPORTANTE: Paquete nativo de Flutter para localización
+import 'package:flutter_localizations/flutter_localizations.dart';
+// IMPORTANTE: Archivo generado automáticamente (CORREGIDO PARA ARCHIVOS FÍSICOS)
+import 'package:yoinn_app/l10n/app_localizations.dart'; 
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'services/data_service.dart';
 import 'services/notification_service.dart';
-import 'services/subscription_service.dart'; // <--- IMPORTANTE: REVENUECAT
+import 'services/subscription_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 
 // --- 1. MANEJADOR DE SEGUNDO PLANO (BACKGROUND) ---
-// Esta función debe estar FUERA de cualquier clase (Top Level) y marcada con @pragma
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Es vital inicializar Firebase aquí también porque el hilo está aislado
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   print("🌙 Notificación recibida en Segundo Plano/Terminado: ${message.messageId}");
 }
 
 void main() async {
-  // 1. Bloqueamos el arranque para inicializar los motores nativos
   WidgetsFlutterBinding.ensureInitialized();
   
-  // 2. Inicializamos el formato de fechas
-  await initializeDateFormatting('es_ES', null);
+  // CORREGIDO: Inicializamos para todos los idiomas soportados (no solo español)
+  // Esto permite que las fechas se vean bien en Inglés (Jan 1) y Español (1 Ene)
+  await initializeDateFormatting(); 
 
-  // 3. Inicializamos Firebase con manejo de errores
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     print("✅ Firebase inicializado correctamente en main()");
     
-    // 4. Registramos el manejador de segundo plano
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     
-    // 5. Inicializamos RevenueCat (Suscripciones)
     await SubscriptionService.init();
     print("✅ RevenueCat inicializado correctamente");
 
@@ -48,7 +45,6 @@ void main() async {
     print("❌ ERROR CRÍTICO AL INICIALIZAR FIREBASE O REVENUECAT: $e");
   }
 
-  // 6. Arrancamos la UI
   runApp(const MyApp());
 }
 
@@ -65,8 +61,40 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Yoinn',
         debugShowCheckedModeBanner: false,
+        
+        // --- CONFIGURACIÓN DE INTERNACIONALIZACIÓN ---
+        // 1. Delegados que "enseñan" a los widgets a hablar idiomas
+        localizationsDelegates: const [
+          AppLocalizations.delegate, // Tus textos propios (generado)
+          GlobalMaterialLocalizations.delegate, // Textos de Material (ej: "CANCELAR" en diálogos)
+          GlobalWidgetsLocalizations.delegate, // Textos de widgets básicos (ej: dirección del texto LTR/RTL)
+          GlobalCupertinoLocalizations.delegate, // Textos estilo iOS (ej: "Cortar/Pegar")
+        ],
+
+        // 2. Lista de idiomas que tu app soporta oficialmente
+        supportedLocales: const [
+          Locale('en'), // Inglés
+          Locale('es'), // Español
+        ],
+
+        // 3. Lógica inteligente para decidir qué idioma mostrar
+        localeResolutionCallback: (locale, supportedLocales) {
+          // Si el celular informa un idioma (ej: 'es_CL')
+          if (locale != null) {
+            for (var supportedLocale in supportedLocales) {
+              // Comparamos solo el código de idioma ('es'), ignorando el país ('CL')
+              if (supportedLocale.languageCode == locale.languageCode) {
+                return supportedLocale;
+              }
+            }
+          }
+          // Si no encontramos coincidencia (ej: el usuario tiene el celu en Japonés),
+          // usamos el primero de la lista (Inglés) como fallback.
+          return supportedLocales.first;
+        },
+        // ----------------------------------------------------
+
         theme: ThemeData(
-          // --- PALETA CIAN / AZUL ---
           colorScheme: ColorScheme.fromSeed(
             seedColor: const Color(0xFF00BCD4),
             primary: const Color(0xFF00BCD4),
@@ -116,13 +144,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
   void initState() {
     super.initState();
     
-    // --- ESCUCHA EN TIEMPO REAL DE CAMBIOS DE SUSCRIPCIÓN ---
     Purchases.addCustomerInfoUpdateListener((customerInfo) {
-      // Verificar si es Pro usando el ID correcto "Yoinn Pro"
       bool isPro = customerInfo.entitlements.all["Yoinn Pro"]?.isActive ?? false;
       
       if (!isPro) {
-        // Aquí detectamos si la suscripción expiró o falló el pago mientras la app está abierta
         print("⚠️ El estado de la suscripción cambió a: INACTIVO");
       } else {
         print("🌟 El estado de la suscripción cambió a: ACTIVO (Yoinn Pro)");
@@ -137,18 +162,14 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
 
   Future<void> _checkAndInitNotifications() async {
-    // Obtenemos el authService sin escuchar cambios para evitar reconstrucciones infinitas
     final authService = Provider.of<AuthService>(context, listen: false);
     
-    // Solo inicializamos si hay usuario logueado y no lo hemos hecho antes
     if (authService.currentUser != null && !_notificationsInitialized) {
       try {
-        // --- Identificar usuario en RevenueCat ---
         await SubscriptionService.logIn(authService.currentUser!.uid);
 
         FirebaseMessaging messaging = FirebaseMessaging.instance;
         
-        // --- 3. SOLICITUD DE PERMISOS EXPLÍCITA (Vital para iOS) ---
         NotificationSettings settings = await messaging.requestPermission(
           alert: true,
           announcement: false,
@@ -162,17 +183,14 @@ class _AuthWrapperState extends State<AuthWrapper> {
         print('🔔 Permiso de notificaciones estado: ${settings.authorizationStatus}');
 
         if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-          // Obtener e imprimir el token
           String? token = await messaging.getToken();
           print("========================================");
           print("🔥 TOKEN PARA FIREBASE CONSOLE:");
           print(token);
           print("========================================");
 
-          // Inicializar tu servicio de notificaciones personalizado
           NotificationService().init(authService, context);
           
-          // Configurar presentación en primer plano (Heads-up notification)
           await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
             alert: true, 
             badge: true,
@@ -203,7 +221,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
     }
 
     if (authService.currentUser == null) {
-      _notificationsInitialized = false; // Resetear flag al salir
+      _notificationsInitialized = false;
       return const LoginScreen();
     }
 

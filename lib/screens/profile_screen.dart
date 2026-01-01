@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../models/user_model.dart';
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
@@ -47,6 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showPaywall() async {
+    final l10n = AppLocalizations.of(context)!;
     final result = await Navigator.push(
       context, 
       MaterialPageRoute(builder: (context) => const PaywallProScreen())
@@ -55,7 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (result == true) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("¡Bienvenido a Yoinn PRO! 🌟"))
+          SnackBar(content: Text(l10n.msgWelcomePro))
         );
       }
       _checkPremiumStatus();
@@ -63,29 +66,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final confirmationController = TextEditingController();
+    
+    // La palabra clave depende del idioma (ELIMINAR vs DELETE)
+    final keyword = l10n.hintDelete; 
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Eliminar Cuenta"),
+        title: Text(l10n.dialogDeleteAccountTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Esta acción es irreversible. Se borrarán tus datos y actividades."),
+            Text(l10n.dialogDeleteAccountBody),
             const SizedBox(height: 10),
-            const Text("Escribe ELIMINAR para confirmar:", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(l10n.lblTypeDelete, style: const TextStyle(fontWeight: FontWeight.bold)),
             TextField(
               controller: confirmationController,
-              decoration: const InputDecoration(hintText: "ELIMINAR"),
+              decoration: InputDecoration(hintText: keyword),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancelar")),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.btnCancel)),
           TextButton(
             onPressed: () async {
-              if (confirmationController.text.trim() != "ELIMINAR") return;
+              if (confirmationController.text.trim().toUpperCase() != keyword.toUpperCase()) return;
               try {
                 await Provider.of<AuthService>(context, listen: false).deleteAccount();
                 if (mounted) {
@@ -94,10 +102,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 }
               } catch (e) {
                 if (mounted) Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${l10n.errorGeneric}: $e")));
               }
             },
-            child: const Text("BORRAR", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            child: Text(l10n.btnDeleteConfirm, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -106,6 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final authService = Provider.of<AuthService>(context, listen: false);
     final dataService = Provider.of<DataService>(context, listen: false); 
     final isMe = authService.currentUser?.uid == widget.uid;
@@ -118,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
 
         if (!snapshot.hasData || snapshot.data == null) {
-          return Scaffold(appBar: AppBar(), body: const Center(child: Text("Usuario no encontrado")));
+          return Scaffold(appBar: AppBar(), body: Center(child: Text(l10n.errUserNotFound)));
         }
 
         final user = snapshot.data!;
@@ -129,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            title: const Text("Perfil", style: TextStyle(fontWeight: FontWeight.bold)),
+            title: Text(l10n.screenProfileTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
             centerTitle: false,
             elevation: 0,
             backgroundColor: Colors.white,
@@ -162,32 +171,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onEditProfile: () => setState((){}), 
                 ),
 
-                // Banner de Venta solo si es Free
                 if (isMe && !_loadingPremium && !isProReal) ...[
                   const SizedBox(height: 25),
-                  _buildUpgradeBanner(), 
+                  _buildUpgradeBanner(l10n), 
                 ],
 
                 if (isMe && !_loadingPremium) ...[
                   const SizedBox(height: 30),
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft, 
-                    child: Text("Preferencias de Búsqueda", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: kTextBlack))
+                    child: Text(l10n.lblSearchPrefs, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: kTextBlack))
                   ),
                   const SizedBox(height: 15),
                   
-                  _buildDistancePreference(isProReal),
-                  
-                  // Se eliminó la sección "Modo Viajero" para simplificar la lógica
+                  _buildDistancePreference(isProReal, l10n),
                 ],
 
                 const SizedBox(height: 30),
                 const Divider(color: Colors.black12),
                 const SizedBox(height: 20),
 
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft, 
-                  child: Text("Galería", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: kTextBlack))
+                  child: Text(l10n.lblGallery, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: kTextBlack))
                 ),
                 const SizedBox(height: 15),
                 ProfileGallery(
@@ -198,9 +204,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 30),
 
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft, 
-                  child: Text("Actividades", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: kTextBlack))
+                  child: Text(l10n.lblActivities, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: kTextBlack))
                 ),
                 const SizedBox(height: 15),
                 ProfileActivitiesList(
@@ -213,7 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (isMe)
                   TextButton(
                     onPressed: () => _showDeleteAccountDialog(context),
-                    child: Text("Eliminar cuenta", style: TextStyle(color: Colors.red.shade300, decoration: TextDecoration.underline, fontSize: 12)),
+                    child: Text(l10n.btnDeleteAccount, style: TextStyle(color: Colors.red.shade300, decoration: TextDecoration.underline, fontSize: 12)),
                   ),
                 const SizedBox(height: 30),
               ],
@@ -224,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildUpgradeBanner() {
+  Widget _buildUpgradeBanner(AppLocalizations l10n) {
     return GestureDetector(
       onTap: _showPaywall, 
       child: Container(
@@ -249,12 +255,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: const Icon(Icons.star_rounded, color: kGoldMetallic, size: 28),
             ),
             const SizedBox(width: 15),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Pásate a Yoinn PRO", style: TextStyle(color: kTextBlack, fontWeight: FontWeight.w800, fontSize: 16)),
-                  Text("Desbloquea viajes y más alcance", style: TextStyle(color: kTextGrey, fontSize: 12)),
+                  Text(l10n.bannerUpgradeTitle, style: const TextStyle(color: kTextBlack, fontWeight: FontWeight.w800, fontSize: 16)),
+                  Text(l10n.bannerUpgradeSubtitle, style: const TextStyle(color: kTextGrey, fontSize: 12)),
                 ],
               ),
             ),
@@ -265,7 +271,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildDistancePreference(bool isPro) {
+  Widget _buildDistancePreference(bool isPro, AppLocalizations l10n) {
     return Consumer<DataService>(
       builder: (context, dataService, _) {
         double currentRadius = dataService.filterRadius;
@@ -274,8 +280,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final double proMax = SubscriptionLimits.proMaxRadius;
         final double currentMax = isPro ? proMax : freeMax;
 
-        // Aseguramos que el valor visual nunca supere el máximo permitido
-        // Si tienes 80km guardados pero ahora eres Free, el slider se queda en 30km visualmente.
         double safeValue = currentRadius.clamp(1.0, currentMax);
 
         return Container(
@@ -294,12 +298,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    "Radio de búsqueda", 
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: kTextBlack)
+                  Text(
+                    l10n.radiusLabel, // "Radio de búsqueda"
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: kTextBlack)
                   ),
                   Text(
-                    "${safeValue.toInt()} km", 
+                    "${safeValue.toInt()} ${l10n.kmUnit}", // "X km"
                     style: const TextStyle(fontWeight: FontWeight.w900, color: kYoinnCyan, fontSize: 16)
                   ),
                 ],
@@ -324,9 +328,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onChangeEnd: (val) {
                     if (!isPro && val >= freeMax) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Hazte PRO para buscar hasta 150 km 🌍"),
-                          duration: Duration(seconds: 2),
+                        SnackBar(
+                          content: Text(l10n.msgProSearchFeature), // "Hazte PRO..."
+                          duration: const Duration(seconds: 2),
                           backgroundColor: kTextBlack,
                         )
                       );
@@ -346,7 +350,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const Icon(Icons.lock_outline, size: 14, color: kGoldMetallic),
                         const SizedBox(width: 6),
                         Text(
-                          "Desbloquear hasta ${proMax.toInt()} km", 
+                          l10n.lblUnlockPro(proMax.toInt()), // "Desbloquear hasta X km"
                           style: const TextStyle(
                             color: kGoldMetallic, 
                             fontSize: 12, 

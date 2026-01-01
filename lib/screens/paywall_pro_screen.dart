@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:url_launcher/url_launcher.dart'; // NECESARIO PARA LOS LINKS
+import 'package:url_launcher/url_launcher.dart'; 
 import 'dart:ui';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../config/subscription_limits.dart';
 
 // --- PALETA DE COLORES PREMIUM ---
@@ -27,14 +29,13 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
   String _selectedPlanKey = 'annual'; 
   bool _isLoading = true;
 
-  // LINKS LEGALES (CORREGIDOS PARA GITHUB PAGES)
   final String _termsUrl = "https://estebanampuero.github.io/yoinn.info/#terminos"; 
   final String _privacyUrl = "https://estebanampuero.github.io/yoinn.info/#privacidad"; 
 
   @override
   void initState() {
     super.initState();
-    // Purchases.setLogLevel(LogLevel.debug); // Comentar en producción
+    // Purchases.setLogLevel(LogLevel.debug); 
     _fetchOfferings();
   }
 
@@ -58,6 +59,7 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
   }
 
   Future<void> _buyPro() async {
+    final l10n = AppLocalizations.of(context)!;
     Package? packageToBuy;
     if (_selectedPlanKey == 'annual') {
       packageToBuy = _annualPackage;
@@ -67,7 +69,7 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
 
     if (packageToBuy == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error: El plan no está disponible temporalmente."))
+        SnackBar(content: Text(l10n.paywallErrNoPlan))
       );
       return;
     }
@@ -84,7 +86,7 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
     } catch (e) {
       if (mounted && !e.toString().contains("User cancelled")) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${e.toString()}"), backgroundColor: Colors.red)
+          SnackBar(content: Text("${l10n.errorGeneric}: ${e.toString()}"), backgroundColor: Colors.red)
         );
       }
     } finally {
@@ -93,6 +95,7 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
   }
 
   Future<void> _restore() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoading = true);
     try {
       CustomerInfo info = await Purchases.restorePurchases();
@@ -102,7 +105,7 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
         Navigator.pop(context, true);
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("No se encontraron compras activas."))
+          SnackBar(content: Text(l10n.paywallErrNoPurchases))
         );
       }
     } catch (e) {
@@ -112,7 +115,6 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
     }
   }
 
-  // FUNCIÓN PARA ABRIR LINKS (REQUERIDO POR APPLE)
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri)) {
@@ -122,12 +124,16 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     String monthlyEquivalent = "";
     if (_annualPackage != null) {
+      // Calculamos el precio mensual equivalente del plan anual
       final price = _annualPackage!.storeProduct.price;
       final currency = _annualPackage!.storeProduct.currencyCode; 
       final double monthlyPrice = price / 12;
-      monthlyEquivalent = "Solo $currency ${monthlyPrice.toStringAsFixed(2)} / mes";
+      // "Solo $ 9.99 / mes"
+      monthlyEquivalent = l10n.lblOnlyPricePerMonth("$currency ${monthlyPrice.toStringAsFixed(2)}");
     }
 
     return Scaffold(
@@ -182,27 +188,27 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                         ),
                       ),
                     ),
-                    const Positioned(
+                    Positioned(
                       bottom: 30,
                       left: 0,
                       right: 0,
                       child: Column(
                         children: [
                           Text(
-                            "Desbloquea el Mundo",
+                            l10n.paywallTitle, // "Desbloquea el Mundo"
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 26,
                               fontWeight: FontWeight.w900,
                               shadows: [Shadow(color: Colors.black45, blurRadius: 10, offset: Offset(0, 2))]
                             ),
                           ),
-                          SizedBox(height: 6),
+                          const SizedBox(height: 6),
                           Text(
-                            "Con Yoinn Premium",
+                            l10n.paywallSubtitle, // "Con Yoinn Premium"
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: kGoldLight, 
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -224,7 +230,7 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                   child: Column(
                     children: [
-                      _buildComparisonTable(),
+                      _buildComparisonTable(l10n),
                       
                       const SizedBox(height: 30),
 
@@ -234,10 +240,10 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                           Expanded(
                             child: _buildPlanCard(
                               keyName: 'annual',
-                              title: "ANUAL",
+                              title: l10n.paywallPlanAnnual, // "ANUAL"
                               price: _annualPackage?.storeProduct.priceString ?? "--",
-                              subtitle: "/año",
-                              savings: "AHORRA 20%", 
+                              subtitle: "/${l10n.fieldDate.substring(0, 3)}", // Truco rápido: "Fecha" -> "Fec" o usar "/yr" si agregas key
+                              savings: l10n.lblSavePercent, 
                               isBestValue: true,
                               monthlyEquivalent: monthlyEquivalent, 
                             ),
@@ -248,9 +254,9 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                           Expanded(
                             child: _buildPlanCard(
                               keyName: 'monthly',
-                              title: "MENSUAL",
+                              title: l10n.paywallPlanMonthly, // "MENSUAL"
                               price: _monthlyPackage?.storeProduct.priceString ?? "--",
-                              subtitle: "/mes",
+                              subtitle: "/${l10n.fieldDate.substring(0, 3) == 'Dat' ? 'mo' : 'mes'}", // Fallback simple
                               savings: null,
                               isBestValue: false,
                               monthlyEquivalent: null, 
@@ -279,10 +285,10 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                               )
                             ]
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text(
-                              "Comenzar Ahora",
-                              style: TextStyle(
+                              l10n.paywallBtnStart, // "Comenzar Ahora"
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -297,14 +303,13 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                       Center(
                         child: TextButton(
                           onPressed: _restore,
-                          child: const Text(
-                            "Restaurar Compras",
-                            style: TextStyle(color: Colors.grey, fontSize: 13, decoration: TextDecoration.underline),
+                          child: Text(
+                            l10n.paywallBtnRestore, // "Restaurar Compras"
+                            style: const TextStyle(color: Colors.grey, fontSize: 13, decoration: TextDecoration.underline),
                           ),
                         ),
                       ),
 
-                      // --- SECCIÓN DE LEGALES RESPONSIVA ---
                       const SizedBox(height: 20),
                       
                       Padding(
@@ -317,9 +322,9 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                           children: [
                             GestureDetector(
                               onTap: () => _launchURL(_termsUrl),
-                              child: const Text(
-                                "Términos de Uso",
-                                style: TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.underline),
+                              child: Text(
+                                l10n.paywallLegalTerms,
+                                style: const TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.underline),
                               ),
                             ),
                             
@@ -327,9 +332,9 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                             
                             GestureDetector(
                               onTap: () => _launchURL(_privacyUrl),
-                              child: const Text(
-                                "Privacidad",
-                                style: TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.underline),
+                              child: Text(
+                                l10n.paywallLegalPrivacy,
+                                style: const TextStyle(color: Colors.grey, fontSize: 12, decoration: TextDecoration.underline),
                               ),
                             ),
                           ],
@@ -345,7 +350,7 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
   }
 
   // --- WIDGETS AUXILIARES ---
-  Widget _buildComparisonTable() {
+  Widget _buildComparisonTable(AppLocalizations l10n) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -368,7 +373,7 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                 const Expanded(flex: 4, child: SizedBox()), 
                 Expanded(
                   flex: 3, 
-                  child: Center(child: Text("GRATIS", style: TextStyle(color: Colors.grey.shade600, fontSize: 11, fontWeight: FontWeight.bold)))
+                  child: Center(child: Text(l10n.paywallLabelFree, style: TextStyle(color: Colors.grey.shade600, fontSize: 11, fontWeight: FontWeight.bold)))
                 ),
                 Expanded(
                   flex: 3, 
@@ -380,7 +385,7 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [BoxShadow(color: kGoldDark.withOpacity(0.3), blurRadius: 4)]
                       ),
-                      child: const Text("PRO", style: TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.w900)),
+                      child: Text(l10n.paywallLabelPro, style: const TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.w900)),
                     ),
                   )
                 ),
@@ -389,20 +394,20 @@ class _PaywallProScreenState extends State<PaywallProScreen> {
           ),
           const Divider(height: 1, color: Colors.grey),
           
-          _buildTableRow("Radio Búsqueda", 
-            "${SubscriptionLimits.freeMaxRadius.toInt()} km", 
-            "${SubscriptionLimits.proMaxRadius.toInt()} km"
+          _buildTableRow(l10n.featRadius, 
+            "${SubscriptionLimits.freeMaxRadius.toInt()} ${l10n.kmUnit}", 
+            "${SubscriptionLimits.proMaxRadius.toInt()} ${l10n.kmUnit}"
           ),
-          _buildTableRow("Crear en otras ciudades", "❌", "Todo el Mundo 🌍"),
-          _buildTableRow("Invitados por Evento", 
-            "${SubscriptionLimits.freeMaxAttendees} máx", 
-            "${SubscriptionLimits.proMaxAttendees} (Grupos)"
+          _buildTableRow(l10n.featGlobal, l10n.valGlobalFree, l10n.valGlobalPro),
+          _buildTableRow(l10n.featGuests, 
+            l10n.valGuestsFree(SubscriptionLimits.freeMaxAttendees), 
+            l10n.valGuestsPro(SubscriptionLimits.proMaxAttendees)
           ),
-          _buildTableRow("Unirse a Eventos", 
-            "${SubscriptionLimits.freeMaxJoinsPerWeek} / sem", 
-            "Ilimitado ∞"
+          _buildTableRow(l10n.featJoins, 
+            l10n.valJoinsFree(SubscriptionLimits.freeMaxJoinsPerWeek), 
+            l10n.valJoinsPro
           ),
-          _buildTableRow("Insignia Verificado", "❌", "✅", isLast: true),
+          _buildTableRow(l10n.featBadge, l10n.valBadgeFree, l10n.valBadgePro, isLast: true),
         ],
       ),
     );

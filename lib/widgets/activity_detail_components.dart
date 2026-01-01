@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
 
 import '../models/activity_model.dart';
 import '../models/user_model.dart';
@@ -70,7 +71,9 @@ class HostInfoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dataService = Provider.of<DataService>(context, listen: false);
+    
     return FutureBuilder<UserModel?>(
       future: dataService.getUserProfile(hostUid),
       builder: (context, snapshot) {
@@ -104,7 +107,7 @@ class HostInfoTile extends StatelessWidget {
                       if (host.isVerified) ...[const SizedBox(width: 4), const Icon(Icons.verified, color: Colors.blue, size: 16)]
                     ],
                   ),
-                  const Text("Organizador", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  Text(l10n.lblOrganizer, style: const TextStyle(color: Colors.grey, fontSize: 12)), // "Organizador"
                 ],
               ),
               const Spacer(),
@@ -124,24 +127,31 @@ class ActivityInfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateStr = DateFormat('EEEE, d MMMM yyyy', 'es_ES').format(activity.dateTime);
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Fecha localizada
+    final dateStr = DateFormat('EEEE, d MMMM yyyy', Localizations.localeOf(context).toString()).format(activity.dateTime);
     final timeStr = DateFormat('h:mm a').format(activity.dateTime);
+    
     final spotsLeft = activity.maxAttendees - activity.acceptedCount;
     final spotsColor = spotsLeft <= 2 ? Colors.red : Colors.green;
-    final spotsText = spotsLeft <= 0 ? "¡Actividad Llena!" : "Quedan $spotsLeft cupos disponibles";
+    
+    final spotsText = spotsLeft <= 0 
+        ? l10n.msgActivityFull // "¡Actividad Llena!"
+        : l10n.msgSpotsLeft(spotsLeft); // "Quedan X cupos..."
 
     return Column(
       children: [
         _buildRow(Icons.calendar_today, Colors.orange, dateStr, timeStr),
         const SizedBox(height: 16),
-        _buildRow(Icons.location_on, Colors.blue, activity.location, "Ubicación del evento", 
+        _buildRow(Icons.location_on, Colors.blue, activity.location, l10n.lblEventLocation, // "Ubicación del evento"
           onTap: () async {
              final googleUrl = 'http://googleusercontent.com/maps.google.com/?q=${activity.lat},${activity.lng}';
              if (await canLaunchUrl(Uri.parse(googleUrl))) await launchUrl(Uri.parse(googleUrl));
           }, isLink: true
         ),
         const SizedBox(height: 16),
-        _buildRow(Icons.people, spotsColor, spotsText, "Capacidad total: ${activity.maxAttendees} personas"),
+        _buildRow(Icons.people, spotsColor, spotsText, l10n.lblTotalCapacity(activity.maxAttendees)), // "Capacidad total: X"
       ],
     );
   }
@@ -171,7 +181,9 @@ class ParticipantsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dataService = Provider.of<DataService>(context, listen: false);
+    
     return StreamBuilder<QuerySnapshot>(
       stream: dataService.getActivityApplications(activityId),
       builder: (context, snapshot) {
@@ -182,7 +194,7 @@ class ParticipantsSection extends StatelessWidget {
           return Container(
             width: double.infinity, padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
-            child: const Center(child: Text("Aún nadie se ha unido. ¡Sé el primero!", style: TextStyle(color: Colors.grey))),
+            child: Center(child: Text(l10n.msgNoParticipants, style: const TextStyle(color: Colors.grey))), // "Aún nadie se ha unido..."
           );
         }
 
@@ -237,6 +249,7 @@ class ActivityActionSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final currentUser = Provider.of<AuthService>(context).currentUser;
     final dataService = Provider.of<DataService>(context, listen: false);
     final spotsLeft = activity.maxAttendees - activity.acceptedCount;
@@ -264,12 +277,12 @@ class ActivityActionSheet extends StatelessWidget {
                return Column(
                  mainAxisSize: MainAxisSize.min,
                  children: [
-                   _buildButton("Ir al Chat del Grupo", Colors.white, const Color(0xFF00BCD4), () => 
+                   _buildButton(l10n.btnGoToChat, Colors.white, const Color(0xFF00BCD4), () => 
                      Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(activity: activity))),
                      outline: true
                    ),
                    const SizedBox(height: 12),
-                   _buildButton("Gestionar Solicitudes", const Color(0xFF00BCD4), Colors.white, () =>
+                   _buildButton(l10n.btnManageRequests, const Color(0xFF00BCD4), Colors.white, () =>
                      Navigator.push(context, MaterialPageRoute(builder: (_) => ManageRequestsScreen(activityId: activity.id, activityTitle: activity.title))),
                      icon: Icons.people
                    ),
@@ -278,14 +291,14 @@ class ActivityActionSheet extends StatelessWidget {
             }
 
             if (status == 'accepted') {
-              return _buildButton("¡Estás dentro! Ir al Chat", Colors.green, Colors.white, () =>
+              return _buildButton(l10n.btnYouAreIn, Colors.green, Colors.white, () =>
                 Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(activity: activity))),
                 icon: Icons.chat
               );
             }
 
             if (status == 'pending') {
-              return _buildButton("Solicitud enviada...", Colors.grey, Colors.white, null);
+              return _buildButton(l10n.btnRequestPending, Colors.grey, Colors.white, null);
             }
 
             return SizedBox(
@@ -298,7 +311,7 @@ class ActivityActionSheet extends StatelessWidget {
                 onPressed: isFull ? null : (isJoining ? null : onJoinPressed),
                 child: isJoining
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(isFull ? "AGOTADO" : "Solicitar Unirme", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                    : Text(isFull ? l10n.btnSoldOut : l10n.btnRequestJoin, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
               ),
             );
           },

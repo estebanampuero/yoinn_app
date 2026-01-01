@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../models/user_model.dart';
 import '../services/data_service.dart';
 
@@ -26,10 +28,10 @@ class _ProfileGalleryState extends State<ProfileGallery> {
   final ImagePicker _picker = ImagePicker();
   bool _isUploading = false;
   
-  // COLOR DE MARCA
   static const Color brandColor = Color(0xFF00BCD4);
 
   Future<void> _pickAndUploadImage() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_isUploading) return;
     try {
       final XFile? image = await _picker.pickImage(
@@ -45,7 +47,7 @@ class _ProfileGalleryState extends State<ProfileGallery> {
         setState(() => _isUploading = false);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("¡Foto agregada!")),
+            SnackBar(content: Text(l10n.msgPhotoAdded)),
           );
           widget.onImageUploaded();
         }
@@ -58,30 +60,31 @@ class _ProfileGalleryState extends State<ProfileGallery> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("Galería", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(l10n.lblGallery, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             if (widget.isMe && widget.user.galleryImages.length < 6)
               if (_isUploading)
                 const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: brandColor))
               else
                 IconButton(
                   onPressed: _pickAndUploadImage,
-                  // ICONO CIAN
                   icon: const Icon(Icons.add_a_photo, color: brandColor), 
-                  tooltip: "Agregar foto",
+                  tooltip: l10n.tooltipAddPhoto,
                 ),
           ],
         ),
         const SizedBox(height: 10),
         
         if (widget.user.galleryImages.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 20),
-            child: Text("Aún no hay fotos", style: TextStyle(color: Colors.grey)),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Text(l10n.msgNoPhotos, style: const TextStyle(color: Colors.grey)),
           )
         else
           GridView.builder(

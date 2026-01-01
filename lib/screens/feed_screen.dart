@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../services/auth_service.dart';
 import '../services/data_service.dart';
 import '../services/subscription_service.dart'; 
@@ -20,9 +22,9 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   final TextEditingController _searchController = TextEditingController();
   
-  // Estado para controlar la UI según suscripción (solo para el borde de la foto)
   bool _isPremium = false; 
 
+  // Las claves se mantienen para lógica interna, la traducción es visual
   final List<String> _filterCategories = [
     'Todas', 'Deporte', 'Comida', 'Arte', 'Fiesta', 'Viaje', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
   ];
@@ -39,7 +41,6 @@ class _FeedScreenState extends State<FeedScreen> {
     super.dispose();
   }
 
-  // Verificamos el estado premium
   Future<void> _checkPremiumStatus() async {
     final revenueCatStatus = await SubscriptionService.isUserPremium();
     
@@ -85,9 +86,24 @@ class _FeedScreenState extends State<FeedScreen> {
     }
   }
 
+  // Helper para traducir la categoría visualmente
+  String _getCategoryName(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    if (key == 'Todas') return l10n.catAll;
+    if (key == 'Deporte') return l10n.catSport;
+    if (key == 'Comida') return l10n.catFood;
+    if (key == 'Arte') return l10n.catArt;
+    if (key == 'Fiesta') return l10n.catParty;
+    if (key == 'Viaje') return l10n.catOutdoor; // O Travel
+    if (key == 'Musica') return l10n.hobbyMusic;
+    if (key == 'Tecnología') return l10n.hobbyTech;
+    if (key == 'Bienestar') return l10n.hobbyWellness;
+    return l10n.catOther;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Usamos el DataService para obtener actividades y filtros
+    final l10n = AppLocalizations.of(context)!;
     final authService = Provider.of<AuthService>(context, listen: false);
     final dataService = Provider.of<DataService>(context);
     
@@ -96,12 +112,11 @@ class _FeedScreenState extends State<FeedScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          "Yoinn",
-          style: TextStyle(color: Color(0xFF00BCD4), fontWeight: FontWeight.w800, fontSize: 24),
+        title: Text(
+          l10n.appTitle, // "Yoinn"
+          style: const TextStyle(color: Color(0xFF00BCD4), fontWeight: FontWeight.w800, fontSize: 24),
         ),
         actions: [
-          // --- FOTO DE PERFIL CON ESTILO PRO/FREE ---
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: GestureDetector(
@@ -111,24 +126,22 @@ class _FeedScreenState extends State<FeedScreen> {
                    Navigator.push(
                      context,
                      MaterialPageRoute(builder: (context) => ProfileScreen(uid: myUid)),
-                   ).then((_) => _checkPremiumStatus()); // Actualizar al volver
+                   ).then((_) => _checkPremiumStatus());
                  }
               },
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // El contenedor del borde (Solo si es Premium)
                   Container(
                     padding: const EdgeInsets.all(3.0), 
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      // Si es Premium: GRADIENTE METÁLICO REAL
                       gradient: _isPremium 
                           ? const LinearGradient(
                               colors: [
-                                Color(0xFFB8860B), // Dorado Oscuro
-                                Color(0xFFFFD700), // Oro Brillante
-                                Color(0xFFD4AF37), // Oro Metálico
+                                Color(0xFFB8860B), 
+                                Color(0xFFFFD700), 
+                                Color(0xFFD4AF37), 
                                 Color(0xFFFFD700), 
                               ],
                               begin: Alignment.topLeft,
@@ -148,7 +161,6 @@ class _FeedScreenState extends State<FeedScreen> {
                     ),
                   ),
                   
-                  // Pequeña estrella VERIFICADA si es Premium
                   if (_isPremium)
                     Positioned(
                       bottom: -2,
@@ -170,7 +182,6 @@ class _FeedScreenState extends State<FeedScreen> {
       ),
       body: Column(
         children: [
-          // --- BARRA DE BÚSQUEDA Y FILTROS ---
           Container(
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -185,7 +196,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           dataService.setSearchQuery(value);
                         },
                         decoration: InputDecoration(
-                          hintText: "Buscar...",
+                          hintText: l10n.searchPlaceholder,
                           prefixIcon: const Icon(Icons.search, color: Colors.grey),
                           contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
                           filled: true,
@@ -232,7 +243,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 ),
                 const SizedBox(height: 12),
                 
-                // Categorías horizontales
+                // Categorías horizontales traducidas
                 SizedBox(
                   height: 32,
                   child: ListView.separated(
@@ -241,12 +252,12 @@ class _FeedScreenState extends State<FeedScreen> {
                     itemCount: _filterCategories.length,
                     separatorBuilder: (c, i) => const SizedBox(width: 8),
                     itemBuilder: (context, index) {
-                      final category = _filterCategories[index];
-                      final isSelected = dataService.selectedCategory == category;
+                      final categoryKey = _filterCategories[index];
+                      final isSelected = dataService.selectedCategory == categoryKey;
                       
                       return GestureDetector(
                         onTap: () {
-                          dataService.setCategoryFilter(category);
+                          dataService.setCategoryFilter(categoryKey);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -259,7 +270,7 @@ class _FeedScreenState extends State<FeedScreen> {
                             ),
                           ),
                           child: Text(
-                            category,
+                            _getCategoryName(context, categoryKey),
                             style: TextStyle(
                               color: isSelected ? Colors.white : const Color(0xFF00838F),
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -275,7 +286,6 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
           ),
           
-          // --- LISTA DE ACTIVIDADES ---
           Expanded(
             child: dataService.isLoading
               ? const Center(child: CircularProgressIndicator(color: Color(0xFF00BCD4)))
@@ -289,17 +299,16 @@ class _FeedScreenState extends State<FeedScreen> {
                           Icon(Icons.search_off, size: 80, color: Colors.grey[300]),
                           const SizedBox(height: 16),
                           Text(
-                            "No se encontraron actividades",
+                            l10n.msgNoActivitiesTitle, // "No se encontraron actividades"
                             style: TextStyle(fontSize: 18, color: Colors.grey[500], fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
-                          const Text("Intenta cambiar los filtros o crea una nueva"),
+                          Text(l10n.msgNoActivitiesBody), // "Intenta cambiar los filtros..."
                         ],
                       ),
                     ),
                   )
                 : RefreshIndicator(
-                    // ESTE MÉTODO AHORA EXISTE GRACIAS AL NUEVO DATA_SERVICE
                     onRefresh: dataService.refresh, 
                     color: const Color(0xFF00BCD4),
                     child: ListView.builder(

@@ -1,3 +1,9 @@
+Launching lib/main.dart on iPhone de Miguel Esteban in debug mode...
+Automatically signing iOS for device deployment using specified development team in Xcode project: SZYY54G5X9
+Running pod install...                                             17,8s
+Running Xcode build...                                          
+Xcode build done.                                           274,2s
+Failed to build iOS app
 Could not build the precompiled application for the device.
 Error output from Xcode build:
 ↳
@@ -7,7 +13,7 @@ Error output from Xcode build:
 Xcode's output:
 ↳
     Writing result bundle at path:
-        /var/folders/xz/k0xzgy6d7f742n3r6zrbg6mw0000gn/T/flutter_tools.oyXNit/flutter_ios_build_temp_dirsROBap/temporary_xcresult_bundle
+    	/var/folders/xz/k0xzgy6d7f742n3r6zrbg6mw0000gn/T/flutter_tools.a3a0Ny/flutter_ios_build_temp_diru092BR/temporary_xcresult_bundle
 
     /Users/macbookpro/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.6/ios/url_launcher_ios/Sources/url_launcher_ios/URLLauncherPlugin.swift:22:26: warning: 'keyWindow' was deprecated in iOS 13.0: Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes
         UIApplication.shared.keyWindow?.rootViewController?.topViewController
@@ -24,6 +30,39 @@ Xcode's output:
       120 |   options[(NSString *)kCGImageSourceTypeIdentifierHint] = (NSString *)kUTTypeGIF;
           |                                                                       ^
     In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerImageUtil.m:6:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:729:26: note: 'kUTTypeGIF' has been explicitly marked deprecated here
+      729 | extern const CFStringRef kUTTypeGIF                                  API_DEPRECATED("Use UTTypeGIF or UTType.gif (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:70:64: warning: 'windows' is deprecated: first deprecated in iOS 15.0 - Use UIWindowScene.windows on a relevant window scene instead [-Wdeprecated-declarations]
+       70 |     for (UIWindow *window in [UIApplication sharedApplication].windows) {
+          |                                                                ^
+    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/image_picker_ios/image_picker_ios-prefix.pch:2:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:109:62: note: 'windows' has been explicitly marked deprecated here
+      109 | @property(nonatomic,readonly) NSArray<__kindof UIWindow *>  *windows API_DEPRECATED("Use UIWindowScene.windows on a relevant window scene instead", ios(2.0, 15.0), visionos(1.0, 1.0)) API_UNAVAILABLE(watchos);
+          |                                                              ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:128:39: warning: 'kUTTypeImage' is deprecated: first deprecated in iOS 15.0 - Use UTTypeImage or UTType.image (swift) instead. [-Wdeprecated-declarations]
+      128 |     [mediaTypes addObject:(NSString *)kUTTypeImage];
+          |                                       ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:9:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:725:26: note: 'kUTTypeImage' has been explicitly marked deprecated here
+      725 | extern const CFStringRef kUTTypeImage                                API_DEPRECATED("Use UTTypeImage or UTType.image (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:131:39: warning: 'kUTTypeMovie' is deprecated: first deprecated in iOS 15.0 - Use UTTypeMovie or UTType.movie (swift) instead. [-Wdeprecated-declarations]
+      131 |     [mediaTypes addObject:(NSString *)kUTTypeMovie];
+          |                                       ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:9:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:880:26: note: 'kUTTypeMovie' has been explicitly marked deprecated here
+      880 | extern const CFStringRef kUTTypeMovie                                API_DEPRECATED("Use UTTypeMovie or UTType.movie (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    3 warnings generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:102:56: warning: 'kUTTypeGIF' is deprecated: first deprecated in iOS 15.0 - Use UTTypeGIF or UTType.gif (swift) instead. [-Wdeprecated-declarations]
+      102 |       (__bridge CFURLRef)[NSURL fileURLWithPath:path], kUTTypeGIF, gifInfo.images.count, NULL);
+          |                                                        ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:9:
     In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
     /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:729:26: note: 'kUTTypeGIF' has been explicitly marked deprecated here
       729 | extern const CFStringRef kUTTypeGIF                                  API_DEPRECATED("Use UTTypeGIF or UTType.gif (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
@@ -69,39 +108,6 @@ Xcode's output:
       208 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status API_DEPRECATED_WITH_REPLACEMENT("-locationManagerDidChangeAuthorization:", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
           | ^
     1 warning generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:102:56: warning: 'kUTTypeGIF' is deprecated: first deprecated in iOS 15.0 - Use UTTypeGIF or UTType.gif (swift) instead. [-Wdeprecated-declarations]
-      102 |       (__bridge CFURLRef)[NSURL fileURLWithPath:path], kUTTypeGIF, gifInfo.images.count, NULL);
-          |                                                        ^
-    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:9:
-    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:729:26: note: 'kUTTypeGIF' has been explicitly marked deprecated here
-      729 | extern const CFStringRef kUTTypeGIF                                  API_DEPRECATED("Use UTTypeGIF or UTType.gif (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
-          |                          ^
-    1 warning generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:70:64: warning: 'windows' is deprecated: first deprecated in iOS 15.0 - Use UIWindowScene.windows on a relevant window scene instead [-Wdeprecated-declarations]
-       70 |     for (UIWindow *window in [UIApplication sharedApplication].windows) {
-          |                                                                ^
-    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/image_picker_ios/image_picker_ios-prefix.pch:2:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:109:62: note: 'windows' has been explicitly marked deprecated here
-      109 | @property(nonatomic,readonly) NSArray<__kindof UIWindow *>  *windows API_DEPRECATED("Use UIWindowScene.windows on a relevant window scene instead", ios(2.0, 15.0), visionos(1.0, 1.0)) API_UNAVAILABLE(watchos);
-          |                                                              ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:128:39: warning: 'kUTTypeImage' is deprecated: first deprecated in iOS 15.0 - Use UTTypeImage or UTType.image (swift) instead. [-Wdeprecated-declarations]
-      128 |     [mediaTypes addObject:(NSString *)kUTTypeImage];
-          |                                       ^
-    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:9:
-    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:725:26: note: 'kUTTypeImage' has been explicitly marked deprecated here
-      725 | extern const CFStringRef kUTTypeImage                                API_DEPRECATED("Use UTTypeImage or UTType.image (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
-          |                          ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:131:39: warning: 'kUTTypeMovie' is deprecated: first deprecated in iOS 15.0 - Use UTTypeMovie or UTType.movie (swift) instead. [-Wdeprecated-declarations]
-      131 |     [mediaTypes addObject:(NSString *)kUTTypeMovie];
-          |                                       ^
-    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:9:
-    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:880:26: note: 'kUTTypeMovie' has been explicitly marked deprecated here
-      880 | extern const CFStringRef kUTTypeMovie                                API_DEPRECATED("Use UTTypeMovie or UTType.movie (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
-          |                          ^
-    3 warnings generated.
     /Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/ios/Classes/FlutterLocalNotificationsPlugin.m:1238:30: warning: 'UNNotificationPresentationOptionAlert' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
      1238 |       presentationOptions |= UNNotificationPresentationOptionAlert;
           |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,6 +238,15 @@ Xcode's output:
       221 | # define SWIFT_DEPRECATED_MSG(...) __attribute__((deprecated(__VA_ARGS__)))
           |                                                   ^
     2 warnings generated.
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/GoogleSignIn/GoogleSignIn/Sources/GIDAppCheck/UI/GIDActivityIndicatorViewController.m:34:13: warning: 'UIActivityIndicatorViewStyleGray' is deprecated: first deprecated in iOS 13.0 [-Wdeprecated-declarations]
+       34 |     style = UIActivityIndicatorViewStyleGray;
+          |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          |             UIActivityIndicatorViewStyleMedium
+    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/GoogleSignIn/GoogleSignIn/Sources/GIDAppCheck/UI/GIDActivityIndicatorViewController.h:21:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIActivityIndicatorView.h:20:5: note: 'UIActivityIndicatorViewStyleGray' has been explicitly marked deprecated here
+       20 |     UIActivityIndicatorViewStyleGray API_DEPRECATED_WITH_REPLACEMENT("UIActivityIndicatorViewStyleMedium", ios(2.0, 13.0)) API_UNAVAILABLE(tvos, visionos, watchos) = 2,
+          |     ^
+    1 warning generated.
     /Users/macbookpro/Development/yoinn_app/ios/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageUtils.swift:79:19: warning: 'UTTypeCreatePreferredIdentifierForTag' was deprecated in iOS 15.0: Use the UTType class instead.
         if let type = UTTypeCreatePreferredIdentifierForTag(
                       ^
@@ -244,15 +259,6 @@ Xcode's output:
     /Users/macbookpro/Development/yoinn_app/ios/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageUtils.swift:84:63: warning: 'kUTTagClassMIMEType' was deprecated in iOS 15.0: Use UTTagClassMIMEType instead.
           if let mimeType = UTTypeCopyPreferredTagWithClass(type, kUTTagClassMIMEType)?
                                                                   ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/GoogleSignIn/GoogleSignIn/Sources/GIDAppCheck/UI/GIDActivityIndicatorViewController.m:34:13: warning: 'UIActivityIndicatorViewStyleGray' is deprecated: first deprecated in iOS 13.0 [-Wdeprecated-declarations]
-       34 |     style = UIActivityIndicatorViewStyleGray;
-          |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          |             UIActivityIndicatorViewStyleMedium
-    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/GoogleSignIn/GoogleSignIn/Sources/GIDAppCheck/UI/GIDActivityIndicatorViewController.h:21:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIActivityIndicatorView.h:20:5: note: 'UIActivityIndicatorViewStyleGray' has been explicitly marked deprecated here
-       20 |     UIActivityIndicatorViewStyleGray API_DEPRECATED_WITH_REPLACEMENT("UIActivityIndicatorViewStyleMedium", ios(2.0, 13.0)) API_UNAVAILABLE(tvos, visionos, watchos) = 2,
-          |     ^
-    1 warning generated.
     ld: warning: ignoring duplicate libraries: '-lc++'
     In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.c:8:
     /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
@@ -287,7 +293,7 @@ Xcode's output:
       141 | #  define OS_CODE  7
           |           ^
     1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/infback.c:13:
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inffast.c:6:
     /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
       170 | #  define OS_CODE 19
           |           ^
@@ -295,7 +301,7 @@ Xcode's output:
       141 | #  define OS_CODE  7
           |           ^
     1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inffast.c:6:
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/infback.c:13:
     /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
       170 | #  define OS_CODE 19
           |           ^
@@ -328,7 +334,6 @@ Xcode's output:
       141 | #  define OS_CODE  7
           |           ^
     1 warning generated.
-    ld: warning: ignoring duplicate libraries: '-lc++'
     ld: warning: ignoring duplicate libraries: '-lc++'
     ld: warning: ignoring duplicate libraries: '-lc++'
     /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_analytics-11.6.0/ios/firebase_analytics/Sources/firebase_analytics/FirebaseAnalyticsPlugin.swift:106:41: warning: expression implicitly coerced from '[String : Any?]' to '[String : Any]'
@@ -382,6 +387,7 @@ Xcode's output:
        84 |     UNNotificationPresentationOptionAlert API_DEPRECATED_WITH_REPLACEMENT("UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner", macos(10.14, 11.0), ios(10.0, 14.0), watchos(3.0, 7.0), tvos(10.0, 14.0)) = (1 << 2),
           |     ^
     1 warning generated.
+    ld: warning: ignoring duplicate libraries: '-lc++'
     /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/PigeonParser.m:133:18: warning: 'dynamicLinkDomain' is deprecated: Firebase Dynamic Links is deprecated. Migrate to use Firebase Hosting link and use `linkDomain` to set a custom domain instead. [-Wdeprecated-declarations]
       133 |     codeSettings.dynamicLinkDomain = settings.dynamicLinkDomain;
           |                  ^
@@ -452,445 +458,64 @@ Xcode's output:
       152 |             #define DEPRECATED_MSG_ATTRIBUTE(s) __attribute__((deprecated(s)))
           |                                                                ^
     1 warning generated.
-    Error: Couldn't resolve the package 'flutter_gen' in 'package:flutter_gen/gen_l10n/app_localizations.dart'.
-    lib/main.dart:10:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart';
-           ^
-    lib/screens/login_screen.dart:6:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE: TRADUCCIONES
-           ^
-    lib/screens/home_screen.dart:4:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/feed_screen.dart:3:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/map_screen.dart:9:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/notifications_screen.dart:5:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/widgets/activity_card.dart:5:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/activity_detail_screen.dart:9:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/create_activity_screen.dart:9:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/profile_screen.dart:3:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/paywall_pro_screen.dart:5:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/manage_requests_screen.dart:4:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/chat_screen.dart:7:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/map_picker_screen.dart:7:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/admin_screen.dart:5:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/widgets/profile_header.dart:4:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/widgets/profile_gallery.dart:6:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/widgets/profile_activities_list.dart:6:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/edit_profile_screen.dart:3:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/edit_activity_screen.dart:9:8: Error: Not found: 'package:flutter_gen/gen_l10n/app_localizations.dart'
-    import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
-           ^
-    lib/screens/login_screen.dart:28:49: Error: Type 'AppLocalizations' not found.
-      List<Map<String, dynamic>> _getOnboardingData(AppLocalizations l10n) {
-                                                    ^^^^^^^^^^^^^^^^
-    lib/screens/profile_screen.dart:233:30: Error: Type 'AppLocalizations' not found.
-      Widget _buildUpgradeBanner(AppLocalizations l10n) {
-                                 ^^^^^^^^^^^^^^^^
-    lib/screens/profile_screen.dart:274:47: Error: Type 'AppLocalizations' not found.
-      Widget _buildDistancePreference(bool isPro, AppLocalizations l10n) {
-                                                  ^^^^^^^^^^^^^^^^
-    lib/screens/paywall_pro_screen.dart:353:32: Error: Type 'AppLocalizations' not found.
-      Widget _buildComparisonTable(AppLocalizations l10n) {
-                                   ^^^^^^^^^^^^^^^^
-    lib/main.dart:68:11: Error: Not a constant expression.
-              AppLocalizations.delegate, // Tus textos propios (generado)
-              ^^^^^^^^^^^^^^^^
-    lib/screens/login_screen.dart:28:49: Error: 'AppLocalizations' isn't a type.
-      List<Map<String, dynamic>> _getOnboardingData(AppLocalizations l10n) {
-                                                    ^^^^^^^^^^^^^^^^
-    lib/screens/login_screen.dart:84:18: Error: The getter 'AppLocalizations' isn't defined for the type '_LoginScreenState'.
-     - '_LoginScreenState' is from 'package:yoinn_app/screens/login_screen.dart' ('lib/screens/login_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/login_screen.dart:110:18: Error: The getter 'AppLocalizations' isn't defined for the type '_LoginScreenState'.
-     - '_LoginScreenState' is from 'package:yoinn_app/screens/login_screen.dart' ('lib/screens/login_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/login_screen.dart:132:18: Error: The getter 'AppLocalizations' isn't defined for the type '_LoginScreenState'.
-     - '_LoginScreenState' is from 'package:yoinn_app/screens/login_screen.dart' ('lib/screens/login_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/home_screen.dart:30:18: Error: The getter 'AppLocalizations' isn't defined for the type '_HomeScreenState'.
-     - '_HomeScreenState' is from 'package:yoinn_app/screens/home_screen.dart' ('lib/screens/home_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!; // <--- Instancia de traducción
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/feed_screen.dart:91:18: Error: The getter 'AppLocalizations' isn't defined for the type '_FeedScreenState'.
-     - '_FeedScreenState' is from 'package:yoinn_app/screens/feed_screen.dart' ('lib/screens/feed_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
     lib/screens/feed_screen.dart:342:59: Error: 'CreateActivityScreen' is imported from both 'package:yoinn_app/screens/activity_detail_screen.dart' and 'package:yoinn_app/screens/create_activity_screen.dart'.
                 MaterialPageRoute(builder: (context) => const CreateActivityScreen()),
                                                               ^^^^^^^^^^^^^^^^^^^^
-    lib/screens/feed_screen.dart:106:18: Error: The getter 'AppLocalizations' isn't defined for the type '_FeedScreenState'.
-     - '_FeedScreenState' is from 'package:yoinn_app/screens/feed_screen.dart' ('lib/screens/feed_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
     lib/screens/feed_screen.dart:326:55: Error: The method 'ActivityDetailScreen' isn't defined for the type '_FeedScreenState'.
      - '_FeedScreenState' is from 'package:yoinn_app/screens/feed_screen.dart' ('lib/screens/feed_screen.dart').
     Try correcting the name to the name of an existing method, or defining a method named 'ActivityDetailScreen'.
                                     builder: (context) => ActivityDetailScreen(activity: activity),
                                                           ^^^^^^^^^^^^^^^^^^^^
-    lib/screens/map_screen.dart:65:18: Error: The getter 'AppLocalizations' isn't defined for the type '_MapScreenState'.
-     - '_MapScreenState' is from 'package:yoinn_app/screens/map_screen.dart' ('lib/screens/map_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/map_screen.dart:149:18: Error: The getter 'AppLocalizations' isn't defined for the type '_MapScreenState'.
-     - '_MapScreenState' is from 'package:yoinn_app/screens/map_screen.dart' ('lib/screens/map_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
     lib/screens/map_screen.dart:280:87: Error: The method 'ActivityDetailScreen' isn't defined for the type '_MapScreenState'.
      - '_MapScreenState' is from 'package:yoinn_app/screens/map_screen.dart' ('lib/screens/map_screen.dart').
     Try correcting the name to the name of an existing method, or defining a method named 'ActivityDetailScreen'.
                           Navigator.push(context, MaterialPageRoute(builder: (context) => ActivityDetailScreen(activity: _selectedActivity!)));
                                                                                           ^^^^^^^^^^^^^^^^^^^^
-    lib/screens/notifications_screen.dart:19:18: Error: The getter 'AppLocalizations' isn't defined for the type 'NotificationsScreen'.
-     - 'NotificationsScreen' is from 'package:yoinn_app/screens/notifications_screen.dart' ('lib/screens/notifications_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/notifications_screen.dart:162:18: Error: The getter 'AppLocalizations' isn't defined for the type 'NotificationsScreen'.
-     - 'NotificationsScreen' is from 'package:yoinn_app/screens/notifications_screen.dart' ('lib/screens/notifications_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
+    lib/screens/notifications_screen.dart:24:53: Error: The getter 'msgLoginToViewAlerts' isn't defined for the type 'AppLocalizations'.
+     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
+    Try correcting the name to the name of an existing getter, or defining a getter or field named 'msgLoginToViewAlerts'.
+        if (uid == null) return Center(child: Text(l10n.msgLoginToViewAlerts));
+                                                        ^^^^^^^^^^^^^^^^^^^^
+    lib/screens/notifications_screen.dart:29:26: Error: The getter 'screenNotificationsTitle' isn't defined for the type 'AppLocalizations'.
+     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
+    Try correcting the name to the name of an existing getter, or defining a getter or field named 'screenNotificationsTitle'.
+            title: Text(l10n.screenNotificationsTitle, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                             ^^^^^^^^^^^^^^^^^^^^^^^^
+    lib/screens/notifications_screen.dart:38:65: Error: The getter 'msgErrorLoadingNotifications' isn't defined for the type 'AppLocalizations'.
+     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
+    Try correcting the name to the name of an existing getter, or defining a getter or field named 'msgErrorLoadingNotifications'.
+              if (snapshot.hasError) return Center(child: Text(l10n.msgErrorLoadingNotifications));
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    lib/screens/notifications_screen.dart:52:29: Error: The getter 'msgNoNewNotifications' isn't defined for the type 'AppLocalizations'.
+     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
+    Try correcting the name to the name of an existing getter, or defining a getter or field named 'msgNoNewNotifications'.
+                      Text(l10n.msgNoNewNotifications, style: const TextStyle(color: Colors.grey)),
+                                ^^^^^^^^^^^^^^^^^^^^^
+    lib/screens/notifications_screen.dart:67:51: Error: The getter 'lblNotificationDefaultTitle' isn't defined for the type 'AppLocalizations'.
+     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
+    Try correcting the name to the name of an existing getter, or defining a getter or field named 'lblNotificationDefaultTitle'.
+                  final title = data['title'] ?? l10n.lblNotificationDefaultTitle;
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    lib/screens/notifications_screen.dart:184:82: Error: The getter 'msgActivityNoLongerExists' isn't defined for the type 'AppLocalizations'.
+     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
+    Try correcting the name to the name of an existing getter, or defining a getter or field named 'msgActivityNoLongerExists'.
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgActivityNoLongerExists)));
+                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^
     lib/screens/notifications_screen.dart:208:47: Error: The method 'ActivityDetailScreen' isn't defined for the type 'NotificationsScreen'.
      - 'NotificationsScreen' is from 'package:yoinn_app/screens/notifications_screen.dart' ('lib/screens/notifications_screen.dart').
     Try correcting the name to the name of an existing method, or defining a method named 'ActivityDetailScreen'.
                 MaterialPageRoute(builder: (_) => ActivityDetailScreen(activity: activity))
                                                   ^^^^^^^^^^^^^^^^^^^^
-    lib/widgets/activity_card.dart:20:18: Error: The getter 'AppLocalizations' isn't defined for the type 'ActivityCard'.
-     - 'ActivityCard' is from 'package:yoinn_app/widgets/activity_card.dart' ('lib/widgets/activity_card.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/widgets/activity_card.dart:37:18: Error: The getter 'AppLocalizations' isn't defined for the type 'ActivityCard'.
-     - 'ActivityCard' is from 'package:yoinn_app/widgets/activity_card.dart' ('lib/widgets/activity_card.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/activity_detail_screen.dart:62:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/activity_detail_screen.dart' ('lib/screens/activity_detail_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/activity_detail_screen.dart:140:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/activity_detail_screen.dart' ('lib/screens/activity_detail_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/activity_detail_screen.dart:192:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/activity_detail_screen.dart' ('lib/screens/activity_detail_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/activity_detail_screen.dart:259:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/activity_detail_screen.dart' ('lib/screens/activity_detail_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/activity_detail_screen.dart:323:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/activity_detail_screen.dart' ('lib/screens/activity_detail_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/activity_detail_screen.dart:393:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/activity_detail_screen.dart' ('lib/screens/activity_detail_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/activity_detail_screen.dart:413:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/activity_detail_screen.dart' ('lib/screens/activity_detail_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/activity_detail_screen.dart:480:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/activity_detail_screen.dart' ('lib/screens/activity_detail_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/create_activity_screen.dart:62:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/create_activity_screen.dart' ('lib/screens/create_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/create_activity_screen.dart:103:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/create_activity_screen.dart' ('lib/screens/create_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/create_activity_screen.dart:142:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/create_activity_screen.dart' ('lib/screens/create_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/create_activity_screen.dart:195:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/create_activity_screen.dart' ('lib/screens/create_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/create_activity_screen.dart:263:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/create_activity_screen.dart' ('lib/screens/create_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/create_activity_screen.dart:327:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/create_activity_screen.dart' ('lib/screens/create_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/create_activity_screen.dart:396:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/create_activity_screen.dart' ('lib/screens/create_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/create_activity_screen.dart:416:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/create_activity_screen.dart' ('lib/screens/create_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/create_activity_screen.dart:483:18: Error: The getter 'AppLocalizations' isn't defined for the type '_CreateActivityScreenState'.
-     - '_CreateActivityScreenState' is from 'package:yoinn_app/screens/create_activity_screen.dart' ('lib/screens/create_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/profile_screen.dart:52:18: Error: The getter 'AppLocalizations' isn't defined for the type '_ProfileScreenState'.
-     - '_ProfileScreenState' is from 'package:yoinn_app/screens/profile_screen.dart' ('lib/screens/profile_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/profile_screen.dart:69:18: Error: The getter 'AppLocalizations' isn't defined for the type '_ProfileScreenState'.
-     - '_ProfileScreenState' is from 'package:yoinn_app/screens/profile_screen.dart' ('lib/screens/profile_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/profile_screen.dart:117:18: Error: The getter 'AppLocalizations' isn't defined for the type '_ProfileScreenState'.
-     - '_ProfileScreenState' is from 'package:yoinn_app/screens/profile_screen.dart' ('lib/screens/profile_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/profile_screen.dart:233:30: Error: 'AppLocalizations' isn't a type.
-      Widget _buildUpgradeBanner(AppLocalizations l10n) {
-                                 ^^^^^^^^^^^^^^^^
-    lib/screens/profile_screen.dart:274:47: Error: 'AppLocalizations' isn't a type.
-      Widget _buildDistancePreference(bool isPro, AppLocalizations l10n) {
-                                                  ^^^^^^^^^^^^^^^^
-    lib/screens/paywall_pro_screen.dart:62:18: Error: The getter 'AppLocalizations' isn't defined for the type '_PaywallProScreenState'.
-     - '_PaywallProScreenState' is from 'package:yoinn_app/screens/paywall_pro_screen.dart' ('lib/screens/paywall_pro_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/paywall_pro_screen.dart:98:18: Error: The getter 'AppLocalizations' isn't defined for the type '_PaywallProScreenState'.
-     - '_PaywallProScreenState' is from 'package:yoinn_app/screens/paywall_pro_screen.dart' ('lib/screens/paywall_pro_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/paywall_pro_screen.dart:127:18: Error: The getter 'AppLocalizations' isn't defined for the type '_PaywallProScreenState'.
-     - '_PaywallProScreenState' is from 'package:yoinn_app/screens/paywall_pro_screen.dart' ('lib/screens/paywall_pro_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/paywall_pro_screen.dart:353:32: Error: 'AppLocalizations' isn't a type.
-      Widget _buildComparisonTable(AppLocalizations l10n) {
-                                   ^^^^^^^^^^^^^^^^
-    lib/screens/manage_requests_screen.dart:20:18: Error: The getter 'AppLocalizations' isn't defined for the type 'ManageRequestsScreen'.
-     - 'ManageRequestsScreen' is from 'package:yoinn_app/screens/manage_requests_screen.dart' ('lib/screens/manage_requests_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/chat_screen.dart:99:18: Error: The getter 'AppLocalizations' isn't defined for the type '_ChatScreenState'.
-     - '_ChatScreenState' is from 'package:yoinn_app/screens/chat_screen.dart' ('lib/screens/chat_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/chat_screen.dart:213:18: Error: The getter 'AppLocalizations' isn't defined for the type '_ChatScreenState'.
-     - '_ChatScreenState' is from 'package:yoinn_app/screens/chat_screen.dart' ('lib/screens/chat_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/chat_screen.dart:233:18: Error: The getter 'AppLocalizations' isn't defined for the type '_ChatScreenState'.
-     - '_ChatScreenState' is from 'package:yoinn_app/screens/chat_screen.dart' ('lib/screens/chat_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/map_picker_screen.dart:49:20: Error: The getter 'AppLocalizations' isn't defined for the type '_MapPickerScreenState'.
-     - '_MapPickerScreenState' is from 'package:yoinn_app/screens/map_picker_screen.dart' ('lib/screens/map_picker_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-          final l10n = AppLocalizations.of(context)!;
-                       ^^^^^^^^^^^^^^^^
-    lib/screens/map_picker_screen.dart:180:18: Error: The getter 'AppLocalizations' isn't defined for the type '_MapPickerScreenState'.
-     - '_MapPickerScreenState' is from 'package:yoinn_app/screens/map_picker_screen.dart' ('lib/screens/map_picker_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/admin_screen.dart:47:18: Error: The getter 'AppLocalizations' isn't defined for the type '_AdminScreenState'.
-     - '_AdminScreenState' is from 'package:yoinn_app/screens/admin_screen.dart' ('lib/screens/admin_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
+    lib/screens/notifications_screen.dart:216:83: Error: The getter 'msgErrorLoadingActivity' isn't defined for the type 'AppLocalizations'.
+     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
+    Try correcting the name to the name of an existing getter, or defining a getter or field named 'msgErrorLoadingActivity'.
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${l10n.msgErrorLoadingActivity}: $e")));
+                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^
     lib/screens/admin_screen.dart:59:51: Error: The method 'ActivityDetailScreen' isn't defined for the type '_AdminScreenState'.
      - '_AdminScreenState' is from 'package:yoinn_app/screens/admin_screen.dart' ('lib/screens/admin_screen.dart').
     Try correcting the name to the name of an existing method, or defining a method named 'ActivityDetailScreen'.
               MaterialPageRoute(builder: (context) => ActivityDetailScreen(activity: activity)),
                                                       ^^^^^^^^^^^^^^^^^^^^
-    lib/screens/admin_screen.dart:77:18: Error: The getter 'AppLocalizations' isn't defined for the type '_AdminScreenState'.
-     - '_AdminScreenState' is from 'package:yoinn_app/screens/admin_screen.dart' ('lib/screens/admin_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/admin_screen.dart:97:18: Error: The getter 'AppLocalizations' isn't defined for the type '_AdminScreenState'.
-     - '_AdminScreenState' is from 'package:yoinn_app/screens/admin_screen.dart' ('lib/screens/admin_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/admin_screen.dart:118:18: Error: The getter 'AppLocalizations' isn't defined for the type '_AdminScreenState'.
-     - '_AdminScreenState' is from 'package:yoinn_app/screens/admin_screen.dart' ('lib/screens/admin_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/admin_screen.dart:124:18: Error: The getter 'AppLocalizations' isn't defined for the type '_AdminScreenState'.
-     - '_AdminScreenState' is from 'package:yoinn_app/screens/admin_screen.dart' ('lib/screens/admin_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/admin_screen.dart:146:18: Error: The getter 'AppLocalizations' isn't defined for the type '_AdminScreenState'.
-     - '_AdminScreenState' is from 'package:yoinn_app/screens/admin_screen.dart' ('lib/screens/admin_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/widgets/profile_header.dart:29:18: Error: The getter 'AppLocalizations' isn't defined for the type 'ProfileHeader'.
-     - 'ProfileHeader' is from 'package:yoinn_app/widgets/profile_header.dart' ('lib/widgets/profile_header.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/widgets/profile_header.dart:55:18: Error: The getter 'AppLocalizations' isn't defined for the type 'ProfileHeader'.
-     - 'ProfileHeader' is from 'package:yoinn_app/widgets/profile_header.dart' ('lib/widgets/profile_header.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/widgets/profile_gallery.dart:34:18: Error: The getter 'AppLocalizations' isn't defined for the type '_ProfileGalleryState'.
-     - '_ProfileGalleryState' is from 'package:yoinn_app/widgets/profile_gallery.dart' ('lib/widgets/profile_gallery.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/widgets/profile_gallery.dart:63:18: Error: The getter 'AppLocalizations' isn't defined for the type '_ProfileGalleryState'.
-     - '_ProfileGalleryState' is from 'package:yoinn_app/widgets/profile_gallery.dart' ('lib/widgets/profile_gallery.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/widgets/profile_activities_list.dart:22:18: Error: The getter 'AppLocalizations' isn't defined for the type 'ProfileActivitiesList'.
-     - 'ProfileActivitiesList' is from 'package:yoinn_app/widgets/profile_activities_list.dart' ('lib/widgets/profile_activities_list.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/edit_profile_screen.dart:53:18: Error: The getter 'AppLocalizations' isn't defined for the type '_EditProfileScreenState'.
-     - '_EditProfileScreenState' is from 'package:yoinn_app/screens/edit_profile_screen.dart' ('lib/screens/edit_profile_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/edit_profile_screen.dart:80:18: Error: The getter 'AppLocalizations' isn't defined for the type '_EditProfileScreenState'.
-     - '_EditProfileScreenState' is from 'package:yoinn_app/screens/edit_profile_screen.dart' ('lib/screens/edit_profile_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/edit_profile_screen.dart:118:18: Error: The getter 'AppLocalizations' isn't defined for the type '_EditProfileScreenState'.
-     - '_EditProfileScreenState' is from 'package:yoinn_app/screens/edit_profile_screen.dart' ('lib/screens/edit_profile_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/edit_activity_screen.dart:85:18: Error: The getter 'AppLocalizations' isn't defined for the type '_EditActivityScreenState'.
-     - '_EditActivityScreenState' is from 'package:yoinn_app/screens/edit_activity_screen.dart' ('lib/screens/edit_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/edit_activity_screen.dart:160:18: Error: The getter 'AppLocalizations' isn't defined for the type '_EditActivityScreenState'.
-     - '_EditActivityScreenState' is from 'package:yoinn_app/screens/edit_activity_screen.dart' ('lib/screens/edit_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/edit_activity_screen.dart:213:18: Error: The getter 'AppLocalizations' isn't defined for the type '_EditActivityScreenState'.
-     - '_EditActivityScreenState' is from 'package:yoinn_app/screens/edit_activity_screen.dart' ('lib/screens/edit_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/edit_activity_screen.dart:280:18: Error: The getter 'AppLocalizations' isn't defined for the type '_EditActivityScreenState'.
-     - '_EditActivityScreenState' is from 'package:yoinn_app/screens/edit_activity_screen.dart' ('lib/screens/edit_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/edit_activity_screen.dart:343:18: Error: The getter 'AppLocalizations' isn't defined for the type '_EditActivityScreenState'.
-     - '_EditActivityScreenState' is from 'package:yoinn_app/screens/edit_activity_screen.dart' ('lib/screens/edit_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/edit_activity_screen.dart:410:18: Error: The getter 'AppLocalizations' isn't defined for the type '_EditActivityScreenState'.
-     - '_EditActivityScreenState' is from 'package:yoinn_app/screens/edit_activity_screen.dart' ('lib/screens/edit_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/edit_activity_screen.dart:429:18: Error: The getter 'AppLocalizations' isn't defined for the type '_EditActivityScreenState'.
-     - '_EditActivityScreenState' is from 'package:yoinn_app/screens/edit_activity_screen.dart' ('lib/screens/edit_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    lib/screens/edit_activity_screen.dart:501:18: Error: The getter 'AppLocalizations' isn't defined for the type '_EditActivityScreenState'.
-     - '_EditActivityScreenState' is from 'package:yoinn_app/screens/edit_activity_screen.dart' ('lib/screens/edit_activity_screen.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'AppLocalizations'.
-        final l10n = AppLocalizations.of(context)!;
-                     ^^^^^^^^^^^^^^^^
-    Unhandled exception:
-    FileSystemException(uri=org-dartlang-untranslatable-uri:package%3Aflutter_gen%2Fgen_l10n%2Fapp_localizations.dart; message=StandardFileSystem only supports file:* and data:* URIs)
-    #0      StandardFileSystem.entityForUri (package:front_end/src/api_prototype/standard_file_system.dart:45)
-    #1      asFileUri (package:vm/kernel_front_end.dart:1008)
-    #2      writeDepfile (package:vm/kernel_front_end.dart:1171)
-    <asynchronous suspension>
-    #3      FrontendCompiler.compile (package:frontend_server/frontend_server.dart:738)
-    <asynchronous suspension>
-    #4      starter (package:frontend_server/starter.dart:102)
-    <asynchronous suspension>
-    #5      main (file:///Volumes/Work/s/w/ir/x/w/sdk/pkg/frontend_server/bin/frontend_server_starter.dart:13)
-    <asynchronous suspension>
-
     Target kernel_snapshot_program failed: Exception
     Failed to package /Users/macbookpro/Development/yoinn_app.
     Command PhaseScriptExecution failed with a nonzero exit code
@@ -903,4 +528,4 @@ Xcode's output:
     warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'BoringSSL-GRPC' from project 'Pods')
 
 
-Error launching application on iPhone de Miguel Esteban (wireless).
+Error launching application on iPhone de Miguel Esteban.

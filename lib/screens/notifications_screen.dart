@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart'; 
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
 import '../models/activity_model.dart';
@@ -14,25 +16,26 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final authService = Provider.of<AuthService>(context, listen: false);
     final dataService = Provider.of<DataService>(context, listen: false);
     final uid = authService.currentUser?.uid;
 
-    if (uid == null) return const Center(child: Text("Inicia sesión para ver tus alertas"));
+    if (uid == null) return Center(child: Text(l10n.msgLoginToViewAlerts));
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F8FA),
       appBar: AppBar(
-        title: const Text("Notificaciones", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: Text(l10n.screenNotificationsTitle, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        automaticallyImplyLeading: false, // Quitamos la flecha atrás si está en el menú inferior
+        automaticallyImplyLeading: false, 
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: dataService.getUserNotifications(uid),
         builder: (context, snapshot) {
-          if (snapshot.hasError) return const Center(child: Text("Error cargando notificaciones"));
+          if (snapshot.hasError) return Center(child: Text(l10n.msgErrorLoadingNotifications));
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator(color: Color(0xFF00BCD4)));
           }
@@ -44,9 +47,9 @@ class NotificationsScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.notifications_none, size: 80, color: Colors.grey[300]),
+                  const Icon(Icons.notifications_none, size: 80, color: Colors.grey),
                   const SizedBox(height: 16),
-                  Text("No tienes notificaciones nuevas", style: TextStyle(color: Colors.grey[500])),
+                  Text(l10n.msgNoNewNotifications, style: const TextStyle(color: Colors.grey)),
                 ],
               ),
             );
@@ -61,17 +64,16 @@ class NotificationsScreen extends StatelessWidget {
               final data = doc.data() as Map<String, dynamic>;
               final notifId = doc.id;
               
-              // Extraemos datos con seguridad
-              final title = data['title'] ?? 'Notificación';
+              final title = data['title'] ?? l10n.lblNotificationDefaultTitle;
               final body = data['body'] ?? '';
-              final type = data['type'] ?? 'info'; // chat, request_join, request_accepted
+              final type = data['type'] ?? 'info'; 
               final activityId = data['activityId'];
               final isRead = data['read'] ?? false;
               final timestamp = data['timestamp'] as Timestamp?;
               
-              // Formato de hora
+              // Fecha localizada automáticamente
               final timeStr = timestamp != null 
-                  ? DateFormat('d MMM, HH:mm').format(timestamp.toDate()) 
+                  ? DateFormat('d MMM, HH:mm', Localizations.localeOf(context).toString()).format(timestamp.toDate()) 
                   : '';
 
               return Dismissible(
@@ -84,12 +86,11 @@ class NotificationsScreen extends StatelessWidget {
                   child: const Icon(Icons.delete, color: Colors.white),
                 ),
                 onDismissed: (direction) {
-                  // Opcional: Borrar notificación
                   FirebaseFirestore.instance.collection('users').doc(uid).collection('notifications').doc(notifId).delete();
                 },
                 child: Card(
                   elevation: 0,
-                  color: isRead ? Colors.white : const Color(0xFFE0F7FA), // Azulito si no está leída
+                  color: isRead ? Colors.white : const Color(0xFFE0F7FA), 
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: isRead ? BorderSide.none : const BorderSide(color: Color(0xFF00BCD4), width: 0.5)
@@ -158,12 +159,14 @@ class NotificationsScreen extends StatelessWidget {
     String type,
     String activityTitle
   ) async {
-    // 1. Marcar como leída visualmente rápido
+    final l10n = AppLocalizations.of(context)!;
+    
+    // 1. Marcar como leída
     dataService.markNotificationAsRead(uid, notifId);
 
     if (activityId == null) return;
 
-    // 2. Mostrar carga mientras buscamos la actividad
+    // 2. Mostrar carga
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -171,44 +174,47 @@ class NotificationsScreen extends StatelessWidget {
     );
 
     try {
-      // 3. Buscar la actividad fresca desde Firebase
+      // 3. Buscar la actividad
       final doc = await FirebaseFirestore.instance.collection('activities').doc(activityId).get();
       
-      Navigator.pop(context); // Cerrar loading
+      if (context.mounted) Navigator.pop(context); // Cerrar loading
 
       if (!doc.exists) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("La actividad ya no existe")));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgActivityNoLongerExists)));
+        }
         return;
       }
 
       final activity = Activity.fromFirestore(doc);
 
-      // 4. Navegar según el tipo
-      if (type == 'request_join') {
-        // Al dueño lo llevamos directo a GESTIONAR
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (_) => ManageRequestsScreen(activityId: activityId, activityTitle: activity.title))
-        );
-      } 
-      else if (type == 'chat') {
-        // Al chat directo
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (_) => ChatScreen(activity: activity))
-        );
-      }
-      else {
-        // Por defecto (ej: aceptado) al detalle
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (_) => ActivityDetailScreen(activity: activity))
-        );
+      if (context.mounted) {
+        // 4. Navegar según el tipo
+        if (type == 'request_join') {
+          Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (_) => ManageRequestsScreen(activityId: activityId, activityTitle: activity.title))
+          );
+        } 
+        else if (type == 'chat') {
+          Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (_) => ChatScreen(activity: activity))
+          );
+        }
+        else {
+          Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (_) => ActivityDetailScreen(activity: activity))
+          );
+        }
       }
 
     } catch (e) {
-      Navigator.pop(context); // Cerrar loading si falla
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error cargando actividad: $e")));
+      if (context.mounted) {
+        Navigator.pop(context); 
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${l10n.msgErrorLoadingActivity}: $e")));
+      }
     }
   }
 }

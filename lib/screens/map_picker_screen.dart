@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:uuid/uuid.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
 import '../services/location_service.dart';
 
 class MapPickerScreen extends StatefulWidget {
@@ -21,9 +22,9 @@ class MapPickerScreen extends StatefulWidget {
 class _MapPickerScreenState extends State<MapPickerScreen> {
   GoogleMapController? _mapController;
   LatLng _center = const LatLng(-41.469, -72.942); 
-  String _address = "Ubicación seleccionada"; 
+  String _address = "Ubicación seleccionada"; // Inicial, se sobreescribe en initState/build
   bool _isLoadingAddress = false;
-  bool _addressFetched = false; // Controla si ya tenemos la dirección real
+  bool _addressFetched = false; 
   
   final LocationService _locationService = LocationService();
   final TextEditingController _searchController = TextEditingController();
@@ -38,6 +39,16 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     super.initState();
     _sessionToken = _uuid.v4();
     _determinePosition();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Actualizamos el texto inicial con traducción si aún no hemos buscado nada
+    if (!_addressFetched) {
+      final l10n = AppLocalizations.of(context)!;
+      _address = l10n.lblSelectedLocation; // "Ubicación seleccionada:"
+    }
   }
 
   @override
@@ -67,15 +78,13 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     final latLng = LatLng(position.latitude, position.longitude);
     
     _moveCamera(latLng);
-    // Al inicio sí cargamos la dirección (1 llamada gratis del GPS inicial)
     _getAddressFromLatLng(latLng);
   }
 
   void _moveCamera(LatLng latLng) {
     setState(() {
       _center = latLng;
-      _addressFetched = false; // Marcamos que necesitamos buscar dirección de nuevo si confirman
-      // Mostramos coordenadas temporalmente mientras mueve, pero NO se guardarán
+      _addressFetched = false; 
       _address = "${latLng.latitude.toStringAsFixed(4)}, ${latLng.longitude.toStringAsFixed(4)}";
     });
     _mapController?.animateCamera(CameraUpdate.newLatLng(latLng));
@@ -95,13 +104,11 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
         String number = p.subThoroughfare ?? '';
         String city = p.locality ?? '';
         
-        // Si no hay calle, intentamos usar otros campos
         if (street.isEmpty) street = p.name ?? '';
         if (city.isEmpty) city = p.administrativeArea ?? '';
 
         setState(() {
           _address = "$street $number, $city".trim();
-          // Limpieza de comas si faltan datos
           if (_address.startsWith(',')) _address = _address.substring(1).trim();
           _addressFetched = true;
         });
@@ -113,20 +120,16 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     }
   }
 
-  // --- CONFIRMACIÓN FINAL (AQUÍ ESTÁ LA MAGIA) ---
   Future<void> _confirmSelection() async {
-    // 1. Si el usuario no ha buscado la dirección (solo movió el mapa),
-    // la buscamos AHORA antes de cerrar.
     if (!_addressFetched) {
       await _getAddressFromLatLng(_center);
     }
 
-    // 2. Devolvemos la dirección real (no las coordenadas)
     if (mounted) {
       Navigator.pop(context, {
         'lat': _center.latitude,
         'lng': _center.longitude,
-        'address': _address // Ahora garantiza ser texto legible
+        'address': _address 
       });
     }
   }
@@ -167,7 +170,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
       final latLng = LatLng(lat, lng);
       
       _moveCamera(latLng);
-      // Si buscó explícitamente, traemos la dirección de inmediato
       _getAddressFromLatLng(latLng); 
       _sessionToken = _uuid.v4();
     }
@@ -175,6 +177,8 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       resizeToAvoidBottomInset: false, 
       body: Stack(
@@ -187,7 +191,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             zoomControlsEnabled: false,
             onMapCreated: (controller) => _mapController = controller,
             onCameraMove: (position) {
-              // Solo actualizamos visualmente, sin gastar API
               setState(() {
                 _center = position.target;
                 _addressFetched = false; 
@@ -250,7 +253,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                                     controller: _searchController,
                                     onChanged: _onSearchChanged,
                                     decoration: InputDecoration(
-                                      hintText: "Buscar dirección...",
+                                      hintText: l10n.hintSearchAddress, // "Buscar dirección..."
                                       border: InputBorder.none,
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                                       suffixIcon: _isSearching 
@@ -315,7 +318,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             ),
           ),
 
-          // 5. TARJETA INFERIOR (Confirmar)
+          // 5. TARJETA INFERIOR
           Positioned(
             bottom: 0,
             left: 0,
@@ -335,12 +338,11 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text("Ubicación seleccionada:", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                        // Opción para ver la dirección antes de confirmar (Manual)
+                        Text(l10n.lblSelectedLocation, style: const TextStyle(color: Colors.grey, fontSize: 12)), // "Ubicación seleccionada:"
                         if (!_addressFetched && !_isLoadingAddress)
                           GestureDetector(
                             onTap: () => _getAddressFromLatLng(_center),
-                            child: const Text("🔍 Ver dirección", style: TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 12)),
+                            child: Text(l10n.btnViewAddress, style: const TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold, fontSize: 12)), // "🔍 Ver dirección"
                           )
                       ],
                     ),
@@ -349,7 +351,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                       const LinearProgressIndicator(color: Color(0xFFF97316))
                     else
                       Text(
-                        // Aquí muestra coordenadas SI NO se ha hecho fetch, o Dirección SI YA se hizo
                         _address,
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
@@ -359,14 +360,13 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        // Llamamos a la nueva función _confirmSelection
                         onPressed: _isLoadingAddress ? null : _confirmSelection,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFF97316),
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
-                        child: const Text("Confirmar Ubicación", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                        child: Text(l10n.btnConfirmLocation, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)), // "Confirmar Ubicación"
                       ),
                     ),
                   ],

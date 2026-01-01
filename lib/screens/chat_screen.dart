@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../models/activity_model.dart';
 import '../services/auth_service.dart';
 import '../services/data_service.dart';
@@ -70,7 +72,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // --- FUNCIÓN PARA DAR LIKE ---
   void _toggleLike(String messageId, bool isLiked) {
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
     if (user != null) {
@@ -95,6 +96,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final currentUserUid = Provider.of<AuthService>(context, listen: false).currentUser?.uid;
     final dataService = Provider.of<DataService>(context, listen: false);
 
@@ -114,7 +116,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(widget.activity.title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black87), overflow: TextOverflow.ellipsis),
-                  const Text("Actividad Grupal", style: TextStyle(fontSize: 12, color: Color(0xFF00BCD4), fontWeight: FontWeight.w500)),
+                  Text(l10n.activityGroup, style: const TextStyle(fontSize: 12, color: Color(0xFF00BCD4), fontWeight: FontWeight.w500)), // "Actividad Grupal"
                 ],
               ),
             ),
@@ -136,7 +138,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
                 if (docs.isNotEmpty) _markAsRead();
 
-                if (docs.isEmpty) return _buildEmptyState();
+                if (docs.isEmpty) return _buildEmptyState(context);
 
                 return ListView.builder(
                   controller: _scrollController,
@@ -154,13 +156,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     final readBy = List.from(data['readBy'] ?? []);
                     final isRead = readBy.length > 1;
 
-                    // --- LOGICA LIKES ---
                     final likedBy = List.from(data['likedBy'] ?? []);
                     final bool isLikedByMe = likedBy.contains(currentUserUid);
                     final bool hasLikes = likedBy.isNotEmpty;
 
                     return _ChatBubble(
-                      messageId: messageId, // Necesario para el like
+                      messageId: messageId,
                       text: data['text'] ?? '',
                       senderName: data['senderName'] ?? 'Usuario',
                       senderPic: data['senderProfilePictureUrl'],
@@ -169,9 +170,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       isFirstInGroup: isFirstInSequence,
                       isLastInGroup: isLastInSequence,
                       isRead: isRead,
-                      isLikedByMe: isLikedByMe, // Estado
-                      hasLikes: hasLikes, // Visual
-                      onDoubleTap: () => _toggleLike(messageId, isLikedByMe), // Acción
+                      isLikedByMe: isLikedByMe,
+                      hasLikes: hasLikes,
+                      onDoubleTap: () => _toggleLike(messageId, isLikedByMe),
                     );
                   },
                 );
@@ -193,7 +194,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     const _TypingDots(),
                     const SizedBox(width: 8),
                     Text(
-                      typingUsers.length == 1 ? "Alguien está escribiendo..." : "Varios están escribiendo...",
+                      typingUsers.length == 1 ? l10n.lblTypingSingle : l10n.lblTypingMultiple,
                       style: TextStyle(color: Colors.grey[500], fontSize: 12, fontStyle: FontStyle.italic),
                     ),
                   ],
@@ -202,13 +203,14 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           ),
 
-          _buildInputArea(),
+          _buildInputArea(context),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -219,15 +221,16 @@ class _ChatScreenState extends State<ChatScreen> {
             child: const Icon(Icons.chat_bubble_outline_rounded, size: 40, color: Color(0xFF00BCD4)),
           ),
           const SizedBox(height: 16),
-          const Text("¡Saluda al grupo!", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54)),
+          Text(l10n.msgEmptyChatTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54)),
           const SizedBox(height: 8),
-          const Text("Sé el primero en romper el hielo.", style: TextStyle(color: Colors.grey)),
+          Text(l10n.msgEmptyChatBody, style: const TextStyle(color: Colors.grey)),
         ],
       ),
     );
   }
 
-  Widget _buildInputArea() {
+  Widget _buildInputArea(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), offset: const Offset(0, -4), blurRadius: 10)]),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 30),
@@ -243,11 +246,11 @@ class _ChatScreenState extends State<ChatScreen> {
               child: TextField(
                 controller: _messageController,
                 onChanged: _onTextChanged,
-                decoration: const InputDecoration(
-                  hintText: "Escribe un mensaje...",
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 15),
+                decoration: InputDecoration(
+                  hintText: l10n.chatPlaceholder, // "Escribe un mensaje..."
+                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 15),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   isDense: true,
                 ),
                 textCapitalization: TextCapitalization.sentences,
@@ -260,7 +263,7 @@ class _ChatScreenState extends State<ChatScreen> {
           const SizedBox(width: 12),
           GestureDetector(
             onTap: _sendMessage,
-            child: const Text("Enviar", style: TextStyle(color: Color(0xFF00BCD4), fontWeight: FontWeight.bold, fontSize: 16)),
+            child: Text(l10n.sendButton, style: const TextStyle(color: Color(0xFF00BCD4), fontWeight: FontWeight.bold, fontSize: 16)), // "Enviar"
           ),
         ],
       ),
@@ -347,7 +350,7 @@ class _ChatBubble extends StatelessWidget {
     final timeStr = timestamp != null ? DateFormat('HH:mm').format(timestamp!.toDate()) : '';
 
     return GestureDetector(
-      onDoubleTap: onDoubleTap, // ¡DOBLE TAP PARA LIKE!
+      onDoubleTap: onDoubleTap,
       child: Padding(
         padding: EdgeInsets.only(bottom: isLastInGroup ? 12 : 2),
         child: Column(
@@ -378,7 +381,6 @@ class _ChatBubble extends StatelessWidget {
                 
                 if (!isMe) const SizedBox(width: 8),
                 
-                // Stack para poner el corazón encima
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -422,11 +424,10 @@ class _ChatBubble extends StatelessWidget {
                       ),
                     ),
                     
-                    // --- CORAZÓN DE LIKE ---
                     if (hasLikes)
                       Positioned(
                         bottom: -6,
-                        right: isMe ? null : -6, // Si soy yo, a la izquierda (o ajustado), si es otro a la derecha
+                        right: isMe ? null : -6,
                         left: isMe ? -6 : null,
                         child: Container(
                           padding: const EdgeInsets.all(4),

@@ -1,3 +1,266 @@
+--- 1. Limpieza profunda ---
+Cleaning Xcode workspace...                                         6,9s
+Cleaning Xcode workspace...                                         3,2s
+Deleting build...                                                  628ms
+Deleting .dart_tool...                                              27ms
+Deleting ephemeral...                                                0ms
+Deleting Generated.xcconfig...                                       0ms
+Deleting flutter_export_environment.sh...                            0ms
+Deleting Flutter.podspec...                                          0ms
+Deleting ephemeral...                                                1ms
+Deleting ephemeral...                                                0ms
+Deleting ephemeral...                                                1ms
+Deleting .flutter-plugins-dependencies...                            0ms
+--- 2. Reinstalando dependencias ---
+Resolving dependencies...
+Downloading packages...
++ _flutterfire_internals 1.3.59 (1.3.65 available)
++ archive 4.0.7
++ args 2.7.0
++ async 2.13.0
++ badges 3.1.2
++ boolean_selector 2.1.2
++ cached_network_image 3.4.1
++ cached_network_image_platform_interface 4.1.1
++ cached_network_image_web 1.3.1
++ characters 1.4.0 (1.4.1 available)
++ checked_yaml 2.0.4
++ cli_util 0.4.2
++ clock 1.1.2
++ cloud_firestore 5.6.12 (6.1.1 available)
++ cloud_firestore_platform_interface 6.6.12 (7.0.5 available)
++ cloud_firestore_web 4.4.12 (5.1.1 available)
++ collection 1.19.1
++ cross_file 0.3.5+1
++ crypto 3.0.7
++ csslib 1.0.2
++ cupertino_icons 1.0.8
++ dbus 0.7.11
++ fake_async 1.3.3
++ ffi 2.1.4
++ file 7.0.1
++ file_selector_linux 0.9.4
++ file_selector_macos 0.9.5
++ file_selector_platform_interface 2.7.0
++ file_selector_windows 0.9.3+5
++ firebase_analytics 11.6.0 (12.1.0 available)
++ firebase_analytics_platform_interface 4.4.3 (5.0.5 available)
++ firebase_analytics_web 0.5.10+16 (0.6.1+1 available)
++ firebase_auth 5.7.0 (6.1.3 available)
++ firebase_auth_platform_interface 7.7.3 (8.1.5 available)
++ firebase_auth_web 5.15.3 (6.1.1 available)
++ firebase_core 3.15.2 (4.3.0 available)
++ firebase_core_platform_interface 6.0.2
++ firebase_core_web 2.24.1 (3.3.1 available)
++ firebase_messaging 15.2.10 (16.1.0 available)
++ firebase_messaging_platform_interface 4.6.10 (4.7.5 available)
++ firebase_messaging_web 3.10.10 (4.1.1 available)
++ firebase_storage 12.4.10 (13.0.5 available)
++ firebase_storage_platform_interface 5.2.10 (5.2.16 available)
++ firebase_storage_web 3.10.17 (3.11.1 available)
++ fixnum 1.1.1
++ flutter 0.0.0 from sdk flutter
++ flutter_cache_manager 3.4.1
++ flutter_launcher_icons 0.13.1 (0.14.4 available)
++ flutter_lints 4.0.0 (6.0.0 available)
++ flutter_local_notifications 17.2.4 (19.5.0 available)
++ flutter_local_notifications_linux 4.0.1 (6.0.0 available)
++ flutter_local_notifications_platform_interface 7.2.0 (9.1.0 available)
++ flutter_localizations 0.0.0 from sdk flutter
++ flutter_plugin_android_lifecycle 2.0.33
++ flutter_test 0.0.0 from sdk flutter
++ flutter_web_plugins 0.0.0 from sdk flutter
++ freezed_annotation 2.4.4 (3.1.0 available)
++ geocoding 3.0.0 (4.0.0 available)
++ geocoding_android 3.3.1 (4.0.1 available)
++ geocoding_ios 3.1.0
++ geocoding_platform_interface 3.2.0 (5.0.0 available)
++ geoflutterfire_plus 0.0.32 (0.0.33 available)
++ geolocator 13.0.4 (14.0.2 available)
++ geolocator_android 4.6.2 (5.0.2 available)
++ geolocator_apple 2.3.13
++ geolocator_platform_interface 4.2.6
++ geolocator_web 4.1.3
++ geolocator_windows 0.2.5
++ go_router 14.8.1 (17.0.1 available)
++ google_identity_services_web 0.3.3+1
++ google_maps 8.2.0
++ google_maps_flutter 2.14.0
++ google_maps_flutter_android 2.18.6
++ google_maps_flutter_ios 2.15.7
++ google_maps_flutter_platform_interface 2.14.1
++ google_maps_flutter_web 0.5.14+3
++ google_sign_in 6.2.1 (7.2.0 available)
++ google_sign_in_android 6.2.1 (7.2.7 available)
++ google_sign_in_ios 5.9.0 (6.2.4 available)
++ google_sign_in_platform_interface 2.5.0 (3.1.0 available)
++ google_sign_in_web 0.12.4+4 (1.1.0 available)
++ html 0.15.6
++ http 1.6.0
++ http_parser 4.1.2
++ image 4.7.2
++ image_picker 1.2.1
++ image_picker_android 0.8.13+10
++ image_picker_for_web 3.1.1
++ image_picker_ios 0.8.13+3
++ image_picker_linux 0.2.2
++ image_picker_macos 0.2.2+1
++ image_picker_platform_interface 2.11.1
++ image_picker_windows 0.2.2
++ intl 0.20.2
++ json_annotation 4.9.0
++ leak_tracker 11.0.2
++ leak_tracker_flutter_testing 3.0.10
++ leak_tracker_testing 3.0.2
++ lints 4.0.0 (6.0.0 available)
++ logging 1.3.0
++ matcher 0.12.17 (0.12.18 available)
++ material_color_utilities 0.11.1 (0.13.0 available)
++ meta 1.17.0
++ mime 2.0.0
++ nested 1.0.0
++ octo_image 2.1.0
++ path 1.9.1
++ path_provider 2.1.5
++ path_provider_android 2.2.22
++ path_provider_foundation 2.5.1
++ path_provider_linux 2.2.1
++ path_provider_platform_interface 2.1.2
++ path_provider_windows 2.3.0
++ petitparser 7.0.1
++ platform 3.1.6
++ plugin_platform_interface 2.1.8
++ posix 6.0.3
++ provider 6.1.5+1
++ purchases_flutter 8.11.0 (9.10.2 available)
++ purchases_ui_flutter 8.11.0 (9.10.2 available)
++ rxdart 0.28.0
++ sanitize_html 2.1.0
++ share_plus 10.1.4 (12.0.1 available)
++ share_plus_platform_interface 5.0.2 (6.1.0 available)
++ sign_in_with_apple 7.0.1
++ sign_in_with_apple_platform_interface 2.0.0
++ sign_in_with_apple_web 3.0.0
++ sky_engine 0.0.0 from sdk flutter
++ source_span 1.10.1
++ sqflite 2.4.2
++ sqflite_android 2.4.2+2
++ sqflite_common 2.5.6
++ sqflite_darwin 2.4.2
++ sqflite_platform_interface 2.4.0
++ stack_trace 1.12.1
++ stream_channel 2.1.4
++ stream_transform 2.1.1
++ string_scanner 1.4.1
++ synchronized 3.4.0
++ term_glyph 1.2.2
++ test_api 0.7.7 (0.7.8 available)
++ timezone 0.9.4 (0.10.1 available)
++ typed_data 1.4.0
++ url_launcher 6.3.2
++ url_launcher_android 6.3.28
++ url_launcher_ios 6.3.6
++ url_launcher_linux 3.2.2
++ url_launcher_macos 3.2.5
++ url_launcher_platform_interface 2.3.2
++ url_launcher_web 2.4.1
++ url_launcher_windows 3.1.5
++ uuid 4.5.2
++ vector_math 2.2.0
++ vm_service 15.0.2
++ web 1.1.1
++ win32 5.15.0
++ xdg_directories 1.1.0
++ xml 6.6.1
++ yaml 3.1.3
+Changed 159 dependencies!
+46 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+--- 3. Generando Traducciones ---
+Because l10n.yaml exists, the options defined there will be used instead.
+To use the command line arguments, delete the l10n.yaml file in the Flutter project.
+
+
+--- 4. Instalando Pods de iOS ---
+Updating local specs repositories
+Analyzing dependencies
+cloud_firestore: Using Firebase SDK version '11.15.0' defined in 'firebase_core'
+firebase_analytics: Using Firebase SDK version '11.15.0' defined in 'firebase_core'
+firebase_auth: Using Firebase SDK version '11.15.0' defined in 'firebase_core'
+firebase_core: Using Firebase SDK version '11.15.0' defined in 'firebase_core'
+firebase_messaging: Using Firebase SDK version '11.15.0' defined in 'firebase_core'
+firebase_storage: Using Firebase SDK version '11.15.0' defined in 'firebase_core'
+Downloading dependencies
+Installing AppAuth (1.7.6)
+Installing AppCheckCore (11.2.0)
+Installing BoringSSL-GRPC (0.0.37)
+Installing Firebase (11.15.0)
+Installing FirebaseAnalytics (11.15.0)
+Installing FirebaseAppCheckInterop (11.15.0)
+Installing FirebaseAuth (11.15.0)
+Installing FirebaseAuthInterop (11.15.0)
+Installing FirebaseCore (11.15.0)
+Installing FirebaseCoreExtension (11.15.0)
+Installing FirebaseCoreInternal (11.15.0)
+Installing FirebaseFirestore (11.15.0)
+Installing FirebaseFirestoreInternal (11.15.0)
+Installing FirebaseInstallations (11.15.0)
+Installing FirebaseMessaging (11.15.0)
+Installing FirebaseSharedSwift (11.15.0)
+Installing FirebaseStorage (11.15.0)
+Installing Flutter (1.0.0)
+Installing GTMAppAuth (4.1.1)
+Installing GTMSessionFetcher (3.5.0)
+Installing Google-Maps-iOS-Utils (6.1.0)
+Installing GoogleAdsOnDeviceConversion (2.1.0)
+Installing GoogleAppMeasurement (11.15.0)
+Installing GoogleDataTransport (10.1.0)
+Installing GoogleMaps (9.4.0)
+Installing GoogleSignIn (8.0.0)
+Installing GoogleUtilities (8.1.0)
+Installing PromisesObjC (2.4.0)
+Installing PurchasesHybridCommon (14.3.0)
+Installing PurchasesHybridCommonUI (14.3.0)
+Installing RecaptchaInterop (101.0.0)
+Installing RevenueCat (5.32.0)
+Installing RevenueCatUI (5.32.0)
+Installing abseil (1.20240722.0)
+Installing cloud_firestore (5.6.12)
+Installing firebase_analytics (11.6.0)
+Installing firebase_auth (5.7.0)
+Installing firebase_core (3.15.2)
+Installing firebase_messaging (15.2.10)
+Installing firebase_storage (12.4.10)
+Installing flutter_local_notifications (0.0.1)
+Installing gRPC-C++ (1.69.0)
+Installing gRPC-Core (1.69.0)
+Installing geocoding_ios (1.0.5)
+Installing geolocator_apple (1.2.0)
+Installing google_maps_flutter_ios (0.0.1)
+Installing google_sign_in_ios (0.0.1)
+Installing image_picker_ios (0.0.1)
+Installing leveldb-library (1.22.6)
+Installing nanopb (3.30910.0)
+Installing path_provider_foundation (0.0.1)
+Installing purchases_flutter (8.11.0)
+Installing purchases_ui_flutter (8.11.0)
+Installing share_plus (0.0.1)
+Installing sign_in_with_apple (0.0.1)
+Installing sqflite_darwin (0.0.4)
+Installing url_launcher_ios (0.0.1)
+Generating Pods project
+Integrating client project
+Pod installation complete! There are 20 dependencies from the Podfile and 57 total pods installed.
+
+[!] CocoaPods did not set the base configuration of your project because your project already has a custom config set. In order for CocoaPods integration to work at all, please either set the base configurations of the target `Runner` to `Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig` or include the `Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig` in your build configuration (`Flutter/Release.xcconfig`).
+--- 5. Lanzando en iPhone de Miguel (Cable) ---
+zsh: command not found: #
+Launching lib/main.dart on iPhone de Miguel Esteban in debug mode...
+Automatically signing iOS for device deployment using specified development team in Xcode project: SZYY54G5X9
+Running pod install...                                             18,7s
+Running Xcode build...                                          
+Xcode build done.                                           296,4s
+Failed to build iOS app
 Could not build the precompiled application for the device.
 Error output from Xcode build:
 ↳
@@ -7,7 +270,7 @@ Error output from Xcode build:
 Xcode's output:
 ↳
     Writing result bundle at path:
-        /var/folders/xz/k0xzgy6d7f742n3r6zrbg6mw0000gn/T/flutter_tools.oyXNit/flutter_ios_build_temp_dirsROBap/temporary_xcresult_bundle
+    	/var/folders/xz/k0xzgy6d7f742n3r6zrbg6mw0000gn/T/flutter_tools.ubNhgx/flutter_ios_build_temp_dirXF73Uj/temporary_xcresult_bundle
 
     /Users/macbookpro/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.6/ios/url_launcher_ios/Sources/url_launcher_ios/URLLauncherPlugin.swift:22:26: warning: 'keyWindow' was deprecated in iOS 13.0: Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes
         UIApplication.shared.keyWindow?.rootViewController?.topViewController
@@ -61,23 +324,6 @@ Xcode's output:
       208 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status API_DEPRECATED_WITH_REPLACEMENT("-locationManagerDidChangeAuthorization:", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
           | ^
     4 warnings generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/LocationServiceStreamHandler.m:36:1: warning: implementing deprecated method [-Wdeprecated-implementations]
-       36 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status{
-          | ^
-    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/LocationServiceStreamHandler.m:9:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManagerDelegate.h:208:1: note: method 'locationManager:didChangeAuthorizationStatus:' declared here
-      208 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status API_DEPRECATED_WITH_REPLACEMENT("-locationManagerDidChangeAuthorization:", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
-          | ^
-    1 warning generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:102:56: warning: 'kUTTypeGIF' is deprecated: first deprecated in iOS 15.0 - Use UTTypeGIF or UTType.gif (swift) instead. [-Wdeprecated-declarations]
-      102 |       (__bridge CFURLRef)[NSURL fileURLWithPath:path], kUTTypeGIF, gifInfo.images.count, NULL);
-          |                                                        ^
-    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:9:
-    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:729:26: note: 'kUTTypeGIF' has been explicitly marked deprecated here
-      729 | extern const CFStringRef kUTTypeGIF                                  API_DEPRECATED("Use UTTypeGIF or UTType.gif (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
-          |                          ^
-    1 warning generated.
     /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:70:64: warning: 'windows' is deprecated: first deprecated in iOS 15.0 - Use UIWindowScene.windows on a relevant window scene instead [-Wdeprecated-declarations]
        70 |     for (UIWindow *window in [UIApplication sharedApplication].windows) {
           |                                                                ^
@@ -102,6 +348,23 @@ Xcode's output:
       880 | extern const CFStringRef kUTTypeMovie                                API_DEPRECATED("Use UTTypeMovie or UTType.movie (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
           |                          ^
     3 warnings generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:102:56: warning: 'kUTTypeGIF' is deprecated: first deprecated in iOS 15.0 - Use UTTypeGIF or UTType.gif (swift) instead. [-Wdeprecated-declarations]
+      102 |       (__bridge CFURLRef)[NSURL fileURLWithPath:path], kUTTypeGIF, gifInfo.images.count, NULL);
+          |                                                        ^
+    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:9:
+    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:729:26: note: 'kUTTypeGIF' has been explicitly marked deprecated here
+      729 | extern const CFStringRef kUTTypeGIF                                  API_DEPRECATED("Use UTTypeGIF or UTType.gif (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
+          |                          ^
+    1 warning generated.
+    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/LocationServiceStreamHandler.m:36:1: warning: implementing deprecated method [-Wdeprecated-implementations]
+       36 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status{
+          | ^
+    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/LocationServiceStreamHandler.m:9:
+    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManagerDelegate.h:208:1: note: method 'locationManager:didChangeAuthorizationStatus:' declared here
+      208 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status API_DEPRECATED_WITH_REPLACEMENT("-locationManagerDidChangeAuthorization:", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
+          | ^
+    1 warning generated.
     /Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/ios/Classes/FlutterLocalNotificationsPlugin.m:1238:30: warning: 'UNNotificationPresentationOptionAlert' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
      1238 |       presentationOptions |= UNNotificationPresentationOptionAlert;
           |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,6 +381,12 @@ Xcode's output:
         5 | + (void)setRegisterPlugins:(FlutterPluginRegistrantCallback *)callback;
           | ^
     2 warnings generated.
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/PurchasesError.swift:136:13: warning: switch must be exhaustive
+                switch storeKitError {
+                ^
+    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/PurchasesError.swift:136:13: note: add missing case: '.unsupported'
+                switch storeKitError {
+                ^
     /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/StoreKitError+Extensions.swift:21:9: warning: switch must be exhaustive
             switch self {
             ^
@@ -130,12 +399,6 @@ Xcode's output:
     /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/StoreKitError+Extensions.swift:51:9: note: add missing case: '.unsupported'
             switch self {
             ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/PurchasesError.swift:136:13: warning: switch must be exhaustive
-                switch storeKitError {
-                ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/PurchasesError.swift:136:13: note: add missing case: '.unsupported'
-                switch storeKitError {
-                ^
     /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOSCustomBrowser.m:151:44: warning: 'openURL:' is deprecated: first deprecated in iOS 10.0 [-Wdeprecated-declarations]
       151 |         [[UIApplication sharedApplication] openURL:_appStoreURL];
           |                                            ^~~~~~~
@@ -287,7 +550,7 @@ Xcode's output:
       141 | #  define OS_CODE  7
           |           ^
     1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/infback.c:13:
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inffast.c:6:
     /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
       170 | #  define OS_CODE 19
           |           ^
@@ -295,7 +558,7 @@ Xcode's output:
       141 | #  define OS_CODE  7
           |           ^
     1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inffast.c:6:
+    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/infback.c:13:
     /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
       170 | #  define OS_CODE 19
           |           ^
@@ -328,7 +591,6 @@ Xcode's output:
       141 | #  define OS_CODE  7
           |           ^
     1 warning generated.
-    ld: warning: ignoring duplicate libraries: '-lc++'
     ld: warning: ignoring duplicate libraries: '-lc++'
     ld: warning: ignoring duplicate libraries: '-lc++'
     /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_analytics-11.6.0/ios/firebase_analytics/Sources/firebase_analytics/FirebaseAnalyticsPlugin.swift:106:41: warning: expression implicitly coerced from '[String : Any?]' to '[String : Any]'
@@ -373,6 +635,7 @@ Xcode's output:
        91 |                                              enabled:(BOOL)enabled
           |                                                       ~~~~ ^
     3 warnings generated.
+    ld: warning: ignoring duplicate libraries: '-lc++'
     /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_messaging-15.2.10/ios/firebase_messaging/Sources/firebase_messaging/FLTFirebaseMessagingPlugin.m:348:32: warning: 'UNNotificationPresentationOptionAlert' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
       348 |         presentationOptions |= UNNotificationPresentationOptionAlert;
           |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -903,4 +1166,4 @@ Xcode's output:
     warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'BoringSSL-GRPC' from project 'Pods')
 
 
-Error launching application on iPhone de Miguel Esteban (wireless).
+Error launching application on iPhone de Miguel Esteban.

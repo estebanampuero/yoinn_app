@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
 import '../services/location_service.dart';
 
 class LocationSearchScreen extends StatefulWidget {
@@ -49,6 +50,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
   }
 
   Future<void> _useCurrentLocation() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoadingGPS = true);
     
     final locationData = await _locationService.getCurrentLocation();
@@ -59,7 +61,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
       Navigator.pop(context, locationData);
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No se pudo obtener la ubicación GPS")),
+        SnackBar(content: Text(l10n.errGpsLocation)),
       );
     }
   }
@@ -73,6 +75,8 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -81,8 +85,8 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
         title: TextField(
           controller: _controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: "Buscar dirección...",
+          decoration: InputDecoration(
+            hintText: l10n.hintSearchAddress, // "Buscar dirección..."
             border: InputBorder.none,
           ),
           onChanged: _onSearchChanged,
@@ -99,7 +103,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                   radius: 16,
                   child: Icon(Icons.my_location, color: Colors.white, size: 18),
                 ),
-            title: const Text("Usar mi ubicación actual", style: TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold)),
+            title: Text(l10n.lblUseCurrentLocation, style: const TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.bold)),
             onTap: _isLoadingGPS ? null : _useCurrentLocation,
           ),
           const Divider(height: 1),

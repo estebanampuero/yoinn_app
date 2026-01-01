@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
 import '../services/data_service.dart';
 import 'profile_screen.dart';
 
@@ -16,12 +17,13 @@ class ManageRequestsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dataService = Provider.of<DataService>(context, listen: false);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F8FA),
       appBar: AppBar(
-        title: Text("Solicitudes para $activityTitle"),
+        title: Text(l10n.screenManageRequestsTitle(activityTitle)), // "Solicitudes para {title}"
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -29,7 +31,7 @@ class ManageRequestsScreen extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: dataService.getActivityApplications(activityId),
         builder: (context, snapshot) {
-          if (snapshot.hasError) return const Center(child: Text("Error cargando solicitudes"));
+          if (snapshot.hasError) return Center(child: Text(l10n.errorGeneric));
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
 
           final docs = snapshot.data!.docs;
@@ -43,7 +45,7 @@ class ManageRequestsScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.people_outline, size: 60, color: Colors.grey[300]),
                   const SizedBox(height: 16),
-                  Text("No hay solicitudes pendientes", style: TextStyle(color: Colors.grey[500])),
+                  Text(l10n.msgNoPendingRequests, style: TextStyle(color: Colors.grey[500])), // "No hay solicitudes pendientes"
                 ],
               ),
             );
@@ -79,7 +81,7 @@ class ManageRequestsScreen extends StatelessWidget {
                     ),
                   ),
                   title: Text(applicantName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text("Quiere unirse"),
+                  subtitle: Text(l10n.lblWantsToJoin), // "Quiere unirse"
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -94,7 +96,7 @@ class ManageRequestsScreen extends StatelessWidget {
                         onPressed: () {
                           dataService.acceptApplicant(reqId, activityId, applicantPhoto);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("$applicantName aceptado"))
+                            SnackBar(content: Text(l10n.msgUserAccepted(applicantName))) // "{user} aceptado"
                           );
                         },
                       ),

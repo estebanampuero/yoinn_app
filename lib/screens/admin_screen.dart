@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../models/user_model.dart';
 import '../models/activity_model.dart';
-import 'activity_detail_screen.dart'; // NECESARIO PARA NAVEGAR
+import 'activity_detail_screen.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -40,22 +42,18 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
-  // --- NAVEGACIÓN A DETALLE (NUEVO) ---
+  // --- NAVEGACIÓN A DETALLE ---
   Future<void> _inspectActivity(String activityId) async {
-    // Mostramos un feedback rápido
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Cargando actividad..."), duration: Duration(milliseconds: 500)),
+      SnackBar(content: Text(l10n.msgActivityLoading), duration: const Duration(milliseconds: 500)),
     );
 
     try {
-      // Buscamos el documento fresco en Firebase
       final doc = await FirebaseFirestore.instance.collection('activities').doc(activityId).get();
       
       if (doc.exists && mounted) {
-        // Convertimos a objeto Activity
         final activity = Activity.fromFirestore(doc);
-        
-        // Navegamos al detalle
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => ActivityDetailScreen(activity: activity)),
@@ -63,71 +61,75 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("La actividad no existe (posiblemente ya fue eliminada)."), backgroundColor: Colors.orange),
+            SnackBar(content: Text(l10n.msgActivityNotFound), backgroundColor: Colors.orange),
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error al cargar: $e")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${l10n.errorGeneric}: $e")));
       }
     }
   }
 
   // --- ACCIONES DE ELIMINACIÓN ---
   Future<void> _deleteUser(String userId, String userName) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Eliminar Usuario"),
-        content: Text("¿Eliminar a $userName permanentemente?"),
+        title: Text(l10n.dialogDeleteUserTitle),
+        content: Text(l10n.dialogDeleteUserBody(userName)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancelar")),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("ELIMINAR", style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.btnCancel)),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.btnDelete, style: const TextStyle(color: Colors.red))),
         ],
       ),
     );
 
     if (confirm == true) {
       await FirebaseFirestore.instance.collection('users').doc(userId).delete();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Usuario eliminado")));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.successMessage)));
     }
   }
 
   Future<void> _deleteActivity(String activityId, String title) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Eliminar Actividad"),
-        content: Text("¿Borrar '$title'?"),
+        title: Text(l10n.dialogDeleteTitle),
+        content: Text("${l10n.dialogDeleteBody} '$title'?"), // Reutilizamos string genérico
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancelar")),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("ELIMINAR", style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.btnCancel)),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.btnDelete, style: const TextStyle(color: Colors.red))),
         ],
       ),
     );
 
     if (confirm == true) {
       await FirebaseFirestore.instance.collection('activities').doc(activityId).delete();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Actividad eliminada")));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgActivityDeleted)));
     }
   }
 
   // --- ACCIONES DE REPORTES ---
   Future<void> _dismissReport(String reportId) async {
+    final l10n = AppLocalizations.of(context)!;
     await FirebaseFirestore.instance.collection('reports').doc(reportId).delete();
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Reporte descartado")));
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgReportDismissed)));
   }
 
   Future<void> _acceptReport(String reportId, String activityId) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Confirmar Sanción"),
-        content: const Text("Esto eliminará la actividad reportada y cerrará el reporte. ¿Proceder?"),
+        title: Text(l10n.dialogSanctionTitle),
+        content: Text(l10n.dialogSanctionBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancelar")),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("BORRAR TODO", style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.btnCancel)),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.btnDeleteAll, style: const TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -135,12 +137,14 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     if (confirm == true) {
       await FirebaseFirestore.instance.collection('activities').doc(activityId).delete();
       await FirebaseFirestore.instance.collection('reports').doc(reportId).delete();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Contenido eliminado por moderación")));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgContentDeleted)));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -152,7 +156,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: "Buscar...",
+              hintText: l10n.searchPlaceholder,
               prefixIcon: const Icon(Icons.search, color: Colors.grey),
               suffixIcon: _searchQuery.isNotEmpty 
                   ? IconButton(icon: const Icon(Icons.clear, size: 20, color: Colors.grey), onPressed: () => _searchController.clear())
@@ -167,19 +171,17 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
           labelColor: _brandColor,
           unselectedLabelColor: Colors.grey,
           indicatorColor: _brandColor,
-          tabs: const [
-            Tab(icon: Icon(Icons.people), text: "Usuarios"),
-            Tab(icon: Icon(Icons.event), text: "Actividades"),
-            Tab(icon: Icon(Icons.warning_amber_rounded), text: "Reportes"),
+          tabs: [
+            Tab(icon: const Icon(Icons.people), text: l10n.tabUsers),
+            Tab(icon: const Icon(Icons.event), text: l10n.tabActivities),
+            Tab(icon: const Icon(Icons.warning_amber_rounded), text: l10n.tabReports),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          // ---------------------------------------------
           // PESTAÑA 1: USUARIOS
-          // ---------------------------------------------
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('users').orderBy('name').snapshots(),
             builder: (context, snapshot) {
@@ -191,7 +193,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                 return name.contains(_searchQuery) || email.contains(_searchQuery);
               }).toList();
 
-              if (docs.isEmpty) return const Center(child: Text("No se encontraron usuarios."));
+              if (docs.isEmpty) return Center(child: Text(l10n.msgNoUsers));
 
               return ListView.separated(
                 padding: const EdgeInsets.all(10),
@@ -216,9 +218,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
             },
           ),
 
-          // ---------------------------------------------
           // PESTAÑA 2: ACTIVIDADES
-          // ---------------------------------------------
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('activities').orderBy('dateTime', descending: true).snapshots(),
             builder: (context, snapshot) {
@@ -228,7 +228,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                 return activity.title.toLowerCase().contains(_searchQuery) || activity.category.toLowerCase().contains(_searchQuery);
               }).toList();
 
-              if (docs.isEmpty) return const Center(child: Text("No se encontraron actividades."));
+              if (docs.isEmpty) return Center(child: Text(l10n.msgNoActivities));
 
               return ListView.builder(
                 padding: const EdgeInsets.all(10),
@@ -254,9 +254,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
             },
           ),
 
-          // ---------------------------------------------
           // PESTAÑA 3: REPORTES
-          // ---------------------------------------------
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('reports').orderBy('timestamp', descending: true).snapshots(),
             builder: (context, snapshot) {
@@ -265,13 +263,13 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
               final reports = snapshot.data!.docs;
 
               if (reports.isEmpty) {
-                return const Center(
+                return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check_circle_outline, size: 60, color: Colors.green),
-                      SizedBox(height: 10),
-                      Text("¡Sin reportes pendientes!"),
+                      const Icon(Icons.check_circle_outline, size: 60, color: Colors.green),
+                      const SizedBox(height: 10),
+                      Text(l10n.msgNoReports),
                     ],
                   ),
                 );
@@ -292,7 +290,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                     margin: const EdgeInsets.only(bottom: 12),
                     elevation: 2,
                     clipBehavior: Clip.antiAlias,
-                    child: InkWell( // <--- AHORA ES CLICKEABLE
+                    child: InkWell( 
                       onTap: () => _inspectActivity(activityId),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
@@ -303,21 +301,21 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                               children: [
                                 const Icon(Icons.warning, color: Colors.red),
                                 const SizedBox(width: 8),
-                                const Text("ACTIVIDAD REPORTADA", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+                                Text(l10n.lblReportedActivity, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
                                 const Spacer(),
                                 Text(DateFormat('dd/MM HH:mm').format(date), style: const TextStyle(fontSize: 12)),
                               ],
                             ),
                             const SizedBox(height: 8),
-                            Text("Motivo: $reason", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            Text("${l10n.lblReason} $reason", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                             Text("ID Actividad: $activityId", style: const TextStyle(fontSize: 12, color: Colors.grey)),
                             
                             const SizedBox(height: 8),
-                            const Row(
+                            Row(
                               children: [
-                                Icon(Icons.touch_app, size: 14, color: Colors.blue),
-                                SizedBox(width: 4),
-                                Text("Toca para revisar detalles", style: TextStyle(color: Colors.blue, fontSize: 12, fontWeight: FontWeight.bold)),
+                                const Icon(Icons.touch_app, size: 14, color: Colors.blue),
+                                const SizedBox(width: 4),
+                                Text(l10n.lblTapDetails, style: const TextStyle(color: Colors.blue, fontSize: 12, fontWeight: FontWeight.bold)),
                               ],
                             ),
 
@@ -328,14 +326,14 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                                 OutlinedButton(
                                   onPressed: () => _dismissReport(reportId),
                                   style: OutlinedButton.styleFrom(backgroundColor: Colors.white),
-                                  child: const Text("Descartar (Falso)"),
+                                  child: Text(l10n.btnDismiss),
                                 ),
                                 const SizedBox(width: 8),
                                 ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                                   onPressed: () => _acceptReport(reportId, activityId),
                                   icon: const Icon(Icons.delete, color: Colors.white, size: 16),
-                                  label: const Text("Borrar Actividad", style: TextStyle(color: Colors.white)),
+                                  label: Text(l10n.btnDelete, style: const TextStyle(color: Colors.white)),
                                 ),
                               ],
                             )

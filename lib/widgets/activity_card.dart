@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../models/activity_model.dart';
 import '../models/user_model.dart';
 import '../services/data_service.dart';
-import '../screens/profile_screen.dart'; // <--- IMPORTANTE: Para poder navegar al perfil
+import '../screens/profile_screen.dart'; 
 
 class ActivityCard extends StatelessWidget {
   final Activity activity;
@@ -13,14 +15,34 @@ class ActivityCard extends StatelessWidget {
 
   const ActivityCard({super.key, required this.activity, required this.onTap});
 
+  // Helper para traducir categoría visualmente
+  String _getCategoryName(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'Deportes': return l10n.catSport;
+      case 'Comida': return l10n.catFood;
+      case 'Arte': return l10n.catArt;
+      case 'Fiesta': return l10n.catParty;
+      case 'Viajes': return l10n.catOutdoor; 
+      case 'Musica': return l10n.hobbyMusic;
+      case 'Tecnología': return l10n.hobbyTech;
+      case 'Bienestar': return l10n.hobbyWellness;
+      case 'Otros': return l10n.catOther;
+      default: return key; 
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final dateStr = DateFormat('EEE, d MMM', 'es_ES').format(activity.dateTime);
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Fecha localizada
+    final locale = Localizations.localeOf(context).toString();
+    final dateStr = DateFormat('EEE, d MMM', locale).format(activity.dateTime);
     final timeStr = DateFormat('h:mm a').format(activity.dateTime);
     
     // --- LÓGICA FOMO (URGENCIA) ---
     final spotsLeft = activity.maxAttendees - activity.acceptedCount;
-    // Consideramos urgente si quedan 3 o menos
     final isUrgent = spotsLeft > 0 && spotsLeft <= 3; 
     final isFull = spotsLeft <= 0;
 
@@ -61,7 +83,7 @@ class ActivityCard extends StatelessWidget {
                         )
                       : Image.network('https://via.placeholder.com/400x200', height: 180, width: double.infinity, fit: BoxFit.cover),
                   
-                  // BADGE DE CATEGORÍA
+                  // BADGE DE CATEGORÍA TRADUCIDO
                   Positioned(
                     top: 12,
                     right: 12,
@@ -73,13 +95,13 @@ class ActivityCard extends StatelessWidget {
                         boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
                       ),
                       child: Text(
-                        activity.category.toUpperCase(),
+                        _getCategoryName(context, activity.category).toUpperCase(),
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Color(0xFF29B6F6)),
                       ),
                     ),
                   ),
 
-                  // --- BADGE FOMO / URGENCIA (MODIFICADO) ---
+                  // --- BADGE FOMO / URGENCIA ---
                   if (isUrgent)
                     Positioned(
                       top: 12,
@@ -96,11 +118,9 @@ class ActivityCard extends StatelessWidget {
                           children: [
                             const Icon(Icons.local_fire_department, color: Colors.white, size: 12),
                             const SizedBox(width: 4),
-                            // AQUÍ ESTÁ EL CAMBIO DE LÓGICA SINGULAR/PLURAL
+                            // Traducido: "¡Solo queda 1 cupo!" / "¡Solo quedan X cupos!"
                             Text(
-                              spotsLeft == 1 
-                                  ? "¡Solo queda 1 cupo!" 
-                                  : "¡Solo quedan $spotsLeft cupos!",
+                              spotsLeft == 1 ? l10n.msgOnlyOneSpot : l10n.msgSpotsLeftShort(spotsLeft),
                               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
                             ),
                           ],
@@ -117,7 +137,7 @@ class ActivityCard extends StatelessWidget {
                           color: Colors.grey,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text("AGOTADO", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                        child: Text(l10n.btnSoldOut, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)), // "AGOTADO"
                       ),
                     ),
                 ],
@@ -184,14 +204,16 @@ class ActivityCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 4),
+                          // "+3 van" o "+3 going"
                           Text(
-                            "+${activity.acceptedCount} van",
+                            "+${activity.acceptedCount} ${l10n.lblGoing}",
                             style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.w600),
                           ),
                           const Spacer(),
                           if (!isFull)
+                            // "3/5 cupos" o "3/5 spots"
                             Text(
-                              "${activity.acceptedCount}/${activity.maxAttendees} cupos",
+                              "${activity.acceptedCount}/${activity.maxAttendees} ${l10n.lblSpots}",
                               style: const TextStyle(fontSize: 11, color: Colors.grey),
                             )
                         ],
@@ -203,7 +225,6 @@ class ActivityCard extends StatelessWidget {
               // --- HOST (CLICKEABLE) ---
               InkWell(
                 onTap: () {
-                  // Navegar al perfil del organizador
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -214,7 +235,7 @@ class ActivityCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9), // Gris muy suave
+                    color: const Color(0xFFF1F5F9), 
                     border: Border(top: BorderSide(color: Colors.grey[200]!)),
                   ),
                   child: FutureBuilder<UserModel?>(
@@ -229,7 +250,6 @@ class ActivityCard extends StatelessWidget {
 
                       return Row(
                         children: [
-                          // Foto pequeña del host
                           CircleAvatar(
                             radius: 10,
                             backgroundImage: hostPic != null && hostPic.isNotEmpty 
@@ -242,7 +262,7 @@ class ActivityCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           
-                          Text("Organiza:", style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                          Text(l10n.hostedBy, style: TextStyle(fontSize: 11, color: Colors.grey[600])), // "Organiza:"
                           const SizedBox(width: 6),
                           
                           Text(
@@ -264,7 +284,6 @@ class ActivityCard extends StatelessWidget {
                           ],
                           
                           const Spacer(),
-                          // Icono de flecha para indicar que es clickeable
                           const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
                         ],
                       );

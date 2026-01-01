@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
 import '../models/activity_model.dart';
 import '../services/data_service.dart';
 
@@ -11,11 +12,12 @@ class ManageActivityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dataService = Provider.of<DataService>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Gestionar Participantes"),
+        title: Text(l10n.screenManageParticipantsTitle), // "Gestionar Participantes"
         backgroundColor: Colors.white,
         elevation: 0,
         foregroundColor: Colors.black,
@@ -24,7 +26,7 @@ class ManageActivityScreen extends StatelessWidget {
         stream: dataService.getActivityApplications(activity.id),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text("Error al cargar solicitudes"));
+            return Center(child: Text(l10n.errorGeneric));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -38,13 +40,13 @@ class ManageActivityScreen extends StatelessWidget {
           final accepted = docs.where((doc) => doc['status'] == 'accepted').toList();
 
           if (docs.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.people_outline, size: 60, color: Colors.grey),
-                  SizedBox(height: 10),
-                  Text("Aún no hay solicitudes", style: TextStyle(color: Colors.grey, fontSize: 16)),
+                  const Icon(Icons.people_outline, size: 60, color: Colors.grey),
+                  const SizedBox(height: 10),
+                  Text(l10n.msgNoRequestsYet, style: const TextStyle(color: Colors.grey, fontSize: 16)), // "Aún no hay solicitudes"
                 ],
               ),
             );
@@ -54,7 +56,7 @@ class ManageActivityScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               if (pending.isNotEmpty) ...[
-                const Text("Solicitudes Pendientes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                Text(l10n.lblPendingRequests, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)), // "Solicitudes Pendientes"
                 const SizedBox(height: 10),
                 ...pending.map((doc) => _buildUserTile(context, doc, true)),
                 const SizedBox(height: 20),
@@ -63,7 +65,7 @@ class ManageActivityScreen extends StatelessWidget {
               ],
 
               if (accepted.isNotEmpty) ...[
-                const Text("Participantes Aceptados", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.green)),
+                Text(l10n.lblAcceptedParticipants, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.green)), // "Participantes Aceptados"
                 const SizedBox(height: 10),
                 ...accepted.map((doc) => _buildUserTile(context, doc, false)),
               ],
@@ -75,6 +77,7 @@ class ManageActivityScreen extends StatelessWidget {
   }
 
   Widget _buildUserTile(BuildContext context, DocumentSnapshot doc, bool isPending) {
+    final l10n = AppLocalizations.of(context)!;
     final data = doc.data() as Map<String, dynamic>;
     final applicationId = doc.id;
     final name = data['applicantName'] ?? 'Desconocido';
@@ -98,9 +101,9 @@ class ManageActivityScreen extends StatelessWidget {
                 children: [
                   Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   if (isPending)
-                    const Text("Quiere unirse", style: TextStyle(color: Colors.grey, fontSize: 12))
+                    Text(l10n.lblWantsToJoin, style: const TextStyle(color: Colors.grey, fontSize: 12)) // "Quiere unirse"
                   else
-                    const Text("Confirmado", style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text(l10n.lblConfirmed, style: const TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)), // "Confirmado"
                 ],
               ),
             ),
@@ -124,28 +127,26 @@ class ManageActivityScreen extends StatelessWidget {
                 ],
               )
             else 
-              // --- BOTÓN ELIMINAR PARTICIPANTE (NUEVO) ---
               IconButton(
                 icon: const Icon(Icons.person_remove, color: Colors.red),
-                tooltip: "Eliminar participante",
+                tooltip: l10n.tooltipRemoveParticipant, // "Eliminar participante"
                 onPressed: () {
-                  // Confirmación antes de eliminar
                   showDialog(
                     context: context,
                     builder: (ctx) => AlertDialog(
-                      title: const Text("¿Eliminar participante?"),
-                      content: Text("¿Estás seguro de que quieres sacar a $name de la actividad?"),
+                      title: Text(l10n.dialogRemoveParticipantTitle), // "¿Eliminar participante?"
+                      content: Text(l10n.dialogRemoveParticipantBody(name)), // "¿Estás seguro de que quieres sacar a {name}..."
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(ctx),
-                          child: const Text("Cancelar"),
+                          child: Text(l10n.btnCancel),
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(ctx); // Cierra el diálogo
+                            Navigator.pop(ctx); 
                             dataService.removeParticipant(applicationId, activity.id, pic);
                           },
-                          child: const Text("Eliminar", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                          child: Text(l10n.btnDelete, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),

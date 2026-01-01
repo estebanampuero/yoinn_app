@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../services/auth_service.dart';
 import '../services/data_service.dart';
 import '../config/subscription_limits.dart'; 
@@ -25,7 +27,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   final _descController = TextEditingController();
   final _locationController = TextEditingController();
   
-  String _selectedCategory = 'Otro'; 
+  String _selectedCategory = 'Otros'; 
   int _maxAttendees = 2; 
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
@@ -37,6 +39,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   double? _selectedLat;
   double? _selectedLng;
 
+  // Lista base (se guarda en español en BD para consistencia)
   final List<String> _categories = [
     'Deportes', 'Comida', 'Arte', 'Fiestas', 'Viajes', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
   ];
@@ -54,24 +57,35 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
     }
   }
 
+  // Helper para mostrar la categoría traducida en la UI
+  String _getDisplayCategory(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'Deportes': return l10n.catSport;
+      case 'Comida': return l10n.catFood;
+      case 'Arte': return l10n.catArt;
+      case 'Fiestas': return l10n.catParty;
+      case 'Viajes': return l10n.catOutdoor; 
+      case 'Musica': return l10n.hobbyMusic; 
+      case 'Tecnología': return l10n.hobbyTech; 
+      case 'Bienestar': return l10n.hobbyWellness;
+      case 'Otros': return l10n.catOther;
+      default: return key;
+    }
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // --- LÓGICA DE LÍMITES (MEJORADA) ---
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
-    
-    // Verificamos AMBOS estados: Tienda o Manual
     final bool isPro = (user?.isPremium ?? false) || (user?.isManualPro ?? false);
 
-    // Definir límite según plan
     final int maxLimit = isPro 
         ? SubscriptionLimits.proMaxAttendees 
         : SubscriptionLimits.freeMaxAttendees;
 
-    // Generar la lista de opciones
     _attendeesOptions = List.generate(maxLimit, (index) => index + 1);
 
-    // Seguridad: Si el valor actual excede el límite, ajustarlo
     if (_maxAttendees > maxLimit) {
       _maxAttendees = maxLimit;
     }
@@ -86,6 +100,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   }
 
   Future<void> _pickImage() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: ImageSource.gallery, 
@@ -100,17 +115,16 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
       }
     } catch (e) {
       print("Error al seleccionar imagen: $e");
+      if(mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.errImageSelect)));
     }
   }
 
   Future<void> _openLocationSearch() async {
-    // Calcular estado PRO para enviarlo al mapa
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
     final bool isPro = (user?.isPremium ?? false) || (user?.isManualPro ?? false);
 
     final result = await Navigator.push(
       context,
-      // Pasamos 'isPro' al mapa para que decida si bloquear la cámara o dejarlo libre
       MaterialPageRoute(builder: (context) => MapPickerScreen(isPro: isPro)),
     );
 
@@ -125,6 +139,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
 
   // --- LÓGICA DE FECHA NATIVA ---
   Future<void> _pickDate() async {
+    final l10n = AppLocalizations.of(context)!;
     if (Platform.isIOS) {
       showCupertinoModalPopup(
         context: context,
@@ -142,7 +157,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                     children: [
                       CupertinoButton(
                         padding: EdgeInsets.zero,
-                        child: Text("Listo", style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
+                        child: Text(l10n.btnReady, style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
                         onPressed: () => Navigator.of(context).pop(),
                       )
                     ],
@@ -177,6 +192,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
 
   // --- LÓGICA DE HORA NATIVA ---
   Future<void> _pickTime() async {
+    final l10n = AppLocalizations.of(context)!;
     final bool is24HourFormat = MediaQuery.of(context).alwaysUse24HourFormat;
 
     if (Platform.isIOS) {
@@ -196,7 +212,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                     children: [
                       CupertinoButton(
                         padding: EdgeInsets.zero,
-                        child: Text("Listo", style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
+                        child: Text(l10n.btnReady, style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
                         onPressed: () => Navigator.of(context).pop(),
                       )
                     ],
@@ -242,8 +258,9 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
     }
   }
 
-  // --- WIDGET DE CATEGORÍA NATIVO ---
+  // --- WIDGET DE CATEGORÍA ---
   Widget _buildCategoryInput() {
+    final l10n = AppLocalizations.of(context)!;
     if (Platform.isIOS) {
       return GestureDetector(
         onTap: () {
@@ -262,7 +279,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                       children: [
                         CupertinoButton(
                           padding: EdgeInsets.zero,
-                          child: Text("Listo", style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
+                          child: Text(l10n.btnReady, style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
                           onPressed: () => Navigator.of(context).pop(),
                         )
                       ],
@@ -277,7 +294,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                       onSelectedItemChanged: (index) {
                         setState(() => _selectedCategory = _categories[index]);
                       },
-                      children: _categories.map((c) => Text(c)).toList(),
+                      children: _categories.map((c) => Text(_getDisplayCategory(context, c))).toList(),
                     ),
                   ),
                 ],
@@ -286,20 +303,20 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
           );
         },
         child: InputDecorator(
-          decoration: const InputDecoration(
-            labelText: 'Categoría',
-            border: OutlineInputBorder(),
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            suffixIcon: Icon(Icons.arrow_drop_down),
+          decoration: InputDecoration(
+            labelText: l10n.lblCategory,
+            border: const OutlineInputBorder(),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            suffixIcon: const Icon(Icons.arrow_drop_down),
           ),
-          child: Text(_selectedCategory, style: const TextStyle(fontSize: 16)),
+          child: Text(_getDisplayCategory(context, _selectedCategory), style: const TextStyle(fontSize: 16)),
         ),
       );
     } else {
       return DropdownButtonFormField<String>(
         value: _selectedCategory,
-        decoration: const InputDecoration(labelText: 'Categoría', border: OutlineInputBorder()),
-        items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+        decoration: InputDecoration(labelText: l10n.lblCategory, border: const OutlineInputBorder()),
+        items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(_getDisplayCategory(context, c)))).toList(),
         onChanged: (v) => setState(() => _selectedCategory = v!),
       );
     }
@@ -307,7 +324,10 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
 
   // --- WIDGET DE ACOMPAÑANTES ---
   Widget _buildAttendeesInput() {
+    final l10n = AppLocalizations.of(context)!;
     if (_attendeesOptions.isEmpty) return const SizedBox();
+
+    String formatAttendees(int n) => "$n ${n > 1 ? l10n.personPlural : l10n.personSingular}";
 
     if (Platform.isIOS) {
       return GestureDetector(
@@ -327,7 +347,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                       children: [
                         CupertinoButton(
                           padding: EdgeInsets.zero,
-                          child: Text("Listo", style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
+                          child: Text(l10n.btnReady, style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
                           onPressed: () => Navigator.of(context).pop(),
                         )
                       ],
@@ -344,7 +364,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                       onSelectedItemChanged: (index) {
                         setState(() => _maxAttendees = _attendeesOptions[index]);
                       },
-                      children: _attendeesOptions.map((n) => Text("$n persona${n > 1 ? 's' : ''}")).toList(),
+                      children: _attendeesOptions.map((n) => Text(formatAttendees(n))).toList(),
                     ),
                   ),
                 ],
@@ -353,11 +373,11 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
           );
         },
         child: InputDecorator(
-          decoration: const InputDecoration(
-            labelText: 'Nº de acompañantes (máx)',
-            border: OutlineInputBorder(),
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            suffixIcon: Icon(Icons.people_outline),
+          decoration: InputDecoration(
+            labelText: l10n.lblMaxAttendees,
+            border: const OutlineInputBorder(),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            suffixIcon: const Icon(Icons.people_outline),
           ),
           child: Text("$_maxAttendees", style: const TextStyle(fontSize: 16)),
         ),
@@ -365,7 +385,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
     } else {
       return DropdownButtonFormField<int>(
         value: _attendeesOptions.contains(_maxAttendees) ? _maxAttendees : _attendeesOptions.first,
-        decoration: const InputDecoration(labelText: 'Nº de acompañantes (máx)', border: OutlineInputBorder()),
+        decoration: InputDecoration(labelText: l10n.lblMaxAttendees, border: const OutlineInputBorder()),
         items: _attendeesOptions.map((n) => DropdownMenuItem(value: n, child: Text("$n"))).toList(),
         onChanged: (v) => setState(() => _maxAttendees = v!),
       );
@@ -373,6 +393,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   }
 
   Future<String> _uploadImage(String userId) async {
+    final l10n = AppLocalizations.of(context)!;
     if (_imageFile == null) return '';
     try {
       final String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
@@ -387,16 +408,17 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
       return await snapshot.ref.getDownloadURL();
     } catch (e) {
       print("Error subiendo imagen: $e");
-      throw Exception("No se pudo subir la imagen");
+      throw Exception(l10n.errImageUpload);
     }
   }
 
   Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     
     if (_selectedLat == null || _selectedLng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor toca en "Ubicación" para seleccionar en el mapa')),
+        SnackBar(content: Text(l10n.msgSelectLocation)),
       );
       return;
     }
@@ -405,7 +427,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
 
     try {
       final user = Provider.of<AuthService>(context, listen: false).currentUser;
-      if (user == null) throw Exception("Usuario no autenticado");
+      if (user == null) throw Exception(l10n.errUserNotAuth);
 
       String imageUrl = '';
       if (_imageFile != null) {
@@ -442,13 +464,13 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('¡Actividad creada con éxito!')),
+          SnackBar(content: Text(l10n.msgActivityCreated)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('${l10n.errorGeneric}: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -458,8 +480,10 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
-      appBar: AppBar(title: const Text("Crear Nueva Actividad")),
+      appBar: AppBar(title: Text(l10n.screenCreateTitle)),
       body: _isSaving 
         ? const Center(child: CircularProgressIndicator())
         : Form(
@@ -467,7 +491,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              const Text("Foto de la actividad", style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(l10n.lblPhotoHeader, style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               GestureDetector(
                 onTap: _pickImage,
@@ -489,7 +513,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                           children: [
                             Icon(Icons.image_outlined, size: 50, color: Colors.grey[400]),
                             const SizedBox(height: 10),
-                            Text("Toca para subir una imagen", style: TextStyle(color: Colors.grey[600])),
+                            Text(l10n.lblTapToUpload, style: TextStyle(color: Colors.grey[600])),
                           ],
                         ),
                 ),
@@ -498,16 +522,24 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
 
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Título', border: OutlineInputBorder(), hintText: 'Ej: Tarde de Senderismo'),
-                validator: (v) => v!.isEmpty ? 'Campo requerido' : null,
+                decoration: InputDecoration(
+                  labelText: l10n.fieldTitle, 
+                  border: const OutlineInputBorder(), 
+                  hintText: l10n.hintTitle
+                ),
+                validator: (v) => v!.isEmpty ? l10n.errorGeneric : null,
               ),
               const SizedBox(height: 16),
               
               TextFormField(
                 controller: _descController,
-                decoration: const InputDecoration(labelText: 'Descripción', border: OutlineInputBorder(), hintText: 'Cuéntanos de qué trata...'),
+                decoration: InputDecoration(
+                  labelText: l10n.fieldDesc, 
+                  border: const OutlineInputBorder(), 
+                  hintText: l10n.hintDesc
+                ),
                 maxLines: 4,
-                validator: (v) => v!.isEmpty ? 'Campo requerido' : null,
+                validator: (v) => v!.isEmpty ? l10n.errorGeneric : null,
               ),
               const SizedBox(height: 16),
 
@@ -521,7 +553,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                     child: OutlinedButton.icon(
                       onPressed: _pickDate, 
                       icon: const Icon(Icons.calendar_today),
-                      label: Text(DateFormat('dd/MM/yyyy').format(_selectedDate)),
+                      label: Text(DateFormat.yMd(Localizations.localeOf(context).toString()).format(_selectedDate)),
                       style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
                     ),
                   ),
@@ -538,18 +570,18 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
               ),
               const SizedBox(height: 16),
 
-              // UBICACIÓN (Dispara la búsqueda con permiso PRO)
+              // UBICACIÓN
               TextFormField(
                 controller: _locationController,
                 readOnly: true, 
                 onTap: _openLocationSearch, 
-                decoration: const InputDecoration(
-                  labelText: 'Ubicación', 
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.location_on_outlined),
-                  hintText: 'Toca para buscar en el mapa...'
+                decoration: InputDecoration(
+                  labelText: l10n.fieldLocation, 
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.location_on_outlined),
+                  hintText: l10n.hintLocation
                 ),
-                validator: (v) => v!.isEmpty ? 'Campo requerido' : null,
+                validator: (v) => v!.isEmpty ? l10n.errorGeneric : null,
               ),
               const SizedBox(height: 16),
 
@@ -568,7 +600,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Text("Publicar Actividad", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: Text(l10n.btnPublish, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 30),

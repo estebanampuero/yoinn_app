@@ -5,13 +5,15 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; 
 import 'package:intl/intl.dart'; 
 
+// 🟢 IMPORTACIÓN CORRECTA AL ARCHIVO FÍSICO
+import 'package:yoinn_app/l10n/app_localizations.dart'; 
+
 import '../models/activity_model.dart';
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
 import '../services/subscription_service.dart'; 
 
 import 'edit_activity_screen.dart';
-// --- IMPORTS RESTAURADOS PARA NAVEGACIÓN ---
 import 'chat_screen.dart'; 
 import 'manage_requests_screen.dart';
 
@@ -31,6 +33,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
   // --- LÓGICA DE APUESTA (BETTING) ---
   void _confirmAndJoin() async {
+    final l10n = AppLocalizations.of(context)!;
     final dataService = Provider.of<DataService>(context, listen: false);
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
 
@@ -45,7 +48,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       return;
     }
 
-    // Si tiene 0, mostramos paywall directo (sin preguntar)
+    // Si tiene 0, mostramos paywall directo
     if (remaining == 0) {
       if (mounted) _showPaywall(context);
       return;
@@ -56,18 +59,18 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text("¿Usar 1 Ticket?"),
+          title: Text(l10n.dialogUseTicketTitle), // "¿Usar 1 Ticket?"
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Estás a punto de usar 1 de tus tickets semanales para postular a esta actividad."),
+              Text(l10n.dialogUseTicketBody), // "Estás a punto de usar..."
               const SizedBox(height: 10),
               Row(
                 children: [
                   const Icon(Icons.confirmation_number, color: Colors.orange),
                   const SizedBox(width: 8),
-                  Text("Te quedarán: ${remaining - 1} tickets", style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(l10n.dialogTicketsRemaining(remaining - 1), style: const TextStyle(fontWeight: FontWeight.bold)),
                 ],
               ),
             ],
@@ -75,7 +78,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text("Cancelar"),
+              child: Text(l10n.btnCancel),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF97316)),
@@ -83,7 +86,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                 Navigator.pop(ctx); 
                 _joinActivity(); 
               },
-              child: const Text("USAR TICKET", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Text(l10n.btnUseTicket, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -92,6 +95,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   }
 
   void _joinActivity() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isJoining = true);
     
     final authService = Provider.of<AuthService>(context, listen: false);
@@ -121,7 +125,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("¡Solicitud enviada! Ticket usado.")),
+              SnackBar(content: Text(l10n.msgRequestSent)), // "¡Solicitud enviada!..."
             );
           }
         }
@@ -134,7 +138,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Error: ${e.toString().replaceAll('Exception:', '')}")),
+              SnackBar(content: Text("${l10n.errorGeneric}: ${e.toString().replaceAll('Exception:', '')}")),
             );
           }
         }
@@ -145,6 +149,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   }
 
   void _showPaywall(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final package = await SubscriptionService.getCurrentOffering();
     if (package != null && mounted) {
       showModalBottomSheet(
@@ -155,26 +160,27 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       );
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Hazte PRO para unirte a más actividades.")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgGoPro)));
       }
     }
   }
 
   void _mostrarConfirmacionEliminar() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext ctx) {
         return AlertDialog(
-          title: const Text("Eliminar Actividad"),
-          content: const Text("¿Estás seguro? Esta acción no se puede deshacer."),
+          title: Text(l10n.dialogDeleteTitle),
+          content: Text(l10n.dialogDeleteBody),
           actions: [
-            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text("Cancelar")),
+            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(l10n.btnCancel)),
             TextButton(
               onPressed: () {
                 Navigator.of(ctx).pop(); 
                 _eliminarActividad(); 
               },
-              child: const Text("Eliminar", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+              child: Text(l10n.btnDelete, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -183,28 +189,32 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   }
 
   void _eliminarActividad() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       await Provider.of<DataService>(context, listen: false).deleteActivity(widget.activity.id); 
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Actividad eliminada")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgActivityDeleted)));
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${l10n.errorGeneric}: $e")));
     }
   }
 
   void _compartirActividad() {
+    final l10n = AppLocalizations.of(context)!;
     final String deepLink = 'https://yoinn.app/activity/${widget.activity.id}';
-    final dateFormatted = DateFormat('EEEE d, h:mm a', 'es_ES').format(widget.activity.dateTime);
+    final dateFormatted = DateFormat('EEEE d, h:mm a', Localizations.localeOf(context).toString()).format(widget.activity.dateTime);
+    
+    // Construimos el mensaje usando partes localizadas
     final String mensaje = '''
-¡Hey! 🌟 Encontré esta actividad en Yoinn y pensé que te gustaría:
+${l10n.shareMessageIntro}
 
 "${widget.activity.title}"
 📅 $dateFormatted
 📍 ${widget.activity.location}
 
-👇 Toca aquí para ver detalles o descargar la app:
+${l10n.shareMessageCta}
 $deepLink
 ''';
     Share.share(mensaje);
@@ -212,6 +222,7 @@ $deepLink
   }
 
   void _showOptions(bool isHost) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -221,14 +232,14 @@ $deepLink
           children: [
             ListTile(
               leading: const Icon(Icons.share, color: Colors.blue),
-              title: const Text("Compartir Actividad"),
+              title: Text(l10n.optShare), // "Compartir Actividad"
               onTap: () { Navigator.pop(ctx); _compartirActividad(); },
             ),
             const Divider(),
             if (isHost) ...[
                ListTile(
                 leading: const Icon(Icons.edit, color: Colors.blueGrey),
-                title: const Text("Editar Actividad"),
+                title: Text(l10n.optEdit), // "Editar Actividad"
                 onTap: () {
                   Navigator.pop(ctx);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => EditActivityScreen(activity: widget.activity)));
@@ -236,18 +247,18 @@ $deepLink
               ),
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: Colors.red),
-                title: const Text("Eliminar", style: TextStyle(color: Colors.red)),
+                title: Text(l10n.optDelete, style: const TextStyle(color: Colors.red)),
                 onTap: () { Navigator.pop(ctx); _mostrarConfirmacionEliminar(); },
               ),
             ] else ...[
               ListTile(
                 leading: const Icon(Icons.flag, color: Colors.orange),
-                title: const Text("Reportar"),
+                title: Text(l10n.optReport), // "Reportar"
                 onTap: () { Navigator.pop(ctx); _showReportDialog(); },
               ),
               ListTile(
                 leading: const Icon(Icons.block, color: Colors.grey),
-                title: const Text("Bloquear Usuario"),
+                title: Text(l10n.optBlock), // "Bloquear Usuario"
                 onTap: () { Navigator.pop(ctx); _showBlockDialog(); },
               ),
             ],
@@ -258,27 +269,29 @@ $deepLink
   }
 
   void _showReportDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Reportar Actividad"),
-        content: const Text("¿Por qué quieres reportar esto?"),
+        title: Text(l10n.dialogReportTitle),
+        content: Text(l10n.dialogReportBody),
         actions: [
           TextButton(
-            child: const Text("Es Spam"),
+            child: Text(l10n.reasonSpam),
             onPressed: () => _submitReport(ctx, "Spam"),
           ),
           TextButton(
-            child: const Text("Contenido Ofensivo"),
+            child: Text(l10n.reasonOffensive),
             onPressed: () => _submitReport(ctx, "Ofensivo/Inapropiado"),
           ),
-          TextButton(child: const Text("Cancelar"), onPressed: () => Navigator.pop(ctx)),
+          TextButton(child: Text(l10n.btnCancel), onPressed: () => Navigator.pop(ctx)),
         ],
       ),
     );
   }
 
   Future<void> _submitReport(BuildContext ctx, String reason) async {
+    final l10n = AppLocalizations.of(context)!;
     Navigator.pop(ctx); 
     try {
       await FirebaseFirestore.instance.collection('reports').add({
@@ -288,26 +301,27 @@ $deepLink
         'reportedBy': Provider.of<AuthService>(context, listen: false).currentUser?.uid ?? 'anon',
         'type': 'activity_report'
       });
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Gracias. Revisaremos este contenido en menos de 24h."), backgroundColor: Colors.green));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgReportThanks), backgroundColor: Colors.green));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error al enviar reporte.")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgReportError)));
     }
   }
 
   void _showBlockDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Bloquear Usuario"),
-        content: const Text("No verás más contenido de este usuario. ¿Continuar?"),
+        title: Text(l10n.dialogBlockTitle),
+        content: Text(l10n.dialogBlockBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancelar")),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.btnCancel)),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Usuario bloqueado.")));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgUserBlocked)));
             },
-            child: const Text("BLOQUEAR", style: TextStyle(color: Colors.red)),
+            child: Text(l10n.btnBlock, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -316,6 +330,7 @@ $deepLink
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final user = Provider.of<AuthService>(context).currentUser;
     final isHost = user?.uid == widget.activity.hostUid;
 
@@ -353,12 +368,12 @@ $deepLink
                   ActivityInfoRow(activity: widget.activity),
 
                   const SizedBox(height: 24),
-                  const Text("Sobre la actividad", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(l10n.lblAboutActivity, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Text(widget.activity.description, style: TextStyle(fontSize: 16, color: Colors.grey[800], height: 1.5)),
 
                   const SizedBox(height: 24),
-                  const Text("Asistentes Confirmados", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(l10n.lblConfirmedAttendees, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   
                   ParticipantsSection(activityId: widget.activity.id),
@@ -404,7 +419,7 @@ $deepLink
                          onPressed: () {
                            Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(activity: widget.activity)));
                          },
-                         child: const Text("Ir al Chat del Grupo", style: TextStyle(fontSize: 16, color: Color(0xFF00BCD4), fontWeight: FontWeight.bold)),
+                         child: Text(l10n.btnGoToChat, style: const TextStyle(fontSize: 16, color: Color(0xFF00BCD4), fontWeight: FontWeight.bold)),
                        ),
                      ),
                      const SizedBox(height: 12),
@@ -416,7 +431,7 @@ $deepLink
                            Navigator.push(context, MaterialPageRoute(builder: (_) => ManageRequestsScreen(activityId: widget.activity.id, activityTitle: widget.activity.title)));
                          },
                          icon: const Icon(Icons.people, color: Colors.white),
-                         label: const Text("Gestionar Solicitudes", style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                         label: Text(l10n.btnManageRequests, style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
                        ),
                      ),
                    ],
@@ -433,7 +448,7 @@ $deepLink
                        Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(activity: widget.activity)));
                     },
                     icon: const Icon(Icons.chat),
-                    label: const Text("¡Estás dentro! Ir al Chat", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    label: Text(l10n.btnYouAreIn, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 );
               }
@@ -445,7 +460,7 @@ $deepLink
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.grey, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                     onPressed: null,
-                    child: const Text("Solicitud enviada...", style: TextStyle(fontSize: 16, color: Colors.white)),
+                    child: Text(l10n.btnRequestPending, style: const TextStyle(fontSize: 16, color: Colors.white)),
                   ),
                 );
               }
@@ -464,7 +479,7 @@ $deepLink
                   onPressed: isFull ? null : (_isJoining ? null : _confirmAndJoin),
                   child: _isJoining
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(isFull ? "AGOTADO" : "Solicitar Unirme", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                      : Text(isFull ? l10n.btnSoldOut : l10n.btnRequestJoin, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               );
             },

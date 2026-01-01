@@ -6,11 +6,12 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
 
 import '../models/activity_model.dart';
 import '../services/data_service.dart';
 import '../services/subscription_service.dart';
-import '../services/auth_service.dart'; // <--- Agregado para validar usuario
+import '../services/auth_service.dart'; 
 import '../config/subscription_limits.dart';
 import 'activity_detail_screen.dart';
 import 'paywall_pro_screen.dart';
@@ -59,6 +60,23 @@ class _MapScreenState extends State<MapScreen> {
     _checkPremiumAndLocation();
   }
 
+  // Helper para traducir la categoría en la tarjeta del mapa
+  String _getCategoryName(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'Deportes': return l10n.catSport;
+      case 'Comida': return l10n.catFood;
+      case 'Arte': return l10n.catArt;
+      case 'Fiesta': return l10n.catParty; 
+      case 'Viajes': return l10n.catOutdoor; 
+      case 'Musica': return l10n.hobbyMusic;
+      case 'Tecnología': return l10n.hobbyTech;
+      case 'Bienestar': return l10n.hobbyWellness;
+      case 'Otros': return l10n.catOther;
+      default: return key; 
+    }
+  }
+
   void _moveCameraSafe(CameraUpdate update) {
     if (_mapController != null && mounted) {
       try {
@@ -70,11 +88,9 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _checkPremiumAndLocation() async {
-    // 1. Verificar Tienda (RevenueCat)
     bool isStorePro = await SubscriptionService.isUserPremium();
     bool isManualPro = false;
 
-    // 2. Verificar Firebase (Manual PRO)
     if (mounted) {
       final authService = Provider.of<AuthService>(context, listen: false);
       final dataService = Provider.of<DataService>(context, listen: false);
@@ -85,10 +101,8 @@ class _MapScreenState extends State<MapScreen> {
       }
     }
 
-    // 3. Combinar resultados
     if (mounted) setState(() => _isPremium = isStorePro || isManualPro);
 
-    // --- LÓGICA DE UBICACIÓN ---
     try {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -102,7 +116,6 @@ class _MapScreenState extends State<MapScreen> {
         if (mounted) {
           setState(() => _currentCenter = userPos);
           
-          // Actualizamos DataService con la ubicación REAL
           final ds = Provider.of<DataService>(context, listen: false);
           ds.updateUserLocation(userPos.latitude, userPos.longitude);
           
@@ -133,6 +146,8 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Consumer<DataService>(
       builder: (context, dataService, child) {
         
@@ -170,7 +185,7 @@ class _MapScreenState extends State<MapScreen> {
                 initialCameraPosition: _initialPosition,
                 markers: markers,
                 circles: circles,
-                myLocationEnabled: true, // GPS siempre activo
+                myLocationEnabled: true, 
                 myLocationButtonEnabled: false,
                 zoomControlsEnabled: false,
                 compassEnabled: false, 
@@ -188,7 +203,7 @@ class _MapScreenState extends State<MapScreen> {
                 },
               ),
 
-              // 2. BOTONES FLOTANTES (Recentrar)
+              // 2. BOTONES FLOTANTES
               Positioned(
                 top: 50, right: 20, 
                 child: FloatingActionButton.small(
@@ -208,7 +223,7 @@ class _MapScreenState extends State<MapScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.95),
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -216,7 +231,11 @@ class _MapScreenState extends State<MapScreen> {
                       Row(children: [
                         const Icon(Icons.radar, size: 14, color: Colors.grey),
                         const SizedBox(width: 4),
-                        Text("${dataService.filterRadius.toInt()} km", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF00BCD4)))
+                        // TRADUCCIÓN: "${valor} km"
+                        Text(
+                          "${dataService.filterRadius.toInt()} ${l10n.kmUnit}", 
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF00BCD4))
+                        )
                       ]),
                       SizedBox(
                         width: 120, height: 20,
@@ -227,13 +246,11 @@ class _MapScreenState extends State<MapScreen> {
                             overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
                           ),
                           child: Slider(
-                            // Clamp para evitar error rojo si cambia de plan
                             value: dataService.filterRadius.clamp(
                               1.0, 
                               _isPremium ? SubscriptionLimits.proMaxRadius : SubscriptionLimits.freeMaxRadius
                             ),
                             min: 1,
-                            // Aquí el máximo depende de la variable _isPremium que ahora se calcula correctamente
                             max: _isPremium ? SubscriptionLimits.proMaxRadius : SubscriptionLimits.freeMaxRadius,
                             activeColor: const Color(0xFF00BCD4),
                             inactiveColor: Colors.grey[200],
@@ -286,9 +303,21 @@ class _MapScreenState extends State<MapScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(_selectedActivity!.category.toUpperCase(), style: const TextStyle(color: Color(0xFF29B6F6), fontSize: 10, fontWeight: FontWeight.bold)),
+                                  // CATEGORÍA TRADUCIDA
+                                  Text(
+                                    _getCategoryName(context, _selectedActivity!.category).toUpperCase(), 
+                                    style: const TextStyle(color: Color(0xFF29B6F6), fontSize: 10, fontWeight: FontWeight.bold)
+                                  ),
                                   Text(_selectedActivity!.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF006064)), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                  Text(DateFormat('d MMM, h:mm a', 'es_ES').format(_selectedActivity!.dateTime), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                  
+                                  // FECHA LOCALIZADA AUTOMÁTICAMENTE
+                                  Text(
+                                    DateFormat(
+                                      'd MMM, h:mm a', 
+                                      Localizations.localeOf(context).toString()
+                                    ).format(_selectedActivity!.dateTime), 
+                                    style: const TextStyle(fontSize: 12, color: Colors.grey)
+                                  ),
                                 ],
                               ),
                             ),

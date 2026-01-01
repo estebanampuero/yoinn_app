@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../models/user_model.dart';
 import '../screens/edit_profile_screen.dart';
 
@@ -8,10 +10,9 @@ class ProfileHeader extends StatelessWidget {
   final UserModel user;
   final bool isMe;
   final bool isLocalGuide;
-  final bool isPro; // <--- Nuevo parámetro para estatus PRO
+  final bool isPro; 
   final VoidCallback onEditProfile;
 
-  // COLOR DE MARCA
   static const Color brandColor = Color(0xFF00BCD4);
 
   const ProfileHeader({
@@ -19,12 +20,40 @@ class ProfileHeader extends StatelessWidget {
     required this.user,
     required this.isMe,
     required this.isLocalGuide,
-    this.isPro = false, // Por defecto falso
+    this.isPro = false, 
     required this.onEditProfile,
   });
 
+  // Helper para traducir hobbies en la visualización
+  String _getHobbyName(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    final k = key.trim();
+    if (k == 'Deportes') return l10n.hobbySports;
+    if (k == 'Comida') return l10n.hobbyFood;
+    if (k == 'Fiesta') return l10n.hobbyParty;
+    if (k == 'Música') return l10n.hobbyMusic;
+    if (k == 'Arte') return l10n.hobbyArt;
+    if (k == 'Aire Libre') return l10n.hobbyOutdoors;
+    if (k == 'Tecnología') return l10n.hobbyTech;
+    if (k == 'Cine') return l10n.hobbyCinema;
+    if (k == 'Juegos') return l10n.hobbyGames;
+    if (k == 'Viajes') return l10n.hobbyTravel;
+    if (k == 'Bienestar') return l10n.hobbyWellness;
+    if (k == 'Educación') return l10n.hobbyEducation;
+    if (k == 'Mascotas') return l10n.hobbyPets;
+    if (k == 'Negocios') return l10n.hobbyBusiness;
+    if (k == 'Idiomas') return l10n.hobbyLanguages;
+    if (k == 'Voluntariado') return l10n.hobbyVolunteering;
+    if (k == 'Fotografía') return l10n.hobbyPhotography;
+    if (k == 'Literatura') return l10n.hobbyLiterature;
+    if (k == 'Familia') return l10n.hobbyFamily;
+    return l10n.hobbyOther;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       children: [
         // --- FOTO CON BORDE PRO Y BADGE ---
@@ -32,21 +61,16 @@ class ProfileHeader extends StatelessWidget {
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: [
-            // Contenedor de la Foto + Borde
             Container(
-              padding: const EdgeInsets.all(4), // Grosor del borde
+              padding: const EdgeInsets.all(4), 
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                // Lógica del Borde:
-                // 1. Si es PRO -> Gradiente Dorado Metálico
-                // 2. Si es Local Guide (y no Pro) -> Borde Amber
-                // 3. Si no -> Nada
                 gradient: isPro 
                     ? const LinearGradient(
                         colors: [
-                          Color(0xFFB8860B), // Dorado Oscuro
-                          Color(0xFFFFD700), // Oro Brillante
-                          Color(0xFFD4AF37), // Oro Metálico
+                          Color(0xFFB8860B), 
+                          Color(0xFFFFD700), 
+                          Color(0xFFD4AF37), 
                           Color(0xFFFFD700), 
                         ],
                         begin: Alignment.topLeft,
@@ -71,14 +95,13 @@ class ProfileHeader extends StatelessWidget {
               ),
             ),
 
-            // --- BADGE "PRO" (Solo si es PRO) ---
             if (isPro)
               Positioned(
-                bottom: -2, // Justo en el borde inferior
+                bottom: -2, 
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.black, // Fondo negro para contraste premium
+                    color: Colors.black, 
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: const Color(0xFFFFD700), width: 1.5),
                     boxShadow: [
@@ -89,10 +112,10 @@ class ProfileHeader extends StatelessWidget {
                       )
                     ]
                   ),
-                  child: const Text(
-                    "PRO",
-                    style: TextStyle(
-                      color: Color(0xFFFFD700), // Texto Dorado
+                  child: Text(
+                    l10n.badgePro, // "PRO"
+                    style: const TextStyle(
+                      color: Color(0xFFFFD700), 
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.2,
@@ -130,7 +153,7 @@ class ProfileHeader extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.amber),
             ),
-            child: const Text("🌟 Guía Local", style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12)),
+            child: Text(l10n.badgeLocalGuide, style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12)),
           ),
 
         // --- BIO ---
@@ -178,7 +201,7 @@ class ProfileHeader extends StatelessWidget {
               onEditProfile(); 
             },
             icon: const Icon(Icons.edit, size: 18),
-            label: const Text("Editar Perfil"),
+            label: Text(l10n.btnEditProfile), // "Editar Perfil"
             style: OutlinedButton.styleFrom(
               foregroundColor: brandColor,
               side: const BorderSide(color: brandColor),
@@ -188,11 +211,11 @@ class ProfileHeader extends StatelessWidget {
         
         const SizedBox(height: 30),
 
-        // --- INTERESES ---
+        // --- INTERESES TRADUCIDOS ---
         if (user.hobbies.isNotEmpty) ...[
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
-            child: Text("Intereses", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text(l10n.lblInterestsTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), // "Intereses"
           ),
           const SizedBox(height: 10),
           Align(
@@ -201,7 +224,8 @@ class ProfileHeader extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: user.hobbies.map((hobby) => Chip(
-                label: Text(hobby.replaceAll('_', ' ').toUpperCase()),
+                // Aquí usamos el helper para traducir visualmente
+                label: Text(_getHobbyName(context, hobby).toUpperCase()),
                 backgroundColor: brandColor.withOpacity(0.1),
                 labelStyle: const TextStyle(color: brandColor, fontSize: 12, fontWeight: FontWeight.bold),
                 side: BorderSide.none,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+
 import '../services/auth_service.dart';
 import '../services/subscription_service.dart';
 
@@ -11,6 +13,8 @@ class ActivityLimitPaywall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(24),
       height: 550, 
@@ -28,27 +32,27 @@ class ActivityLimitPaywall extends StatelessWidget {
           
           const Icon(Icons.auto_awesome, size: 50, color: Color(0xFF00BCD4)),
           const SizedBox(height: 10),
-          const Text("Límite Semanal Alcanzado", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          Text(l10n.paywallLimitTitle, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
           const SizedBox(height: 10),
-          const Text(
-            "Has alcanzado tus 3 uniones gratuitas de la semana. Hazte PRO para unirte a todo lo que quieras.",
+          Text(
+            l10n.paywallLimitBody,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 16),
+            style: const TextStyle(color: Colors.grey, fontSize: 16),
           ),
           
           const SizedBox(height: 30),
           
-          _buildBenefit(Icons.check_circle, "Uniones Ilimitadas a eventos"),
-          _buildBenefit(Icons.public, "Crear eventos en cualquier país"),
-          _buildBenefit(Icons.radar, "Radio de búsqueda de hasta 150km"),
+          _buildBenefit(Icons.check_circle, l10n.paywallBenefitJoins),
+          _buildBenefit(Icons.public, l10n.paywallBenefitCreate),
+          _buildBenefit(Icons.radar, l10n.paywallBenefitRadius),
           
           const Spacer(),
           
           Text(
-            "${package.storeProduct.priceString} / mes", 
+            "${package.storeProduct.priceString} ${l10n.lblPerMonth}", 
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
-          const Text("Cancela cuando quieras", style: TextStyle(color: Colors.grey, fontSize: 12)),
+          Text(l10n.lblCancelAnytime, style: const TextStyle(color: Colors.grey, fontSize: 12)),
           
           const SizedBox(height: 20),
           
@@ -74,11 +78,11 @@ class ActivityLimitPaywall extends StatelessWidget {
 
                   if (context.mounted) {
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("¡Bienvenido a Yoinn Pro! 🚀")));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgWelcomePro)));
                   }
                 }
               },
-              child: const Text("DESBLOQUEAR AHORA", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: Text(l10n.btnUnlockNow, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),
           const SizedBox(height: 10),

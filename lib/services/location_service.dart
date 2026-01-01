@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
-// ¡IMPORTANTE! Pega aquí tu misma API KEY que usas para el mapa
+// Tu API Key
 const String GOOGLE_API_KEY = "AIzaSyDiAUkUBYs3xjQOF3ME7AOv8KI5Oi_8psw"; 
 
 class PlacePrediction {
@@ -89,7 +89,9 @@ class LocationService {
         final p = placemarks.first;
         // Construir dirección bonita: Calle 123, Ciudad
         String address = "${p.thoroughfare ?? ''} ${p.subThoroughfare ?? ''}, ${p.locality ?? ''}".trim();
-        if (address == ",") address = "Ubicación actual"; // Fallback
+        
+        // CORRECCIÓN: Usamos un fallback técnico en inglés para no forzar español
+        if (address == ",") address = "Current Location"; 
         
         return {
           'lat': position.latitude,
@@ -101,10 +103,11 @@ class LocationService {
       print("Error geocoding: $e");
     }
 
+    // CORRECCIÓN: Fallback en inglés
     return {
       'lat': position.latitude,
       'lng': position.longitude,
-      'address': "Mi ubicación actual"
+      'address': "Current Location" 
     };
   }
 }
