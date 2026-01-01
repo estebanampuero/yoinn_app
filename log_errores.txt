@@ -1,531 +1,525 @@
-Launching lib/main.dart on iPhone de Miguel Esteban in debug mode...
-Automatically signing iOS for device deployment using specified development team in Xcode project: SZYY54G5X9
-Running pod install...                                             17,8s
+Checking for wireless devices...
+
+Connected devices:
+iPhone de Miguel Esteban (mobile) • 00008110-000661961ED9801E            • ios            • iOS 18.7.1 22H31
+iPhone 16 Plus (mobile)           • ED3F58E5-12C7-4882-B1F7-59F6044B23CA • ios            • com.apple.CoreSimulator.SimRuntime.iOS-18-6 (simulator)
+macOS (desktop)                   • macos                                • darwin-arm64   • macOS 15.5 24F74 darwin-arm64
+Chrome (web)                      • chrome                               • web-javascript • Google Chrome 143.0.7499.170
+[1]: iPhone de Miguel Esteban (00008110-000661961ED9801E)
+[2]: iPhone 16 Plus (ED3F58E5-12C7-4882-B1F7-59F6044B23CA)
+[3]: macOS (macos)
+[4]: Chrome (chrome)
+Please choose one (or "q" to quit): 2
+Launching lib/main.dart on iPhone 16 Plus in debug mode...
+Running pod install...                                             20,2s
 Running Xcode build...                                          
-Xcode build done.                                           274,2s
-Failed to build iOS app
-Could not build the precompiled application for the device.
-Error output from Xcode build:
-↳
-    ** BUILD FAILED **
+Xcode build done.                                           722,5s
+Syncing files to device iPhone 16 Plus...                       
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+Syncing files to device iPhone 16 Plus...                           3,2s
 
+Flutter run key commands.
+r Hot reload. 🔥🔥🔥
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
 
-Xcode's output:
-↳
-    Writing result bundle at path:
-    	/var/folders/xz/k0xzgy6d7f742n3r6zrbg6mw0000gn/T/flutter_tools.a3a0Ny/flutter_ios_build_temp_diru092BR/temporary_xcresult_bundle
+A Dart VM Service on iPhone 16 Plus is available at: http://127.0.0.1:62796/f6WSXs7QfXg=/
+The Flutter DevTools debugger and profiler on iPhone 16 Plus is available at: http://127.0.0.1:62796/f6WSXs7QfXg=/devtools/?uri=ws://127.0.0.1:62796/f6WSXs7QfXg=/ws
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
 
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.6/ios/url_launcher_ios/Sources/url_launcher_ios/URLLauncherPlugin.swift:22:26: warning: 'keyWindow' was deprecated in iOS 13.0: Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes
-        UIApplication.shared.keyWindow?.rootViewController?.topViewController
-                             ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/share_plus-10.1.4/ios/share_plus/Sources/share_plus/FPPSharePlusPlugin.m:25:46: warning: 'keyWindow' is deprecated: first deprecated in iOS 13.0 - Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes [-Wdeprecated-declarations]
-       25 |     return [UIApplication sharedApplication].keyWindow.rootViewController;
-          |                                              ^
-    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/share_plus/share_plus-prefix.pch:2:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: 'keyWindow' has been explicitly marked deprecated here
-      108 | @property(nullable, nonatomic,readonly) UIWindow *keyWindow API_DEPRECATED("Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes", ios(2.0, 13.0)) API_UNAVAILABLE(visionos, watchos);
-          |                                                   ^
-    1 warning generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerImageUtil.m:120:71: warning: 'kUTTypeGIF' is deprecated: first deprecated in iOS 15.0 - Use UTTypeGIF or UTType.gif (swift) instead. [-Wdeprecated-declarations]
-      120 |   options[(NSString *)kCGImageSourceTypeIdentifierHint] = (NSString *)kUTTypeGIF;
-          |                                                                       ^
-    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerImageUtil.m:6:
-    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:729:26: note: 'kUTTypeGIF' has been explicitly marked deprecated here
-      729 | extern const CFStringRef kUTTypeGIF                                  API_DEPRECATED("Use UTTypeGIF or UTType.gif (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
-          |                          ^
-    1 warning generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:70:64: warning: 'windows' is deprecated: first deprecated in iOS 15.0 - Use UIWindowScene.windows on a relevant window scene instead [-Wdeprecated-declarations]
-       70 |     for (UIWindow *window in [UIApplication sharedApplication].windows) {
-          |                                                                ^
-    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/image_picker_ios/image_picker_ios-prefix.pch:2:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:109:62: note: 'windows' has been explicitly marked deprecated here
-      109 | @property(nonatomic,readonly) NSArray<__kindof UIWindow *>  *windows API_DEPRECATED("Use UIWindowScene.windows on a relevant window scene instead", ios(2.0, 15.0), visionos(1.0, 1.0)) API_UNAVAILABLE(watchos);
-          |                                                              ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:128:39: warning: 'kUTTypeImage' is deprecated: first deprecated in iOS 15.0 - Use UTTypeImage or UTType.image (swift) instead. [-Wdeprecated-declarations]
-      128 |     [mediaTypes addObject:(NSString *)kUTTypeImage];
-          |                                       ^
-    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:9:
-    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:725:26: note: 'kUTTypeImage' has been explicitly marked deprecated here
-      725 | extern const CFStringRef kUTTypeImage                                API_DEPRECATED("Use UTTypeImage or UTType.image (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
-          |                          ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:131:39: warning: 'kUTTypeMovie' is deprecated: first deprecated in iOS 15.0 - Use UTTypeMovie or UTType.movie (swift) instead. [-Wdeprecated-declarations]
-      131 |     [mediaTypes addObject:(NSString *)kUTTypeMovie];
-          |                                       ^
-    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPlugin.m:9:
-    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:880:26: note: 'kUTTypeMovie' has been explicitly marked deprecated here
-      880 | extern const CFStringRef kUTTypeMovie                                API_DEPRECATED("Use UTTypeMovie or UTType.movie (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
-          |                          ^
-    3 warnings generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:102:56: warning: 'kUTTypeGIF' is deprecated: first deprecated in iOS 15.0 - Use UTTypeGIF or UTType.gif (swift) instead. [-Wdeprecated-declarations]
-      102 |       (__bridge CFURLRef)[NSURL fileURLWithPath:path], kUTTypeGIF, gifInfo.images.count, NULL);
-          |                                                        ^
-    In module 'MobileCoreServices' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+3/ios/image_picker_ios/Sources/image_picker_ios/FLTImagePickerPhotoAssetUtil.m:9:
-    In module 'CoreServices' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/MobileCoreServices.framework/Headers/MobileCoreServices.h:9:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreServices.framework/Headers/UTCoreTypes.h:729:26: note: 'kUTTypeGIF' has been explicitly marked deprecated here
-      729 | extern const CFStringRef kUTTypeGIF                                  API_DEPRECATED("Use UTTypeGIF or UTType.gif (swift) instead.", ios(3.0, 15.0), macos(10.4, 12.0), tvos(9.0, 15.0), watchos(1.0, 8.0));
-          |                          ^
-    1 warning generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:40:31: warning: 'authorizationStatus' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
-       40 |     return [CLLocationManager authorizationStatus];
-          |                               ^~~~~~~~~~~~~~~~~~~
-          |                               authorizationStatus
-    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManager.h:231:1: note: 'authorizationStatus' has been explicitly marked deprecated here
-      231 | + (CLAuthorizationStatus)authorizationStatus API_DEPRECATED_WITH_REPLACEMENT("-authorizationStatus", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
-          | ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:47:65: warning: 'authorizationStatus' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
-       47 |   CLAuthorizationStatus authorizationStatus = CLLocationManager.authorizationStatus;
-          |                                                                 ^~~~~~~~~~~~~~~~~~~
-          |                                                                 authorizationStatus
-    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManager.h:231:1: note: 'authorizationStatus' has been explicitly marked deprecated here
-      231 | + (CLAuthorizationStatus)authorizationStatus API_DEPRECATED_WITH_REPLACEMENT("-authorizationStatus", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
-          | ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:47:65: warning: 'authorizationStatus' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
-       47 |   CLAuthorizationStatus authorizationStatus = CLLocationManager.authorizationStatus;
-          |                                                                 ^~~~~~~~~~~~~~~~~~~
-          |                                                                 authorizationStatus
-    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManager.h:231:1: note: 'authorizationStatus' has been explicitly marked deprecated here
-      231 | + (CLAuthorizationStatus)authorizationStatus API_DEPRECATED_WITH_REPLACEMENT("-authorizationStatus", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
-          | ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/PermissionHandler.m:107:1: warning: implementing deprecated method [-Wdeprecated-implementations]
-      107 | - (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
-          | ^
-    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/../include/geolocator_apple/Handlers/PermissionHandler.h:11:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManagerDelegate.h:208:1: note: method 'locationManager:didChangeAuthorizationStatus:' declared here
-      208 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status API_DEPRECATED_WITH_REPLACEMENT("-locationManagerDidChangeAuthorization:", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
-          | ^
-    4 warnings generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/LocationServiceStreamHandler.m:36:1: warning: implementing deprecated method [-Wdeprecated-implementations]
-       36 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status{
-          | ^
-    In module 'CoreLocation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/darwin/geolocator_apple/Sources/geolocator_apple/Handlers/LocationServiceStreamHandler.m:9:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreLocation.framework/Headers/CLLocationManagerDelegate.h:208:1: note: method 'locationManager:didChangeAuthorizationStatus:' declared here
-      208 | - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status API_DEPRECATED_WITH_REPLACEMENT("-locationManagerDidChangeAuthorization:", ios(4.2, 14.0), macos(10.7, 11.0), watchos(1.0, 7.0), tvos(9.0, 14.0));
-          | ^
-    1 warning generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/ios/Classes/FlutterLocalNotificationsPlugin.m:1238:30: warning: 'UNNotificationPresentationOptionAlert' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
-     1238 |       presentationOptions |= UNNotificationPresentationOptionAlert;
-          |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          |                              UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner
-    In module 'UserNotifications' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/ios/Classes/FlutterLocalNotificationsPlugin.h:2:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UNUserNotificationCenter.h:84:5: note: 'UNNotificationPresentationOptionAlert' has been explicitly marked deprecated here
-       84 |     UNNotificationPresentationOptionAlert API_DEPRECATED_WITH_REPLACEMENT("UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner", macos(10.14, 11.0), ios(10.0, 14.0), watchos(3.0, 7.0), tvos(10.0, 14.0)) = (1 << 2),
-          |     ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/ios/Classes/FlutterLocalNotificationsPlugin.m:6:17: warning: method definition for 'setRegisterPlugins:' not found [-Wincomplete-implementation]
-        6 | @implementation FlutterLocalNotificationsPlugin {
-          |                 ^
-    In file included from /Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/ios/Classes/FlutterLocalNotificationsPlugin.m:1:
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.4/ios/Classes/FlutterLocalNotificationsPlugin.h:5:1: note: method 'setRegisterPlugins:' declared here
-        5 | + (void)setRegisterPlugins:(FlutterPluginRegistrantCallback *)callback;
-          | ^
-    2 warnings generated.
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/StoreKitError+Extensions.swift:21:9: warning: switch must be exhaustive
-            switch self {
-            ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/StoreKitError+Extensions.swift:21:9: note: add missing case: '.unsupported'
-            switch self {
-            ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/StoreKitError+Extensions.swift:51:9: warning: switch must be exhaustive
-            switch self {
-            ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/StoreKitError+Extensions.swift:51:9: note: add missing case: '.unsupported'
-            switch self {
-            ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/PurchasesError.swift:136:13: warning: switch must be exhaustive
-                switch storeKitError {
-                ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCat/Sources/Error Handling/PurchasesError.swift:136:13: note: add missing case: '.unsupported'
-                switch storeKitError {
-                ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOSCustomBrowser.m:151:44: warning: 'openURL:' is deprecated: first deprecated in iOS 10.0 [-Wdeprecated-declarations]
-      151 |         [[UIApplication sharedApplication] openURL:_appStoreURL];
-          |                                            ^~~~~~~
-          |                                            openURL:options:completionHandler:
-    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/AppAuth/AppAuth-prefix.pch:2:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:97:1: note: 'openURL:' has been explicitly marked deprecated here
-       97 | - (BOOL)openURL:(NSURL*)url API_DEPRECATED_WITH_REPLACEMENT("openURL:options:completionHandler:", ios(2.0, 10.0)) API_UNAVAILABLE(visionos, watchos);
-          | ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOSCustomBrowser.m:165:63: warning: 'openURL:' is deprecated: first deprecated in iOS 10.0 [-Wdeprecated-declarations]
-      165 |     BOOL openedInBrowser = [[UIApplication sharedApplication] openURL:requestURL];
-          |                                                               ^~~~~~~
-          |                                                               openURL:options:completionHandler:
-    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/AppAuth/AppAuth-prefix.pch:2:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:97:1: note: 'openURL:' has been explicitly marked deprecated here
-       97 | - (BOOL)openURL:(NSURL*)url API_DEPRECATED_WITH_REPLACEMENT("openURL:options:completionHandler:", ios(2.0, 10.0)) API_UNAVAILABLE(visionos, watchos);
-          | ^
-    2 warnings generated.
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOS.m:53:3: warning: 'SFAuthenticationSession' is deprecated: first deprecated in iOS 12.0 [-Wdeprecated-declarations]
-       53 |   SFAuthenticationSession *_authenticationVC;
-          |   ^~~~~~~~~~~~~~~~~~~~~~~
-          |   ASWebAuthenticationSession
-    In module 'SafariServices' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOS.m:25:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/SafariServices.framework/Headers/SFAuthenticationSession.h:63:12: note: 'SFAuthenticationSession' has been explicitly marked deprecated here
-       63 | @interface SFAuthenticationSession : NSObject
-          |            ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOS.m:143:7: warning: 'SFAuthenticationSession' is deprecated: first deprecated in iOS 12.0 [-Wdeprecated-declarations]
-      143 |       SFAuthenticationSession *authenticationVC =
-          |       ^~~~~~~~~~~~~~~~~~~~~~~
-          |       ASWebAuthenticationSession
-    In module 'SafariServices' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOS.m:25:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/SafariServices.framework/Headers/SFAuthenticationSession.h:63:12: note: 'SFAuthenticationSession' has been explicitly marked deprecated here
-       63 | @interface SFAuthenticationSession : NSObject
-          |            ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOS.m:144:37: warning: 'SFAuthenticationSession' is deprecated: first deprecated in iOS 12.0 [-Wdeprecated-declarations]
-      144 |           [[SFAuthenticationSession alloc] initWithURL:requestURL
-          |                                     ^~~~~
-          |                                     ASWebAuthenticationSession
-    In module 'SafariServices' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOS.m:25:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/SafariServices.framework/Headers/SFAuthenticationSession.h:63:12: note: 'SFAuthenticationSession' has been explicitly marked deprecated here
-       63 | @interface SFAuthenticationSession : NSObject
-          |            ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOS.m:180:58: warning: 'openURL:' is deprecated: first deprecated in iOS 10.0 [-Wdeprecated-declarations]
-      180 |     openedUserAgent = [[UIApplication sharedApplication] openURL:requestURL];
-          |                                                          ^~~~~~~
-          |                                                          openURL:options:completionHandler:
-    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/AppAuth/AppAuth-prefix.pch:2:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:97:1: note: 'openURL:' has been explicitly marked deprecated here
-       97 | - (BOOL)openURL:(NSURL*)url API_DEPRECATED_WITH_REPLACEMENT("openURL:options:completionHandler:", ios(2.0, 10.0)) API_UNAVAILABLE(visionos, watchos);
-          | ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOS.m:203:3: warning: 'SFAuthenticationSession' is deprecated: first deprecated in iOS 12.0 [-Wdeprecated-declarations]
-      203 |   SFAuthenticationSession *authenticationVC = _authenticationVC;
-          |   ^~~~~~~~~~~~~~~~~~~~~~~
-          |   ASWebAuthenticationSession
-    In module 'SafariServices' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/AppAuth/Sources/AppAuth/iOS/OIDExternalUserAgentIOS.m:25:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/SafariServices.framework/Headers/SFAuthenticationSession.h:63:12: note: 'SFAuthenticationSession' has been explicitly marked deprecated here
-       63 | @interface SFAuthenticationSession : NSObject
-          |            ^
-    5 warnings generated.
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCatUI/RevenueCatUI/Data/TestData.swift:854:1: warning: extension declares a conformance of imported type 'PaywallColor' to imported protocols 'ExpressibleByStringLiteral', 'ExpressibleByExtendedGraphemeClusterLiteral', 'ExpressibleByUnicodeScalarLiteral'; this will not behave correctly if the owners of 'RevenueCat' introduce this conformance in the future
-    extension PaywallColor: ExpressibleByStringLiteral {
-    ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCatUI/RevenueCatUI/Data/TestData.swift:854:1: note: add '@retroactive' to silence this warning
-    extension PaywallColor: ExpressibleByStringLiteral {
-    ^                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
-                            @retroactive ExpressibleByStringLiteral
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCatUI/RevenueCatUI/Data/TestData.swift:854:1: warning: extension declares a conformance of imported type 'PaywallColor' to imported protocols 'ExpressibleByStringLiteral', 'ExpressibleByExtendedGraphemeClusterLiteral', 'ExpressibleByUnicodeScalarLiteral'; this will not behave correctly if the owners of 'RevenueCat' introduce this conformance in the future
-    extension PaywallColor: ExpressibleByStringLiteral {
-    ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/RevenueCatUI/RevenueCatUI/Data/TestData.swift:854:1: note: add '@retroactive' to silence this warning
-    extension PaywallColor: ExpressibleByStringLiteral {
-    ^                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
-                            @retroactive ExpressibleByStringLiteral
-    ld: warning: ignoring duplicate libraries: '-lc++'
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/purchases_flutter-8.11.0/ios/Classes/PurchasesFlutterPlugin.m:267:43: warning: 'configureWithAPIKey:appUserID:purchasesAreCompletedBy:userDefaultsSuiteName:platformFlavor:platformFlavorVersion:storeKitVersion:dangerousSettings:shouldShowInAppMessagesAutomatically:verificationMode:' is deprecated: Use the full configure method instead [-Wdeprecated-declarations]
-      267 |     RCPurchases *purchases = [RCPurchases configureWithAPIKey:apiKey
-          |                                           ^
-    In module 'PurchasesHybridCommon' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/purchases_flutter-8.11.0/ios/Classes/PurchasesFlutterPlugin.m:5:
-    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphoneos/PurchasesHybridCommon/PurchasesHybridCommon.framework/Headers/PurchasesHybridCommon-Swift.h:502:654: note: 'configureWithAPIKey:appUserID:purchasesAreCompletedBy:userDefaultsSuiteName:platformFlavor:platformFlavorVersion:storeKitVersion:dangerousSettings:shouldShowInAppMessagesAutomatically:verificationMode:' has been explicitly marked deprecated here
-      502 | + (RCPurchases * _Nonnull)configureWithAPIKey:(NSString * _Nonnull)apiKey appUserID:(NSString * _Nullable)appUserID purchasesAreCompletedBy:(NSString * _Nullable)purchasesAreCompletedBy userDefaultsSuiteName:(NSString * _Nullable)userDefaultsSuiteName platformFlavor:(NSString * _Nullable)platformFlavor platformFlavorVersion:(NSString * _Nullable)platformFlavorVersion storeKitVersion:(NSString * _Nonnull)storeKitVersion dangerousSettings:(RCDangerousSettings * _Nullable)dangerousSettings shouldShowInAppMessagesAutomatically:(BOOL)shouldShowInAppMessagesAutomatically verificationMode:(NSString * _Nullable)verificationMode SWIFT_WARN_UNUSED_RESULT SWIFT_DEPRECATED_MSG("Use the full configure method instead");
-          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
-    In module 'RevenueCat' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/purchases_flutter-8.11.0/ios/Classes/PurchasesFlutterPlugin.h:6:
-    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphoneos/RevenueCat/RevenueCat.framework/Headers/RevenueCat-Swift.h:221:51: note: expanded from macro 'SWIFT_DEPRECATED_MSG'
-      221 | # define SWIFT_DEPRECATED_MSG(...) __attribute__((deprecated(__VA_ARGS__)))
-          |                                                   ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/purchases_flutter-8.11.0/ios/Classes/PurchasesFlutterPlugin.m:377:28: warning: 'setDebugLogsEnabled:' is deprecated: Use setLogLevel instead [-Wdeprecated-declarations]
-      377 |     [RCCommonFunctionality setDebugLogsEnabled:enabled];
-          |                            ^
-    In module 'PurchasesHybridCommon' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/purchases_flutter-8.11.0/ios/Classes/PurchasesFlutterPlugin.m:5:
-    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphoneos/PurchasesHybridCommon/PurchasesHybridCommon.framework/Headers/PurchasesHybridCommon-Swift.h:330:43: note: 'setDebugLogsEnabled:' has been explicitly marked deprecated here
-      330 | + (void)setDebugLogsEnabled:(BOOL)enabled SWIFT_DEPRECATED_MSG("Use setLogLevel instead");
-          |                                           ^
-    In module 'RevenueCat' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/purchases_flutter-8.11.0/ios/Classes/PurchasesFlutterPlugin.h:6:
-    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphoneos/RevenueCat/RevenueCat.framework/Headers/RevenueCat-Swift.h:221:51: note: expanded from macro 'SWIFT_DEPRECATED_MSG'
-      221 | # define SWIFT_DEPRECATED_MSG(...) __attribute__((deprecated(__VA_ARGS__)))
-          |                                                   ^
-    2 warnings generated.
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/GoogleSignIn/GoogleSignIn/Sources/GIDAppCheck/UI/GIDActivityIndicatorViewController.m:34:13: warning: 'UIActivityIndicatorViewStyleGray' is deprecated: first deprecated in iOS 13.0 [-Wdeprecated-declarations]
-       34 |     style = UIActivityIndicatorViewStyleGray;
-          |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          |             UIActivityIndicatorViewStyleMedium
-    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/GoogleSignIn/GoogleSignIn/Sources/GIDAppCheck/UI/GIDActivityIndicatorViewController.h:21:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIActivityIndicatorView.h:20:5: note: 'UIActivityIndicatorViewStyleGray' has been explicitly marked deprecated here
-       20 |     UIActivityIndicatorViewStyleGray API_DEPRECATED_WITH_REPLACEMENT("UIActivityIndicatorViewStyleMedium", ios(2.0, 13.0)) API_UNAVAILABLE(tvos, visionos, watchos) = 2,
-          |     ^
-    1 warning generated.
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageUtils.swift:79:19: warning: 'UTTypeCreatePreferredIdentifierForTag' was deprecated in iOS 15.0: Use the UTType class instead.
-        if let type = UTTypeCreatePreferredIdentifierForTag(
-                      ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageUtils.swift:80:7: warning: 'kUTTagClassFilenameExtension' was deprecated in iOS 15.0: Use UTTagClassFilenameExtension instead.
-          kUTTagClassFilenameExtension,
-          ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageUtils.swift:84:25: warning: 'UTTypeCopyPreferredTagWithClass' was deprecated in iOS 15.0: Use the UTType class instead.
-          if let mimeType = UTTypeCopyPreferredTagWithClass(type, kUTTagClassMIMEType)?
-                            ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/FirebaseStorage/FirebaseStorage/Sources/Internal/StorageUtils.swift:84:63: warning: 'kUTTagClassMIMEType' was deprecated in iOS 15.0: Use UTTagClassMIMEType instead.
-          if let mimeType = UTTypeCopyPreferredTagWithClass(type, kUTTagClassMIMEType)?
-                                                                  ^
-    ld: warning: ignoring duplicate libraries: '-lc++'
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.c:8:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
-      170 | #  define OS_CODE 19
-          |           ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
-      141 | #  define OS_CODE  7
-          |           ^
-    1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/trees.c:37:
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/deflate.h:16:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
-      170 | #  define OS_CODE 19
-          |           ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
-      141 | #  define OS_CODE  7
-          |           ^
-    1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inftrees.c:6:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
-      170 | #  define OS_CODE 19
-          |           ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
-      141 | #  define OS_CODE  7
-          |           ^
-    1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inflate.c:83:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
-      170 | #  define OS_CODE 19
-          |           ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
-      141 | #  define OS_CODE  7
-          |           ^
-    1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/inffast.c:6:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
-      170 | #  define OS_CODE 19
-          |           ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
-      141 | #  define OS_CODE  7
-          |           ^
-    1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/infback.c:13:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
-      170 | #  define OS_CODE 19
-          |           ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
-      141 | #  define OS_CODE  7
-          |           ^
-    1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/deflate.c:52:
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/deflate.h:16:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
-      170 | #  define OS_CODE 19
-          |           ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
-      141 | #  define OS_CODE  7
-          |           ^
-    1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/crc32.c:30:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
-      170 | #  define OS_CODE 19
-          |           ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
-      141 | #  define OS_CODE  7
-          |           ^
-    1 warning generated.
-    In file included from /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/adler32.c:8:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:170:11: warning: 'OS_CODE' macro redefined [-Wmacro-redefined]
-      170 | #  define OS_CODE 19
-          |           ^
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/gRPC-Core/third_party/zlib/zutil.h:141:11: note: previous definition is here
-      141 | #  define OS_CODE  7
-          |           ^
-    1 warning generated.
-    ld: warning: ignoring duplicate libraries: '-lc++'
-    ld: warning: ignoring duplicate libraries: '-lc++'
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_analytics-11.6.0/ios/firebase_analytics/Sources/firebase_analytics/FirebaseAnalyticsPlugin.swift:106:41: warning: expression implicitly coerced from '[String : Any?]' to '[String : Any]'
-        Analytics.setDefaultEventParameters(parameters)
-                                            ^~~~~~~~~~
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_analytics-11.6.0/ios/firebase_analytics/Sources/firebase_analytics/FirebaseAnalyticsPlugin.swift:106:41: note: explicitly cast to '[String : Any]' with 'as [String : Any]' to silence this warning
-        Analytics.setDefaultEventParameters(parameters)
-                                            ^~~~~~~~~~
-                                                       as [String : Any]
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/ios/firebase_core/Sources/firebase_core/FLTFirebaseCorePlugin.m:92:49: warning: 'deepLinkURLScheme' is deprecated [-Wdeprecated-declarations]
-       92 |   pigeonOptions.deepLinkURLScheme = (id)options.deepLinkURLScheme ?: [NSNull null];
-          |                                                 ^
-    In module 'FirebaseCore' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/ios/firebase_core/Sources/firebase_core/include/firebase_core/FLTFirebasePlugin.h:10:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/FirebaseCore/FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h:86:66: note: 'deepLinkURLScheme' has been explicitly marked deprecated here
-       86 | @property(nonatomic, copy, nullable) NSString *deepLinkURLScheme DEPRECATED_ATTRIBUTE;
-          |                                                                  ^
-    In module 'Foundation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/ios/firebase_core/Sources/firebase_core/include/firebase_core/FLTFirebasePlugin.h:11:
-    In module 'CoreFoundation' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.h:6:
-    In module 'AvailabilityMacros' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreFoundation.framework/Headers/CFAvailability.h:23:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/AvailabilityMacros.h:150:60: note: expanded from macro 'DEPRECATED_ATTRIBUTE'
-      150 |         #define DEPRECATED_ATTRIBUTE        __attribute__((deprecated))
-          |                                                            ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/ios/firebase_core/Sources/firebase_core/FLTFirebaseCorePlugin.m:168:13: warning: 'deepLinkURLScheme' is deprecated [-Wdeprecated-declarations]
-      168 |     options.deepLinkURLScheme = initializeAppRequest.deepLinkURLScheme;
-          |             ^
-    In module 'FirebaseCore' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/ios/firebase_core/Sources/firebase_core/include/firebase_core/FLTFirebasePlugin.h:10:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/FirebaseCore/FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h:86:66: note: 'deepLinkURLScheme' has been explicitly marked deprecated here
-       86 | @property(nonatomic, copy, nullable) NSString *deepLinkURLScheme DEPRECATED_ATTRIBUTE;
-          |                                                                  ^
-    In module 'Foundation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/ios/firebase_core/Sources/firebase_core/include/firebase_core/FLTFirebasePlugin.h:11:
-    In module 'CoreFoundation' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.h:6:
-    In module 'AvailabilityMacros' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreFoundation.framework/Headers/CFAvailability.h:23:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/AvailabilityMacros.h:150:60: note: expanded from macro 'DEPRECATED_ATTRIBUTE'
-      150 |         #define DEPRECATED_ATTRIBUTE        __attribute__((deprecated))
-          |                                                            ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/ios/firebase_core/Sources/firebase_core/FLTFirebaseCorePlugin.m:255:74: warning: conflicting parameter types in implementation of 'setAutomaticResourceManagementEnabledAppName:enabled:completion:': 'BOOL' (aka '_Bool') vs 'NSNumber * _Nonnull __strong' [-Wmismatched-parameter-types]
-      255 |                                              enabled:(nonnull NSNumber *)enabled
-          |                                                                          ^
-    In file included from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/ios/firebase_core/Sources/firebase_core/FLTFirebaseCorePlugin.m:6:
-    In file included from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/ios/firebase_core/Sources/firebase_core/include/firebase_core/FLTFirebaseCorePlugin.h:16:
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/ios/firebase_core/Sources/firebase_core/include/firebase_core/messages.g.h:91:60: note: previous definition is here
-       91 |                                              enabled:(BOOL)enabled
-          |                                                       ~~~~ ^
-    3 warnings generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_messaging-15.2.10/ios/firebase_messaging/Sources/firebase_messaging/FLTFirebaseMessagingPlugin.m:348:32: warning: 'UNNotificationPresentationOptionAlert' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
-      348 |         presentationOptions |= UNNotificationPresentationOptionAlert;
-          |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          |                                UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner
-    In module 'UserNotifications' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_messaging-15.2.10/ios/firebase_messaging/Sources/firebase_messaging/include/FLTFirebaseMessagingPlugin.h:15:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UNUserNotificationCenter.h:84:5: note: 'UNNotificationPresentationOptionAlert' has been explicitly marked deprecated here
-       84 |     UNNotificationPresentationOptionAlert API_DEPRECATED_WITH_REPLACEMENT("UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner", macos(10.14, 11.0), ios(10.0, 14.0), watchos(3.0, 7.0), tvos(10.0, 14.0)) = (1 << 2),
-          |     ^
-    1 warning generated.
-    ld: warning: ignoring duplicate libraries: '-lc++'
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/PigeonParser.m:133:18: warning: 'dynamicLinkDomain' is deprecated: Firebase Dynamic Links is deprecated. Migrate to use Firebase Hosting link and use `linkDomain` to set a custom domain instead. [-Wdeprecated-declarations]
-      133 |     codeSettings.dynamicLinkDomain = settings.dynamicLinkDomain;
-          |                  ^
-    In module 'FirebaseAuth' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/PigeonParser.m:5:
-    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphoneos/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:365:68: note: 'dynamicLinkDomain' has been explicitly marked deprecated here
-      365 | @property (nonatomic, copy) NSString * _Nullable dynamicLinkDomain SWIFT_DEPRECATED_MSG("Firebase Dynamic Links is deprecated. Migrate to use Firebase Hosting link and use `linkDomain` to set a custom domain instead.");
-          |                                                                    ^
-    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphoneos/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:221:51: note: expanded from macro 'SWIFT_DEPRECATED_MSG'
-      221 | # define SWIFT_DEPRECATED_MSG(...) __attribute__((deprecated(__VA_ARGS__)))
-          |                                                   ^
-    1 warning generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:130:72: warning: sending 'FLTFirebaseAuthPlugin *__strong' to parameter of incompatible type 'id<FLTFirebasePlugin> _Nonnull'
-      130 |     [[FLTFirebasePluginRegistry sharedInstance] registerFirebasePlugin:self];
-          |                                                                        ^~~~
-    In module 'firebase_core' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:9:
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/ios/firebase_core/Sources/firebase_core/include/firebase_core/FLTFirebasePluginRegistry.h:23:64: note: passing argument to parameter 'firebasePlugin' here
-       23 | - (void)registerFirebasePlugin:(id<FLTFirebasePlugin> _Nonnull)firebasePlugin;
-          |                                                                ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:417:14: warning: unused variable 'capturedCompletion' [-Wunused-variable]
-      417 |       void (^capturedCompletion)(PigeonUserCredential *_Nullable, FlutterError *_Nullable) =
-          |              ^~~~~~~~~~~~~~~~~~
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:428:14: warning: unused variable 'capturedCompletion' [-Wunused-variable]
-      428 |       void (^capturedCompletion)(PigeonUserCredential *_Nullable, FlutterError *_Nullable) =
-          |              ^~~~~~~~~~~~~~~~~~
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:439:14: warning: unused variable 'capturedCompletion' [-Wunused-variable]
-      439 |       void (^capturedCompletion)(PigeonUserCredential *_Nullable, FlutterError *_Nullable) =
-          |              ^~~~~~~~~~~~~~~~~~
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:851:45: warning: 'keyWindow' is deprecated: first deprecated in iOS 13.0 - Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes [-Wdeprecated-declarations]
-      851 |   return [[UIApplication sharedApplication] keyWindow];
-          |                                             ^
-    In module 'UIKit' imported from /Users/macbookpro/Development/yoinn_app/ios/Pods/Target Support Files/firebase_auth/firebase_auth-prefix.pch:2:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: property 'keyWindow' is declared deprecated here
-      108 | @property(nullable, nonatomic,readonly) UIWindow *keyWindow API_DEPRECATED("Should not be used for applications that support multiple scenes as it returns a key window across all connected scenes", ios(2.0, 13.0)) API_UNAVAILABLE(visionos, watchos);
-          |                                                   ^
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIApplication.h:108:51: note: 'keyWindow' has been explicitly marked deprecated here
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:1178:9: warning: 'fetchSignInMethodsForEmail:completion:' is deprecated: `fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled. [-Wdeprecated-declarations]
-     1178 |   [auth fetchSignInMethodsForEmail:email
-          |         ^
-    In module 'FirebaseAuth' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:5:
-    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphoneos/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:503:159: note: 'fetchSignInMethodsForEmail:completion:' has been explicitly marked deprecated here
-      503 | - (void)fetchSignInMethodsForEmail:(NSString * _Nonnull)email completion:(void (^ _Nullable)(NSArray<NSString *> * _Nullable, NSError * _Nullable))completion SWIFT_DEPRECATED_MSG("`fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled.");
-          |                                                                                                                                                               ^
-    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphoneos/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:221:51: note: expanded from macro 'SWIFT_DEPRECATED_MSG'
-      221 | # define SWIFT_DEPRECATED_MSG(...) __attribute__((deprecated(__VA_ARGS__)))
-          |                                                   ^
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:1985:16: warning: 'updateEmail:completion:' is deprecated: `updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead. [-Wdeprecated-declarations]
-     1985 |   [currentUser updateEmail:newEmail
-          |                ^
-    In module 'FirebaseAuth' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/ios/firebase_auth/Sources/firebase_auth/FLTFirebaseAuthPlugin.m:5:
-    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphoneos/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:2082:111: note: 'updateEmail:completion:' has been explicitly marked deprecated here
-     2082 | - (void)updateEmail:(NSString * _Nonnull)email completion:(void (^ _Nullable)(NSError * _Nullable))completion SWIFT_DEPRECATED_MSG("`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead.");
-          |                                                                                                               ^
-    /Users/macbookpro/Development/yoinn_app/build/ios/Debug-iphoneos/FirebaseAuth/FirebaseAuth.framework/Headers/FirebaseAuth-Swift.h:221:51: note: expanded from macro 'SWIFT_DEPRECATED_MSG'
-      221 | # define SWIFT_DEPRECATED_MSG(...) __attribute__((deprecated(__VA_ARGS__)))
-          |                                                   ^
-    7 warnings generated.
-    /Users/macbookpro/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/ios/cloud_firestore/Sources/cloud_firestore/FLTFirebaseFirestorePlugin.m:563:14: warning: 'setIndexConfigurationFromJSON:completion:' is deprecated: Instead of creating cache indexes manually, consider using `PersistentCacheIndexManager.enableIndexAutoCreation()` to let the SDK decide whether to create cache indexes for queries running locally. [-Wdeprecated-declarations]
-      563 |   [firestore setIndexConfigurationFromJSON:indexConfiguration
-          |              ^
-    In module 'FirebaseFirestoreInternal' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/ios/cloud_firestore/Sources/cloud_firestore/FLTFirebaseFirestorePlugin.m:13:
-    /Users/macbookpro/Development/yoinn_app/ios/Pods/FirebaseFirestoreInternal/Firestore/Source/Public/FirebaseFirestore/FIRFirestore.h:134:57: note: 'setIndexConfigurationFromJSON:completion:' has been explicitly marked deprecated here
-      134 |     NS_SWIFT_NAME(setIndexConfiguration(_:completion:)) DEPRECATED_MSG_ATTRIBUTE(
-          |                                                         ^
-    In module 'Foundation' imported from /Users/macbookpro/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/ios/cloud_firestore/Sources/cloud_firestore/include/cloud_firestore/Private/FLTDocumentSnapshotStreamHandler.h:18:
-    In module 'CoreFoundation' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.h:6:
-    In module 'AvailabilityMacros' imported from /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/System/Library/Frameworks/CoreFoundation.framework/Headers/CFAvailability.h:23:
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/include/AvailabilityMacros.h:152:64: note: expanded from macro 'DEPRECATED_MSG_ATTRIBUTE'
-      152 |             #define DEPRECATED_MSG_ATTRIBUTE(s) __attribute__((deprecated(s)))
-          |                                                                ^
-    1 warning generated.
-    lib/screens/feed_screen.dart:342:59: Error: 'CreateActivityScreen' is imported from both 'package:yoinn_app/screens/activity_detail_screen.dart' and 'package:yoinn_app/screens/create_activity_screen.dart'.
-                MaterialPageRoute(builder: (context) => const CreateActivityScreen()),
-                                                              ^^^^^^^^^^^^^^^^^^^^
-    lib/screens/feed_screen.dart:326:55: Error: The method 'ActivityDetailScreen' isn't defined for the type '_FeedScreenState'.
-     - '_FeedScreenState' is from 'package:yoinn_app/screens/feed_screen.dart' ('lib/screens/feed_screen.dart').
-    Try correcting the name to the name of an existing method, or defining a method named 'ActivityDetailScreen'.
-                                    builder: (context) => ActivityDetailScreen(activity: activity),
-                                                          ^^^^^^^^^^^^^^^^^^^^
-    lib/screens/map_screen.dart:280:87: Error: The method 'ActivityDetailScreen' isn't defined for the type '_MapScreenState'.
-     - '_MapScreenState' is from 'package:yoinn_app/screens/map_screen.dart' ('lib/screens/map_screen.dart').
-    Try correcting the name to the name of an existing method, or defining a method named 'ActivityDetailScreen'.
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => ActivityDetailScreen(activity: _selectedActivity!)));
-                                                                                          ^^^^^^^^^^^^^^^^^^^^
-    lib/screens/notifications_screen.dart:24:53: Error: The getter 'msgLoginToViewAlerts' isn't defined for the type 'AppLocalizations'.
-     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'msgLoginToViewAlerts'.
-        if (uid == null) return Center(child: Text(l10n.msgLoginToViewAlerts));
-                                                        ^^^^^^^^^^^^^^^^^^^^
-    lib/screens/notifications_screen.dart:29:26: Error: The getter 'screenNotificationsTitle' isn't defined for the type 'AppLocalizations'.
-     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'screenNotificationsTitle'.
-            title: Text(l10n.screenNotificationsTitle, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                             ^^^^^^^^^^^^^^^^^^^^^^^^
-    lib/screens/notifications_screen.dart:38:65: Error: The getter 'msgErrorLoadingNotifications' isn't defined for the type 'AppLocalizations'.
-     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'msgErrorLoadingNotifications'.
-              if (snapshot.hasError) return Center(child: Text(l10n.msgErrorLoadingNotifications));
-                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    lib/screens/notifications_screen.dart:52:29: Error: The getter 'msgNoNewNotifications' isn't defined for the type 'AppLocalizations'.
-     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'msgNoNewNotifications'.
-                      Text(l10n.msgNoNewNotifications, style: const TextStyle(color: Colors.grey)),
-                                ^^^^^^^^^^^^^^^^^^^^^
-    lib/screens/notifications_screen.dart:67:51: Error: The getter 'lblNotificationDefaultTitle' isn't defined for the type 'AppLocalizations'.
-     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'lblNotificationDefaultTitle'.
-                  final title = data['title'] ?? l10n.lblNotificationDefaultTitle;
-                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    lib/screens/notifications_screen.dart:184:82: Error: The getter 'msgActivityNoLongerExists' isn't defined for the type 'AppLocalizations'.
-     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'msgActivityNoLongerExists'.
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.msgActivityNoLongerExists)));
-                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^
-    lib/screens/notifications_screen.dart:208:47: Error: The method 'ActivityDetailScreen' isn't defined for the type 'NotificationsScreen'.
-     - 'NotificationsScreen' is from 'package:yoinn_app/screens/notifications_screen.dart' ('lib/screens/notifications_screen.dart').
-    Try correcting the name to the name of an existing method, or defining a method named 'ActivityDetailScreen'.
-                MaterialPageRoute(builder: (_) => ActivityDetailScreen(activity: activity))
-                                                  ^^^^^^^^^^^^^^^^^^^^
-    lib/screens/notifications_screen.dart:216:83: Error: The getter 'msgErrorLoadingActivity' isn't defined for the type 'AppLocalizations'.
-     - 'AppLocalizations' is from 'package:yoinn_app/l10n/app_localizations.dart' ('lib/l10n/app_localizations.dart').
-    Try correcting the name to the name of an existing getter, or defining a getter or field named 'msgErrorLoadingActivity'.
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${l10n.msgErrorLoadingActivity}: $e")));
-                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^
-    lib/screens/admin_screen.dart:59:51: Error: The method 'ActivityDetailScreen' isn't defined for the type '_AdminScreenState'.
-     - '_AdminScreenState' is from 'package:yoinn_app/screens/admin_screen.dart' ('lib/screens/admin_screen.dart').
-    Try correcting the name to the name of an existing method, or defining a method named 'ActivityDetailScreen'.
-              MaterialPageRoute(builder: (context) => ActivityDetailScreen(activity: activity)),
-                                                      ^^^^^^^^^^^^^^^^^^^^
-    Target kernel_snapshot_program failed: Exception
-    Failed to package /Users/macbookpro/Development/yoinn_app.
-    Command PhaseScriptExecution failed with a nonzero exit code
-    warning: no rule to process file '/Users/macbookpro/.pub-cache/hosted/pub.dev/geocoding_ios-3.1.0/ios/geocoding_ios/Sources/geocoding_ios/PrivacyInfo.xcprivacy' of type 'text.xml' for architecture 'arm64' (in target 'geocoding_ios' from project 'Pods')
-    warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'gRPC-Core' from project 'Pods')
-    warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'gRPC-C++' from project 'Pods')
-    warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'abseil' from project 'Pods')
-    note: Run script build phase 'Run Script' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')
-    note: Run script build phase 'Thin Binary' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')
-    warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'BoringSSL-GRPC' from project 'Pods')
+Performing hot restart...                                       
+Restarted application in 1.812ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
 
+Performing hot restart...                                       
+Restarted application in 1.313ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
 
-Error launching application on iPhone de Miguel Esteban.
+Performing hot restart...                                       
+Restarted application in 1.503ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 2.528ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 1.322ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 1.102ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 1.048ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 818ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+
+Performing hot restart...                                       
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+Restarted application in 907ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 1.227ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 1.548ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 1.617ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 991ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 1.351ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 1.475ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 2.213ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 1.919ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 1.008ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot reload...                                        
+Reloaded 0 libraries in 233ms (compile: 101 ms, reload: 0 ms, reassemble: 67 ms).
+
+Performing hot restart...                                       
+Restarted application in 797ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 855ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+
+Performing hot restart...                                       
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+Restarted application in 1.225ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+
+Performing hot restart...                                       
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+Restarted application in 856ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 918ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8

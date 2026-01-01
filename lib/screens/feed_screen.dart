@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+import 'package:yoinn_app/l10n/app_localizations.dart'; 
 
 import '../services/auth_service.dart';
 import '../services/data_service.dart';
@@ -24,7 +24,6 @@ class _FeedScreenState extends State<FeedScreen> {
   
   bool _isPremium = false; 
 
-  // Las claves se mantienen para lógica interna, la traducción es visual
   final List<String> _filterCategories = [
     'Todas', 'Deporte', 'Comida', 'Arte', 'Fiesta', 'Viaje', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
   ];
@@ -42,6 +41,18 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   Future<void> _checkPremiumStatus() async {
+    // 1. Detectar idioma y guardarlo en Firebase para Cloud Functions
+    if (mounted) {
+       final String langCode = Localizations.localeOf(context).languageCode;
+       final authService = Provider.of<AuthService>(context, listen: false);
+       final dataService = Provider.of<DataService>(context, listen: false);
+
+       if (authService.currentUser != null) {
+         dataService.updateUserLanguage(authService.currentUser!.uid, langCode);
+       }
+    }
+
+    // 2. Verificar estado Premium
     final revenueCatStatus = await SubscriptionService.isUserPremium();
     
     bool manualStatus = false;
@@ -86,7 +97,6 @@ class _FeedScreenState extends State<FeedScreen> {
     }
   }
 
-  // Helper para traducir la categoría visualmente
   String _getCategoryName(BuildContext context, String key) {
     final l10n = AppLocalizations.of(context)!;
     if (key == 'Todas') return l10n.catAll;
@@ -94,7 +104,7 @@ class _FeedScreenState extends State<FeedScreen> {
     if (key == 'Comida') return l10n.catFood;
     if (key == 'Arte') return l10n.catArt;
     if (key == 'Fiesta') return l10n.catParty;
-    if (key == 'Viaje') return l10n.catOutdoor; // O Travel
+    if (key == 'Viaje') return l10n.catOutdoor; 
     if (key == 'Musica') return l10n.hobbyMusic;
     if (key == 'Tecnología') return l10n.hobbyTech;
     if (key == 'Bienestar') return l10n.hobbyWellness;
@@ -113,7 +123,7 @@ class _FeedScreenState extends State<FeedScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          l10n.appTitle, // "Yoinn"
+          l10n.appTitle, 
           style: const TextStyle(color: Color(0xFF00BCD4), fontWeight: FontWeight.w800, fontSize: 24),
         ),
         actions: [
@@ -243,7 +253,6 @@ class _FeedScreenState extends State<FeedScreen> {
                 ),
                 const SizedBox(height: 12),
                 
-                // Categorías horizontales traducidas
                 SizedBox(
                   height: 32,
                   child: ListView.separated(
@@ -299,11 +308,11 @@ class _FeedScreenState extends State<FeedScreen> {
                           Icon(Icons.search_off, size: 80, color: Colors.grey[300]),
                           const SizedBox(height: 16),
                           Text(
-                            l10n.msgNoActivitiesTitle, // "No se encontraron actividades"
+                            l10n.msgNoActivitiesTitle, 
                             style: TextStyle(fontSize: 18, color: Colors.grey[500], fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
-                          Text(l10n.msgNoActivitiesBody), // "Intenta cambiar los filtros..."
+                          Text(l10n.msgNoActivitiesBody), 
                         ],
                       ),
                     ),

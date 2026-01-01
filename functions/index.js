@@ -1,6 +1,6 @@
 /**
- * Lógica de Notificaciones Yoinn - VERSIÓN CORREGIDA JS
- * Fecha: 29 Dic 2025
+ * Lógica de Notificaciones Yoinn - SOPORTE MULTI-IDIOMA
+ * Fecha: 01 Ene 2026
  */
 
 const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
@@ -15,7 +15,7 @@ setGlobalOptions({
     region: "southamerica-west1" 
 });
 
-// --- 1. NOTIFICACIÓN DE CHAT (Nuevo nombre: onNewChatMessage) ---
+// --- 1. NOTIFICACIÓN DE CHAT ---
 exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{messageId}", async (event) => {
     const snapshot = event.data;
     if (!snapshot) return;
@@ -23,7 +23,7 @@ exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{
     const messageData = snapshot.data();
     const activityId = event.params.activityId;
     const senderUid = messageData.senderUid;
-    const text = messageData.text || "📷 Imagen enviada";
+    const text = messageData.text || "📷 Imagen enviada"; // Fallback por defecto, se traducirá abajo si es imagen
 
     try {
         const activityDoc = await admin.firestore().collection('activities').doc(activityId).get();
@@ -39,36 +39,53 @@ exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{
             .where('status', '==', 'accepted').get();
 
         let uidsToNotify = new Set();
-        // Incluir al host si no fue él quien escribió
         if (hostUid && hostUid !== senderUid) uidsToNotify.add(hostUid);
         
-        // Incluir participantes
         appsSnapshot.forEach(doc => {
             if (doc.data().applicantUid !== senderUid) uidsToNotify.add(doc.data().applicantUid);
         });
 
         const promises = [];
+        
+        // Iteramos usuarios para detectar su idioma individualmente
         for (let uid of uidsToNotify) {
-            // A. Guardar en "Campanita" (Firestore)
-            const dbPromise = admin.firestore().collection('users').doc(uid).collection('notifications').add({
-                title: `Nuevo mensaje en "${activityTitle}"`,
-                body: text,
-                type: 'chat',
-                activityId: activityId,
-                read: false,
-                timestamp: admin.firestore.FieldValue.serverTimestamp()
-            });
-            promises.push(dbPromise);
+            // Obtenemos el usuario ANTES para saber su idioma
+            const userDocPromise = admin.firestore().collection('users').doc(uid).get().then(userDoc => {
+                if (!userDoc.exists) return;
 
-            // B. Enviar Push (FCM) - MÉTODO .send() CORREGIDO
-            const userPushPromise = admin.firestore().collection('users').doc(uid).get().then(userDoc => {
-                const token = userDoc.data()?.fcmToken;
+                const userData = userDoc.data();
+                const token = userData.fcmToken;
+                const lang = userData.languageCode || 'es'; // Por defecto Español
+
+                // Definir textos según idioma
+                let notifTitle, notifBody;
+                
+                if (lang === 'en') {
+                    notifTitle = `New message in "${activityTitle}"`;
+                    notifBody = messageData.text || "📷 Image sent";
+                } else {
+                    notifTitle = `Nuevo mensaje en "${activityTitle}"`;
+                    notifBody = messageData.text || "📷 Imagen enviada";
+                }
+
+                // A. Guardar en "Campanita" (Firestore)
+                const dbPromise = admin.firestore().collection('users').doc(uid).collection('notifications').add({
+                    title: notifTitle,
+                    body: notifBody,
+                    type: 'chat',
+                    activityId: activityId,
+                    read: false,
+                    timestamp: admin.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // B. Enviar Push (FCM) si tiene token
+                let pushPromise = Promise.resolve();
                 if (token) {
                     const message = {
                         token: token, 
                         notification: {
                             title: `💬 ${activityTitle}`,
-                            body: text,
+                            body: notifBody,
                         },
                         data: {
                             type: "chat",
@@ -76,12 +93,15 @@ exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{
                             click_action: "FLUTTER_NOTIFICATION_CLICK"
                         }
                     };
-                    // Usamos .send() en lugar de .sendToDevice()
-                    return admin.messaging().send(message);
+                    pushPromise = admin.messaging().send(message);
                 }
+
+                return Promise.all([dbPromise, pushPromise]);
             });
-            promises.push(userPushPromise);
+
+            promises.push(userDocPromise);
         }
+        
         await Promise.all(promises);
         console.log(`Chat notificado a ${uidsToNotify.size} usuarios.`);
 
@@ -109,10 +129,33 @@ exports.onNewApplication = onDocumentCreated("applications/{applicationId}", asy
 
         if (hostUid === applicantUid) return;
 
+        // Obtener datos del Host para saber idioma
+        const hostUserDoc = await admin.firestore().collection('users').doc(hostUid).get();
+        if (!hostUserDoc.exists) return;
+
+        const hostData = hostUserDoc.data();
+        const lang = hostData.languageCode || 'es';
+        const token = hostData.fcmToken;
+
+        // Definir textos
+        let titleDB, bodyDB, titlePush, bodyPush;
+
+        if (lang === 'en') {
+            titleDB = "New Request";
+            bodyDB = `${applicantName} wants to join "${activityTitle}"`;
+            titlePush = "🙋‍♂️ New Request";
+            bodyPush = `${applicantName} wants to join your activity`;
+        } else {
+            titleDB = "Nueva Solicitud";
+            bodyDB = `${applicantName} quiere unirse a "${activityTitle}"`;
+            titlePush = "🙋‍♂️ Nueva Solicitud";
+            bodyPush = `${applicantName} quiere unirse a tu actividad`;
+        }
+
         // A. Guardar en Campanita
         await admin.firestore().collection('users').doc(hostUid).collection('notifications').add({
-            title: "Nueva Solicitud",
-            body: `${applicantName} quiere unirse a "${activityTitle}"`,
+            title: titleDB,
+            body: bodyDB,
             type: 'request_join', 
             activityId: activityId,
             applicantUid: applicantUid,
@@ -120,16 +163,13 @@ exports.onNewApplication = onDocumentCreated("applications/{applicationId}", asy
             timestamp: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        // B. Enviar Push - CORREGIDO
-        const hostUserDoc = await admin.firestore().collection('users').doc(hostUid).get();
-        const token = hostUserDoc.data()?.fcmToken;
-        
+        // B. Enviar Push
         if (token) {
             const message = {
                 token: token,
                 notification: {
-                    title: "🙋‍♂️ Nueva Solicitud",
-                    body: `${applicantName} quiere unirse a tu actividad`,
+                    title: titlePush,
+                    body: bodyPush,
                 },
                 data: {
                     type: "request_join",
@@ -157,26 +197,46 @@ exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}"
             const activityDoc = await admin.firestore().collection('activities').doc(activityId).get();
             const activityTitle = activityDoc.data()?.title || "Actividad";
 
+            // Obtener datos del Participante para saber idioma
+            const userDoc = await admin.firestore().collection('users').doc(applicantUid).get();
+            if (!userDoc.exists) return;
+
+            const userData = userDoc.data();
+            const lang = userData.languageCode || 'es';
+            const token = userData.fcmToken;
+
+            // Definir textos
+            let titleDB, bodyDB, titlePush, bodyPush;
+
+            if (lang === 'en') {
+                titleDB = "Request Accepted!";
+                bodyDB = `You are now part of "${activityTitle}".`;
+                titlePush = "🚀 You're in!";
+                bodyPush = `You were accepted into "${activityTitle}"`;
+            } else {
+                titleDB = "¡Solicitud Aceptada!";
+                bodyDB = `Ya eres parte de "${activityTitle}".`;
+                titlePush = "🚀 ¡Estás dentro!";
+                bodyPush = `Te aceptaron en "${activityTitle}"`;
+            }
+
             // A. Guardar en Campanita
             await admin.firestore().collection('users').doc(applicantUid).collection('notifications').add({
-                title: "¡Solicitud Aceptada!",
-                body: `Ya eres parte de "${activityTitle}".`,
+                title: titleDB,
+                body: bodyDB,
                 type: 'request_accepted',
                 activityId: activityId,
                 read: false,
                 timestamp: admin.firestore.FieldValue.serverTimestamp()
             });
 
-            // B. Enviar Push - CORREGIDO
-            const userDoc = await admin.firestore().collection('users').doc(applicantUid).get();
-            const token = userDoc.data()?.fcmToken;
-            
+            // B. Enviar Push
             if (token) {
                 const message = {
                     token: token,
                     notification: {
-                        title: "🚀 ¡Estás dentro!",
-                        body: `Te aceptaron en "${activityTitle}"`,
+                        title: titlePush,
+                        body: bodyPush,
                     },
                     data: {
                         type: "request_accepted",

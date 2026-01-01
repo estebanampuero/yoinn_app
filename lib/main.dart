@@ -6,7 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 // IMPORTANTE: Paquete nativo de Flutter para localización
 import 'package:flutter_localizations/flutter_localizations.dart';
-// IMPORTANTE: Archivo generado automáticamente (CORREGIDO PARA ARCHIVOS FÍSICOS)
+// IMPORTANTE: Archivo generado automáticamente
 import 'package:yoinn_app/l10n/app_localizations.dart'; 
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
@@ -15,6 +15,7 @@ import 'services/notification_service.dart';
 import 'services/subscription_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart'; // <--- Import del Splash Screen
 
 // --- 1. MANEJADOR DE SEGUNDO PLANO (BACKGROUND) ---
 @pragma('vm:entry-point')
@@ -26,8 +27,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // CORREGIDO: Inicializamos para todos los idiomas soportados (no solo español)
-  // Esto permite que las fechas se vean bien en Inglés (Jan 1) y Español (1 Ene)
   await initializeDateFormatting(); 
 
   try {
@@ -63,33 +62,26 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         
         // --- CONFIGURACIÓN DE INTERNACIONALIZACIÓN ---
-        // 1. Delegados que "enseñan" a los widgets a hablar idiomas
         localizationsDelegates: const [
-          AppLocalizations.delegate, // Tus textos propios (generado)
-          GlobalMaterialLocalizations.delegate, // Textos de Material (ej: "CANCELAR" en diálogos)
-          GlobalWidgetsLocalizations.delegate, // Textos de widgets básicos (ej: dirección del texto LTR/RTL)
-          GlobalCupertinoLocalizations.delegate, // Textos estilo iOS (ej: "Cortar/Pegar")
+          AppLocalizations.delegate, 
+          GlobalMaterialLocalizations.delegate, 
+          GlobalWidgetsLocalizations.delegate, 
+          GlobalCupertinoLocalizations.delegate, 
         ],
 
-        // 2. Lista de idiomas que tu app soporta oficialmente
         supportedLocales: const [
           Locale('en'), // Inglés
           Locale('es'), // Español
         ],
 
-        // 3. Lógica inteligente para decidir qué idioma mostrar
         localeResolutionCallback: (locale, supportedLocales) {
-          // Si el celular informa un idioma (ej: 'es_CL')
           if (locale != null) {
             for (var supportedLocale in supportedLocales) {
-              // Comparamos solo el código de idioma ('es'), ignorando el país ('CL')
               if (supportedLocale.languageCode == locale.languageCode) {
                 return supportedLocale;
               }
             }
           }
-          // Si no encontramos coincidencia (ej: el usuario tiene el celu en Japonés),
-          // usamos el primero de la lista (Inglés) como fallback.
           return supportedLocales.first;
         },
         // ----------------------------------------------------
@@ -124,7 +116,9 @@ class MyApp extends StatelessWidget {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
         ),
-        home: const AuthWrapper(),
+        
+        // Iniciamos con el Splash Screen
+        home: const SplashScreen(), 
       ),
     );
   }
@@ -212,11 +206,19 @@ class _AuthWrapperState extends State<AuthWrapper> {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
 
+    // --- CAMBIO CLAVE PARA TRANSICIÓN FLUIDA ---
+    // Si la app está cargando, mostramos el MISMO logo estático que en el Splash.
+    // Esto evita el círculo de carga y hace que la transición sea invisible.
     if (authService.isLoading) {
-      return const Scaffold(
+      return Scaffold(
+        backgroundColor: Colors.white, // Mismo fondo que Splash
         body: Center(
-          child: CircularProgressIndicator(color: Color(0xFF00BCD4))
-        )
+          child: Image.asset(
+            'assets/icons/pin.png', // Misma imagen que Splash
+            width: 150, // Mismo tamaño que Splash
+            height: 150,
+          ),
+        ),
       );
     }
 

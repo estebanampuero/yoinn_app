@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart'; 
-import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+import 'package:yoinn_app/l10n/app_localizations.dart'; 
 
 import '../services/data_service.dart';
 import '../services/auth_service.dart';
@@ -24,20 +24,28 @@ class NotificationsScreen extends StatelessWidget {
     if (uid == null) return Center(child: Text(l10n.msgLoginToViewAlerts));
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F8FA),
+      backgroundColor: Colors.white, // Fondo limpio minimalista
       appBar: AppBar(
-        title: Text(l10n.screenNotificationsTitle, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: Text(
+          l10n.screenNotificationsTitle, 
+          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 20)
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false, // Alineado a la izquierda es más moderno en iOS/Android hoy día
         automaticallyImplyLeading: false, 
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: Colors.grey[100], height: 1), // Separador sutil
+        ),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: dataService.getUserNotifications(uid),
         builder: (context, snapshot) {
           if (snapshot.hasError) return Center(child: Text(l10n.msgErrorLoadingNotifications));
+          
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Color(0xFF00BCD4)));
+            return const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black));
           }
 
           final docs = snapshot.data!.docs;
@@ -47,18 +55,16 @@ class NotificationsScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.notifications_none, size: 80, color: Colors.grey),
+                  Icon(Icons.notifications_none_outlined, size: 64, color: Colors.grey[300]),
                   const SizedBox(height: 16),
-                  Text(l10n.msgNoNewNotifications, style: const TextStyle(color: Colors.grey)),
+                  Text(l10n.msgNoNewNotifications, style: TextStyle(color: Colors.grey[400], fontSize: 16)),
                 ],
               ),
             );
           }
 
-          return ListView.separated(
-            padding: const EdgeInsets.all(12),
+          return ListView.builder( // Builder es más eficiente que separated aquí
             itemCount: docs.length,
-            separatorBuilder: (c, i) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final doc = docs[index];
               final data = doc.data() as Map<String, dynamic>;
@@ -71,9 +77,8 @@ class NotificationsScreen extends StatelessWidget {
               final isRead = data['read'] ?? false;
               final timestamp = data['timestamp'] as Timestamp?;
               
-              // Fecha localizada automáticamente
               final timeStr = timestamp != null 
-                  ? DateFormat('d MMM, HH:mm', Localizations.localeOf(context).toString()).format(timestamp.toDate()) 
+                  ? _formatTime(timestamp.toDate(), context)
                   : '';
 
               return Dismissible(
@@ -81,45 +86,81 @@ class NotificationsScreen extends StatelessWidget {
                 direction: DismissDirection.endToStart,
                 background: Container(
                   alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 20),
-                  color: Colors.red,
-                  child: const Icon(Icons.delete, color: Colors.white),
+                  color: const Color(0xFFFF5252), // Rojo vibrante pero suave
+                  padding: const EdgeInsets.only(right: 24),
+                  child: const Icon(Icons.delete_outline, color: Colors.white),
                 ),
                 onDismissed: (direction) {
                   FirebaseFirestore.instance.collection('users').doc(uid).collection('notifications').doc(notifId).delete();
                 },
-                child: Card(
-                  elevation: 0,
-                  color: isRead ? Colors.white : const Color(0xFFE0F7FA), 
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: isRead ? BorderSide.none : const BorderSide(color: Color(0xFF00BCD4), width: 0.5)
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    leading: CircleAvatar(
-                      backgroundColor: _getIconColor(type).withOpacity(0.1),
-                      child: Icon(_getIcon(type), color: _getIconColor(type)),
+                child: InkWell(
+                  onTap: () => _handleNotificationTap(context, dataService, uid, notifId, activityId, type, title),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isRead ? Colors.white : const Color(0xFFF5F9FF), // Azul muy muy pálido para no leídos
+                      border: Border(bottom: BorderSide(color: Colors.grey[100]!)), // Línea divisoria ultra fina
                     ),
-                    title: Text(
-                      title, 
-                      style: TextStyle(
-                        fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-                        fontSize: 15
-                      )
-                    ),
-                    subtitle: Column(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (body.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(body, style: TextStyle(color: Colors.grey[700], fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
-                        ],
-                        const SizedBox(height: 6),
-                        Text(timeStr, style: TextStyle(fontSize: 11, color: Colors.grey[400])),
+                        // 1. INDICADOR DE TIPO (Minimalista: Punto o Icono pequeño sin fondo)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2.0),
+                          child: _buildTypeIndicator(type, isRead),
+                        ),
+                        
+                        const SizedBox(width: 16),
+                        
+                        // 2. CONTENIDO
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      title, 
+                                      style: TextStyle(
+                                        fontWeight: isRead ? FontWeight.w500 : FontWeight.w700,
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                      ),
+                                      maxLines: 1, 
+                                      overflow: TextOverflow.ellipsis
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    timeStr, 
+                                    style: TextStyle(
+                                      fontSize: 12, 
+                                      color: isRead ? Colors.grey[400] : const Color(0xFF00BCD4), // Color de marca si es nuevo
+                                      fontWeight: isRead ? FontWeight.normal : FontWeight.w600
+                                    )
+                                  ),
+                                ],
+                              ),
+                              if (body.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  body, 
+                                  style: TextStyle(
+                                    color: isRead ? Colors.grey[600] : Colors.black54, 
+                                    fontSize: 14, 
+                                    height: 1.4
+                                  ), 
+                                  maxLines: 2, 
+                                  overflow: TextOverflow.ellipsis
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                    onTap: () => _handleNotificationTap(context, dataService, uid, notifId, activityId, type, title),
                   ),
                 ),
               );
@@ -130,26 +171,60 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 
-  // --- ÍCONOS SEGÚN EL TIPO ---
-  IconData _getIcon(String type) {
-    switch (type) {
-      case 'chat': return Icons.chat_bubble_outline;
-      case 'request_join': return Icons.person_add_alt_1;
-      case 'request_accepted': return Icons.check_circle_outline;
-      default: return Icons.notifications_outlined;
+  // --- COMPONENTES VISUALES ---
+
+  // Formato de fecha inteligente (ej: "14:30", "Ayer", "24 Mar")
+  String _formatTime(DateTime date, BuildContext context) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+    final locale = Localizations.localeOf(context).toString();
+
+    if (diff.inDays == 0 && now.day == date.day) {
+      return DateFormat.Hm(locale).format(date); // Solo hora
+    } else if (diff.inDays < 2) {
+      return "Ayer"; // Podrías traducirlo con l10n si quieres perfección
+    } else {
+      return DateFormat.MMMd(locale).format(date); // Ej: 24 Mar
     }
   }
 
-  Color _getIconColor(String type) {
-    switch (type) {
-      case 'chat': return Colors.blue;
-      case 'request_join': return Colors.orange;
-      case 'request_accepted': return Colors.green;
-      default: return Colors.grey;
+  Widget _buildTypeIndicator(String type, bool isRead) {
+    // Si ya se leyó, mostramos un punto gris sutil. Si no, el icono de color.
+    if (isRead) {
+      return Container(
+        width: 8, height: 8,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          shape: BoxShape.circle
+        ),
+      );
     }
+
+    IconData icon;
+    Color color;
+
+    switch (type) {
+      case 'chat': 
+        icon = Icons.chat_bubble; // Relleno para destacar más
+        color = const Color(0xFF29B6F6); 
+        break;
+      case 'request_join': 
+        icon = Icons.person; 
+        color = const Color(0xFFFFA726); 
+        break;
+      case 'request_accepted': 
+        icon = Icons.check_circle; 
+        color = const Color(0xFF66BB6A); 
+        break;
+      default: 
+        icon = Icons.circle; 
+        color = Colors.grey;
+    }
+
+    return Icon(icon, size: 18, color: color); // Icono pequeño sin círculo de fondo (Más limpio)
   }
 
-  // --- LÓGICA DE NAVEGACIÓN INTELIGENTE ---
+  // --- LÓGICA DE NAVEGACIÓN (Intacta) ---
   Future<void> _handleNotificationTap(
     BuildContext context, 
     DataService dataService, 
@@ -161,23 +236,20 @@ class NotificationsScreen extends StatelessWidget {
   ) async {
     final l10n = AppLocalizations.of(context)!;
     
-    // 1. Marcar como leída
     dataService.markNotificationAsRead(uid, notifId);
 
     if (activityId == null) return;
 
-    // 2. Mostrar carga
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator(color: Color(0xFF00BCD4))),
+      builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.black)), // Loader negro minimalista
     );
 
     try {
-      // 3. Buscar la actividad
       final doc = await FirebaseFirestore.instance.collection('activities').doc(activityId).get();
       
-      if (context.mounted) Navigator.pop(context); // Cerrar loading
+      if (context.mounted) Navigator.pop(context); 
 
       if (!doc.exists) {
         if (context.mounted) {
@@ -189,7 +261,6 @@ class NotificationsScreen extends StatelessWidget {
       final activity = Activity.fromFirestore(doc);
 
       if (context.mounted) {
-        // 4. Navegar según el tipo
         if (type == 'request_join') {
           Navigator.push(
             context, 

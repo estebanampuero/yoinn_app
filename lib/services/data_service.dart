@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:math' show cos, sqrt, asin; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_messaging/firebase_messaging.dart'; // NECESARIO PARA PUSH
+import 'package:firebase_messaging/firebase_messaging.dart'; 
 import 'package:flutter/foundation.dart';
 import 'package:geoflutterfire_plus/geoflutterfire_plus.dart'; 
 import 'package:geolocator/geolocator.dart'; 
@@ -23,7 +23,6 @@ class DataService with ChangeNotifier {
   List<Activity> _filteredActivities = [];
   bool _isLoading = true;
 
-  // Stream Controllers para la lógica reactiva de ubicación
   final BehaviorSubject<double> _radiusController = BehaviorSubject<double>.seeded(SubscriptionLimits.defaultRadius);
   StreamSubscription? _feedSubscription;
 
@@ -34,7 +33,6 @@ class DataService with ChangeNotifier {
   String _selectedCategory = 'Todas';
   DateTime? _selectedDate;
 
-  // Ubicación GPS y Radio
   double _filterRadiusKm = SubscriptionLimits.defaultRadius; 
   double? _userLat;
   double? _userLng;
@@ -43,19 +41,16 @@ class DataService with ChangeNotifier {
   double? get currentLat => _userLat;
   double? get currentLng => _userLng;
 
-  // Getters para filtros
   String get selectedCategory => _selectedCategory;
   DateTime? get currentFilterDate => _selectedDate;
 
   DataService() {
     _initRealtimeFeed(); 
-    _initPushNotifications(); // INICIALIZA PUSH AL ARRANCAR
+    _initPushNotifications(); 
   }
 
-  // --- 1. CONFIGURACIÓN PUSH NOTIFICATIONS ---
   Future<void> _initPushNotifications() async {
     try {
-      // Pedir permiso al usuario (iOS mostrará el popup nativo)
       NotificationSettings settings = await _fcm.requestPermission(
         alert: true, badge: true, sound: true,
       );
@@ -64,7 +59,6 @@ class DataService with ChangeNotifier {
         String? token = await _fcm.getToken();
         if (kDebugMode) print("🔥 FCM TOKEN INICIAL: $token");
         
-        // Escuchar cambios de token
         _fcm.onTokenRefresh.listen((newToken) {
            _updateUserTokenInDB(newToken);
         });
@@ -74,7 +68,6 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // Llamar a esto cuando el usuario hace Login
   Future<void> saveUserToken(String uid) async {
     try {
       String? token = await _fcm.getToken();
@@ -95,7 +88,6 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // --- 2. HELPER PRIVADO (Ya no se usa para alertas manuales, pero se deja por utilidad futura) ---
   Future<void> _sendNotification({
     required String toUserId,
     required String title,
@@ -117,9 +109,7 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // --- NUEVO MOTOR DE BÚSQUEDA (GeoFlutterFire Plus) ---
   void _initRealtimeFeed() async {
-    // 1. Obtener ubicación inicial con TIMEOUT (Protección anti-cuelgue)
     try {
        Position position = await Geolocator.getCurrentPosition()
            .timeout(const Duration(seconds: 5));
@@ -128,11 +118,10 @@ class DataService with ChangeNotifier {
        _userLng = position.longitude;
     } catch (e) {
        if (kDebugMode) print("⚠️ GPS demoró o falló. Usando ubicación por defecto.");
-       _userLat = -41.3221; // Puerto Varas default
+       _userLat = -41.3221; 
        _userLng = -72.9752;
     }
 
-    // 2. Stream del GPS (Solo actualiza si me muevo 2km)
     Stream<GeoPoint> userLocationStream = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
@@ -144,13 +133,11 @@ class DataService with ChangeNotifier {
       return GeoPoint(p.latitude, p.longitude);
     });
 
-    // 3. Forzar carga inicial
     if (_userLat != null && _userLng != null) {
        final initialGeoPoint = GeoPoint(_userLat!, _userLng!);
        _queryActivitiesByLoc(initialGeoPoint, _radiusController.value);
     }
 
-    // 4. Combinar GPS + Radio (Reactividad total)
     _feedSubscription = Rx.combineLatest2<GeoPoint, double, void>(
       userLocationStream,
       _radiusController.stream,
@@ -164,13 +151,11 @@ class DataService with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    // Referencia tipada
     final collectionRef = _db.collection('activities').withConverter<Activity>(
       fromFirestore: (snapshot, _) => Activity.fromFirestore(snapshot),
       toFirestore: (activity, _) => activity.toMap(),
     );
 
-    // Solo actividades futuras
     GeoCollectionReference(collectionRef)
       .subscribeWithin(
         center: GeoFirePoint(center),
@@ -199,8 +184,6 @@ class DataService with ChangeNotifier {
         notifyListeners();
       });
   }
-
-  // --- MÉTODOS DE UBICACIÓN ---
   
   void updateUserLocation(double lat, double lng) {
     _userLat = lat;
@@ -222,7 +205,6 @@ class DataService with ChangeNotifier {
     return 12742 * asin(sqrt(a)); 
   }
 
-  // --- FILTROS ---
   void setSearchQuery(String query) {
     _searchQuery = query;
     _applyFilters();
@@ -261,7 +243,6 @@ class DataService with ChangeNotifier {
     }).toList();
   }
 
-  // --- GESTIÓN DE USUARIOS ---
   Future<UserModel?> getUserProfile(String uid) async {
     try {
       DocumentSnapshot doc = await _db.collection('users').doc(uid).get();
@@ -306,7 +287,6 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // --- SEGURIDAD ---
   Future<void> reportContent({
     required String reporterUid,
     required String reportedId,
@@ -330,12 +310,10 @@ class DataService with ChangeNotifier {
     notifyListeners();
   }
 
-  // --- ACTIVIDADES (CRUD) ---
   Future<void> createActivity(Map<String, dynamic> activityData) async {
     try {
       final userUid = activityData['hostUid'];
       
-      // 1. Verificar suscripción
       bool isPro = await SubscriptionService.isUserPremium();
       if (!isPro) {
         final userDoc = await _db.collection('users').doc(userUid).get();
@@ -347,7 +325,6 @@ class DataService with ChangeNotifier {
         }
       }
       
-      // Validar límite de creación
       final activeQuery = await _db.collection('activities')
           .where('hostUid', isEqualTo: userUid)
           .get(); 
@@ -359,7 +336,6 @@ class DataService with ChangeNotifier {
         throw Exception("Límite de actividades alcanzado ($limit). ${isPro ? '' : 'Hazte PRO para más.'}");
       }
 
-      // 2. GENERAR GEOHASH
       final GeoFirePoint geoPoint = GeoFirePoint(
         GeoPoint(activityData['lat'], activityData['lng'])
       );
@@ -385,7 +361,6 @@ class DataService with ChangeNotifier {
     try {
       newData['lastUpdate'] = FieldValue.serverTimestamp();
       
-      // Si cambian ubicación, regeneramos hash
       if (newData.containsKey('lat') && newData.containsKey('lng')) {
          final GeoFirePoint geoPoint = GeoFirePoint(
             GeoPoint(newData['lat'], newData['lng'])
@@ -448,8 +423,6 @@ class DataService with ChangeNotifier {
         .orderBy('dateTime', descending: true)
         .snapshots();
   }
-
-  // --- SOLICITUDES (JOIN) + GAMIFICACIÓN ---
   
   Future<int> getRemainingFreeJoins(String uid) async {
     bool isPro = await SubscriptionService.isUserPremium();
@@ -504,7 +477,6 @@ class DataService with ChangeNotifier {
         throw Exception("La actividad está llena.");
       }
 
-      // Solo crea la solicitud (Ya no envía notificación manual, usa la automática)
       await _db.collection('applications').add({
         'activityId': activityId,
         'applicantUid': user.uid,
@@ -544,7 +516,6 @@ class DataService with ChangeNotifier {
         .snapshots();
   }
   
-  // ACEPTAR
   Future<void> acceptApplicant(String applicationId, String activityId, String applicantPhotoUrl) async {
     try {
       await _db.collection('applications').doc(applicationId).update({
@@ -556,21 +527,17 @@ class DataService with ChangeNotifier {
         'participantImages': FieldValue.arrayUnion([applicantPhotoUrl]),
       });
       
-      // Notificación manual eliminada. Se espera que tu Cloud Function envíe la naranja.
       notifyListeners();
     } catch (e) {
       if (kDebugMode) print("Error aceptando usuario: $e");
     }
   }
 
-  // RECHAZAR
   Future<void> rejectApplicant(String applicationId) async {
     try {
       await _db.collection('applications').doc(applicationId).update({
         'status': 'rejected'
       });
-
-      // Notificación manual eliminada.
       notifyListeners();
     } catch (e) {
       if (kDebugMode) print("Error rechazando: $e");
@@ -594,7 +561,6 @@ class DataService with ChangeNotifier {
     }
   }
 
-  // --- CHAT ---
   Future<void> sendMessage(String activityId, String text, UserModel sender) async {
     try {
       await _db.collection('activities').doc(activityId).collection('messages').add({
@@ -680,7 +646,6 @@ class DataService with ChangeNotifier {
     return _db.collection('activities').doc(activityId).collection('typing').snapshots();
   }
 
-  // --- NOTIFICACIONES ---
   Stream<QuerySnapshot> getUserNotifications(String uid) {
     return _db.collection('users')
         .doc(uid)
@@ -706,7 +671,19 @@ class DataService with ChangeNotifier {
         .map((snapshot) => snapshot.docs.length);
   }
 
-  // --- ADMIN ---
+  // --- GESTIÓN DE IDIOMA (NUEVO) ---
+  Future<void> updateUserLanguage(String uid, String languageCode) async {
+    try {
+      // Se guarda 'es' o 'en' en el perfil para que Cloud Functions sepa qué idioma usar
+      await _db.collection('users').doc(uid).set({
+        'languageCode': languageCode,
+        'lastAppOpen': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true)); 
+    } catch (e) {
+      if (kDebugMode) print("Error guardando idioma: $e");
+    }
+  }
+
   Stream<QuerySnapshot> getAdminReportsStream() {
     return _db.collection('reports')
         .where('status', isEqualTo: 'pending_review') 
@@ -754,7 +731,6 @@ class DataService with ChangeNotifier {
     notifyListeners();
   }
 
-  // --- LIMPIEZA ---
   @override
   void dispose() {
     _radiusController.close();
