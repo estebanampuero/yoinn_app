@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+import 'package:yoinn_app/l10n/app_localizations.dart';
 
 import '../models/user_model.dart';
 import '../screens/edit_profile_screen.dart';
@@ -24,7 +24,6 @@ class ProfileHeader extends StatelessWidget {
     required this.onEditProfile,
   });
 
-  // Helper para traducir hobbies en la visualización
   String _getHobbyName(BuildContext context, String key) {
     final l10n = AppLocalizations.of(context)!;
     final k = key.trim();
@@ -56,11 +55,12 @@ class ProfileHeader extends StatelessWidget {
 
     return Column(
       children: [
-        // --- FOTO CON BORDE PRO Y BADGE ---
+        // --- FOTO DE PERFIL CON BADGE EN EL BORDE INFERIOR ---
         Stack(
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: [
+            // AVATAR
             Container(
               padding: const EdgeInsets.all(4), 
               decoration: BoxDecoration(
@@ -95,30 +95,35 @@ class ProfileHeader extends StatelessWidget {
               ),
             ),
 
+            // BADGE PRO (CENTRADO ABAJO)
             if (isPro)
               Positioned(
-                bottom: -2, 
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.black, 
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFFFD700), width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      )
-                    ]
-                  ),
-                  child: Text(
-                    l10n.badgePro, // "PRO"
-                    style: const TextStyle(
-                      color: Color(0xFFFFD700), 
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
+                bottom: -10, // Cuelga elegantemente del borde
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1A1A1A), // Negro Matte
+                      borderRadius: BorderRadius.circular(16), // Más redondeado
+                      border: Border.all(color: const Color(0xFFFFD700), width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        )
+                      ]
+                    ),
+                    child: const Text(
+                      "PRO", 
+                      style: TextStyle(
+                        color: Color(0xFFFFD700), 
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
+                      ),
                     ),
                   ),
                 ),
@@ -126,7 +131,7 @@ class ProfileHeader extends StatelessWidget {
           ],
         ),
         
-        const SizedBox(height: 16),
+        const SizedBox(height: 20), // Espacio extra para compensar el badge colgante
 
         // --- NOMBRE ---
         Row(
@@ -201,7 +206,7 @@ class ProfileHeader extends StatelessWidget {
               onEditProfile(); 
             },
             icon: const Icon(Icons.edit, size: 18),
-            label: Text(l10n.btnEditProfile), // "Editar Perfil"
+            label: Text(l10n.btnEditProfile), 
             style: OutlinedButton.styleFrom(
               foregroundColor: brandColor,
               side: const BorderSide(color: brandColor),
@@ -215,7 +220,7 @@ class ProfileHeader extends StatelessWidget {
         if (user.hobbies.isNotEmpty) ...[
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(l10n.lblInterestsTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), // "Intereses"
+            child: Text(l10n.lblInterestsTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), 
           ),
           const SizedBox(height: 10),
           Align(
@@ -224,7 +229,6 @@ class ProfileHeader extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: user.hobbies.map((hobby) => Chip(
-                // Aquí usamos el helper para traducir visualmente
                 label: Text(_getHobbyName(context, hobby).toUpperCase()),
                 backgroundColor: brandColor.withOpacity(0.1),
                 labelStyle: const TextStyle(color: brandColor, fontSize: 12, fontWeight: FontWeight.bold),

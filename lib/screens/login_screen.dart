@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE: TRADUCCIONES
+import 'package:yoinn_app/l10n/app_localizations.dart'; 
 
 import '../services/auth_service.dart';
 
@@ -23,8 +23,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // NOTA: Movemos los datos del onboarding dentro del build o usamos un getter
-  // para poder acceder al contexto de localización (l10n).
   List<Map<String, dynamic>> _getOnboardingData(AppLocalizations l10n) {
     return [
       {
@@ -48,12 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Iniciamos el timer del carrusel
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
-      // Necesitamos una forma de saber el largo de la lista,
-      // como es constante en tamaño (3 items), podemos usar 3 directamente
-      // o acceder a la data si la moviéramos a una variable de estado.
-      // Para simplificar y no romper el initState, usaremos 3 fijo por ahora.
       if (_currentPage < 2) {
         _currentPage++;
       } else {
@@ -94,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.errorAppleLogin), // "Error al iniciar sesión con Apple"
+            content: Text(l10n.errorAppleLogin), 
           ),
         );
       }
@@ -128,231 +121,252 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. OBTENEMOS LAS TRADUCCIONES
     final l10n = AppLocalizations.of(context)!;
-    
-    // 2. OBTENEMOS DATOS TRADUCIDOS
     final onboardingData = _getOnboardingData(l10n);
-
     final bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top,
-            child: Column(
-              children: [
-                if (!isKeyboardOpen) const Spacer(flex: 1),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      // Usamos Spacer condicional o flex reducido para evitar espacios grandes
+                      if (!isKeyboardOpen) const Spacer(flex: 1),
 
-                // --- LOGO Y TÍTULO ---
-                if (!isKeyboardOpen) ...[
-                  Image.asset(
-                    'assets/icons/pin.png',
-                    height: 100,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.location_on,
-                          size: 80, color: Color(0xFF00BCD4));
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Yoinn",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF00BCD4),
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                  const Spacer(flex: 1),
-                ],
-
-                // --- ONBOARDING CAROUSEL ---
-                if (!isKeyboardOpen) ...[
-                  SizedBox(
-                    height: 200,
-                    child: PageView.builder(
-                      controller: _pageController,
-                      onPageChanged: (value) =>
-                          setState(() => _currentPage = value),
-                      itemCount: onboardingData.length,
-                      itemBuilder: (context, index) =>
-                          _buildOnboardingContent(
-                        icon: onboardingData[index]["icon"],
-                        title: onboardingData[index]["title"],
-                        text: onboardingData[index]["text"],
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      onboardingData.length,
-                      (index) => _buildDot(index: index),
-                    ),
-                  ),
-                  const Spacer(flex: 2),
-                ] else
-                  const SizedBox(height: 40),
-
-                // --- BOTONES DE LOGIN ---
-                if (_isLoading)
-                  const Center(child: CircularProgressIndicator())
-                else
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0, vertical: 20.0),
-                    child: Column(
-                      children: [
-                        // APPLE
-                        if (Platform.isIOS)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: SignInWithAppleButton(
-                              onPressed: _handleAppleLogin,
-                              height: 50,
-                              // El texto del botón viene dentro del widget,
-                              // pero podríamos personalizarlo si el widget lo permite.
-                              // Por defecto "Sign in with Apple" se localiza solo si el SO lo soporta.
-                              style: SignInWithAppleButtonStyle.black,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(30)),
-                            ),
+                      // --- LOGO Y TÍTULO (Versión reducida) ---
+                      if (!isKeyboardOpen) ...[
+                        Image.asset(
+                          'assets/icons/pin.png',
+                          height: 70, // Reducido de 100
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.location_on,
+                                size: 60, color: Color(0xFF00BCD4)); // Reducido de 80
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          "Yoinn",
+                          style: TextStyle(
+                            fontSize: 26, // Reducido de 32
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF00BCD4),
+                            letterSpacing: 1.2,
                           ),
+                        ),
+                        const Spacer(flex: 1),
+                      ],
 
-                        // GOOGLE
+                      // --- ONBOARDING CAROUSEL (Versión reducida) ---
+                      if (!isKeyboardOpen) ...[
                         SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Provider.of<AuthService>(context, listen: false)
-                                  .signInWithGoogle();
-                            },
-                            icon: Image.network(
-                              'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
-                              height: 24,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.login, color: Colors.grey),
+                          height: 150, // Reducido de 200
+                          child: PageView.builder(
+                            controller: _pageController,
+                            onPageChanged: (value) =>
+                                setState(() => _currentPage = value),
+                            itemCount: onboardingData.length,
+                            itemBuilder: (context, index) =>
+                                _buildOnboardingContent(
+                              icon: onboardingData[index]["icon"],
+                              title: onboardingData[index]["title"],
+                              text: onboardingData[index]["text"],
                             ),
-                            label: Text(l10n.continueWithGoogle), // "Continuar con Google"
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black87,
-                              elevation: 3,
-                              textStyle: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                side: const BorderSide(color: Color(0xFFE0E0E0)),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        const Divider(),
-                        
-                        // --- ACCESO DEMO ---
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            l10n.demoAccessLabel, // "Acceso Demo / Admin"
-                            style: const TextStyle(color: Colors.grey, fontSize: 12),
-                          ),
-                        ),
-
-                        TextField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            labelText: l10n.emailDemoLabel, // "Email Demo"
-                            isDense: true,
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.email_outlined),
                           ),
                         ),
                         const SizedBox(height: 10),
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: l10n.passwordLabel, // "Contraseña"
-                            isDense: true,
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.lock_outline),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            onboardingData.length,
+                            (index) => _buildDot(index: index),
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _handleEmailLogin,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[200],
-                              foregroundColor: Colors.black,
-                            ),
-                            child: Text(l10n.enterButton), // "Ingresar"
-                          ),
-                        ),
-
+                        const Spacer(flex: 2),
+                      ] else
                         const SizedBox(height: 20),
 
-                        // --- TÉRMINOS ---
-                        Text(
-                          l10n.termsAndConditionsText, // "Al continuar, aceptas..."
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontSize: 11, color: Colors.grey),
+                      // --- FORMULARIO Y BOTONES ---
+                      if (_isLoading)
+                        const Center(child: CircularProgressIndicator())
+                      else
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0, vertical: 16.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min, // Importante para Wrap implícito
+                            children: [
+                              // APPLE
+                              if (Platform.isIOS)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: SignInWithAppleButton(
+                                    onPressed: _handleAppleLogin,
+                                    height: 44, // Reducido de 50
+                                    style: SignInWithAppleButtonStyle.black,
+                                    borderRadius:
+                                        const BorderRadius.all(Radius.circular(30)),
+                                  ),
+                                ),
+
+                              // GOOGLE
+                              SizedBox(
+                                width: double.infinity,
+                                height: 44, // Reducido de 50
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    Provider.of<AuthService>(context, listen: false)
+                                        .signInWithGoogle();
+                                  },
+                                  icon: Image.network(
+                                    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
+                                    height: 20, // Reducido de 24
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const Icon(Icons.login, color: Colors.grey, size: 20),
+                                  ),
+                                  label: Text(l10n.continueWithGoogle),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: Colors.black87,
+                                    elevation: 2,
+                                    textStyle: const TextStyle(
+                                        fontSize: 14, fontWeight: FontWeight.bold), // Fuente más chica
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                      side: const BorderSide(color: Color(0xFFE0E0E0)),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              const Divider(height: 20), // Menos espacio
+                              
+                              // --- ACCESO DEMO ---
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                child: Text(
+                                  l10n.demoAccessLabel,
+                                  style: const TextStyle(color: Colors.grey, fontSize: 11),
+                                ),
+                              ),
+
+                              // Inputs más compactos
+                              SizedBox(
+                                height: 45,
+                                child: TextField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  style: const TextStyle(fontSize: 13),
+                                  decoration: InputDecoration(
+                                    labelText: l10n.emailDemoLabel,
+                                    labelStyle: const TextStyle(fontSize: 12),
+                                    isDense: true,
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                                    border: const OutlineInputBorder(),
+                                    prefixIcon: const Icon(Icons.email_outlined, size: 18),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                height: 45,
+                                child: TextField(
+                                  controller: _passwordController,
+                                  obscureText: true,
+                                  style: const TextStyle(fontSize: 13),
+                                  decoration: InputDecoration(
+                                    labelText: l10n.passwordLabel,
+                                    labelStyle: const TextStyle(fontSize: 12),
+                                    isDense: true,
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                                    border: const OutlineInputBorder(),
+                                    prefixIcon: const Icon(Icons.lock_outline, size: 18),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              
+                              SizedBox(
+                                width: double.infinity,
+                                height: 40, // Botón más compacto
+                                child: ElevatedButton(
+                                  onPressed: _handleEmailLogin,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.grey[200],
+                                    foregroundColor: Colors.black,
+                                    elevation: 0,
+                                  ),
+                                  child: Text(l10n.enterButton, style: const TextStyle(fontSize: 13)),
+                                ),
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // --- TÉRMINOS ---
+                              Text(
+                                l10n.termsAndConditionsText,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    fontSize: 10, color: Colors.grey), // Fuente reducida
+                              ),
+                              const SizedBox(height: 10),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 10),
-                      ],
-                    ),
+                    ],
                   ),
-              ],
-            ),
-          ),
+                ),
+              ),
+            );
+          }
         ),
       ),
     );
   }
 
-  // --- WIDGETS AUXILIARES ---
+  // --- WIDGETS AUXILIARES REDUCIDOS ---
 
   Widget _buildOnboardingContent(
       {required IconData icon,
       required String title,
       required String text}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 30), // Menos padding
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12), // Reducido de 16
             decoration: const BoxDecoration(
               color: Color(0xFFE0F7FA),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 60, color: const Color(0xFF00BCD4)),
+            child: Icon(icon, size: 40, color: const Color(0xFF00BCD4)), // Reducido de 60
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
           Text(
             title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold), // Reducido de 20
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           Text(
             text,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+            style: const TextStyle(fontSize: 12, color: Colors.grey), // Reducido de 14
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -363,13 +377,13 @@ class _LoginScreenState extends State<LoginScreen> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.only(right: 6),
-      height: 8,
-      width: _currentPage == index ? 24 : 8,
+      height: 6, // Reducido de 8
+      width: _currentPage == index ? 18 : 6, // Reducido de 24
       decoration: BoxDecoration(
         color: _currentPage == index
             ? const Color(0xFF00BCD4)
             : const Color(0xFFB2EBF2),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(3),
       ),
     );
   }

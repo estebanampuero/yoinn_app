@@ -41,8 +41,10 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   double? _selectedLat;
   double? _selectedLng;
 
-  final Color _activeColor = const Color(0xFFF97316); 
-  final Color _iosBtnColor = const Color(0xFF00BCD4); 
+  // COLORES DE MARCA (Diseño Aesthetic)
+  final Color _brandColor = const Color(0xFF00BCD4); 
+  final Color _bgInputColor = const Color(0xFFFFFFFF); // Blanco para inputs
+  final Color _bgScreenColor = const Color(0xFFF0F8FA); // Fondo suave
 
   final List<String> _categories = [
     'Deportes', 'Comida', 'Arte', 'Fiestas', 'Viajes', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
@@ -87,7 +89,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
       case 'Fiestas': return l10n.catParty;
       case 'Viajes': return l10n.catOutdoor; 
       case 'Musica': return l10n.hobbyMusic;
-      case 'Tecnología': return l10n.catOther;
+      case 'Tecnología': return l10n.hobbyTech; 
       case 'Bienestar': return l10n.hobbyWellness;
       case 'Otros': return l10n.catOther;
       default: return key;
@@ -149,52 +151,34 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     }
   }
 
-  // --- FECHA NATIVA (CORREGIDA) ---
+  // --- FECHA NATIVA (FIXED 2030) ---
   Future<void> _pickDate() async {
     final l10n = AppLocalizations.of(context)!;
     
-    // DEFINIMOS LÍMITES SEGUROS PARA EVITAR CRASH
     final safeMinDate = DateTime(2020, 1, 1);
-    final safeMaxDate = DateTime(2030, 12, 31); // Aumentado hasta 2030
+    final safeMaxDate = DateTime(2030); // <--- FIX: Ampliado para evitar crash
 
     if (Platform.isIOS) {
       showCupertinoModalPopup(
         context: context,
-        builder: (context) {
-          return Container(
-            height: 250,
-            color: Colors.white,
-            child: Column(
-              children: [
-                Container(
-                  color: Colors.grey[100],
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        child: Text(l10n.btnReady, style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
-                        onPressed: () => Navigator.of(context).pop(),
-                      )
-                    ],
-                  ),
+        builder: (context) => Container(
+          height: 250,
+          color: Colors.white,
+          child: Column(
+            children: [
+              _buildIosPickerHeader(context, l10n),
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: _selectedDate,
+                  minimumDate: safeMinDate,
+                  maximumDate: safeMaxDate,
+                  onDateTimeChanged: (val) => setState(() => _selectedDate = val),
                 ),
-                Expanded(
-                  child: CupertinoDatePicker(
-                    mode: CupertinoDatePickerMode.date,
-                    initialDateTime: _selectedDate,
-                    minimumDate: safeMinDate, // Límite seguro
-                    maximumDate: safeMaxDate, // Límite seguro extendido
-                    onDateTimeChanged: (DateTime newDate) {
-                      setState(() => _selectedDate = newDate);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+              ),
+            ],
+          ),
+        ),
       );
     } else {
       final picked = await showDatePicker(
@@ -202,6 +186,10 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
         initialDate: _selectedDate,
         firstDate: safeMinDate,
         lastDate: safeMaxDate,
+        builder: (context, child) => Theme(
+          data: ThemeData.light().copyWith(colorScheme: ColorScheme.light(primary: _brandColor)),
+          child: child!,
+        ),
       );
       if (picked != null) setState(() => _selectedDate = picked);
     }
@@ -215,66 +203,83 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     if (Platform.isIOS) {
       showCupertinoModalPopup(
         context: context,
-        builder: (context) {
-          return Container(
-            height: 250,
-            color: Colors.white,
-            child: Column(
-              children: [
-                Container(
-                  color: Colors.grey[100],
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        child: Text(l10n.btnReady, style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
-                        onPressed: () => Navigator.of(context).pop(),
-                      )
-                    ],
+        builder: (context) => Container(
+          height: 250,
+          color: Colors.white,
+          child: Column(
+            children: [
+              _buildIosPickerHeader(context, l10n),
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: DateTime(
+                    DateTime.now().year, DateTime.now().month, DateTime.now().day,
+                    _selectedTime.hour, _selectedTime.minute,
                   ),
+                  use24hFormat: is24HourFormat, 
+                  onDateTimeChanged: (val) => setState(() => _selectedTime = TimeOfDay.fromDateTime(val)),
                 ),
-                Expanded(
-                  child: CupertinoDatePicker(
-                    mode: CupertinoDatePickerMode.time,
-                    initialDateTime: DateTime(
-                      DateTime.now().year, DateTime.now().month, DateTime.now().day,
-                      _selectedTime.hour, _selectedTime.minute,
-                    ),
-                    use24hFormat: is24HourFormat, 
-                    onDateTimeChanged: (DateTime newTime) {
-                      setState(() {
-                        _selectedTime = TimeOfDay.fromDateTime(newTime);
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+              ),
+            ],
+          ),
+        ),
       );
     } else {
       final picked = await showTimePicker(
         context: context, 
         initialTime: _selectedTime,
-        builder: (context, child) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: is24HourFormat),
-            child: Theme(
-              data: Theme.of(context).copyWith(
-                colorScheme: ColorScheme.light(primary: _iosBtnColor, onPrimary: Colors.white, onSurface: Colors.black),
-              ),
-              child: child!,
-            ),
-          );
-        },
+        builder: (context, child) => Theme(
+          data: ThemeData.light().copyWith(colorScheme: ColorScheme.light(primary: _brandColor)),
+          child: child!,
+        ),
       );
       if (picked != null) setState(() => _selectedTime = picked);
     }
   }
 
+  Widget _buildIosPickerHeader(BuildContext context, AppLocalizations l10n) {
+    return Container(
+      color: Colors.grey[100],
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: Text(l10n.btnReady, style: TextStyle(color: _brandColor, fontWeight: FontWeight.bold)),
+            onPressed: () => Navigator.of(context).pop(),
+          )
+        ],
+      ),
+    );
+  }
+
+  // --- ESTILOS DE INPUTS ---
+  InputDecoration _buildInputDecoration(String label, IconData icon, String? hint) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      prefixIcon: Icon(icon, color: Colors.grey[400]),
+      filled: true,
+      fillColor: _bgInputColor,
+      labelStyle: TextStyle(color: Colors.grey[600]),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none, 
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: _brandColor, width: 1.5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+    );
+  }
+
+  // --- WIDGETS ---
   Widget _buildCategoryInput() {
     final l10n = AppLocalizations.of(context)!;
     if (Platform.isIOS) {
@@ -287,29 +292,14 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
               color: Colors.white,
               child: Column(
                 children: [
-                  Container(
-                    color: Colors.grey[100],
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          child: Text(l10n.btnReady, style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
-                          onPressed: () => Navigator.of(context).pop(),
-                        )
-                      ],
-                    ),
-                  ),
+                  _buildIosPickerHeader(context, l10n),
                   Expanded(
                     child: CupertinoPicker(
                       itemExtent: 32,
                       scrollController: FixedExtentScrollController(
                         initialItem: _categories.indexOf(_selectedCategory) >= 0 ? _categories.indexOf(_selectedCategory) : 0
                       ),
-                      onSelectedItemChanged: (index) {
-                        setState(() => _selectedCategory = _categories[index]);
-                      },
+                      onSelectedItemChanged: (index) => setState(() => _selectedCategory = _categories[index]),
                       children: _categories.map((c) => Text(_getDisplayCategory(context, c))).toList(),
                     ),
                   ),
@@ -318,20 +308,22 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
             ),
           );
         },
-        child: InputDecorator(
-          decoration: InputDecoration(
-            labelText: l10n.lblCategory,
-            border: const OutlineInputBorder(),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            suffixIcon: const Icon(Icons.arrow_drop_down),
+        child: AbsorbPointer(
+          child: TextFormField(
+            decoration: _buildInputDecoration(l10n.lblCategory, Icons.category_outlined, null).copyWith(
+              suffixIcon: const Icon(Icons.arrow_drop_down),
+            ),
+            controller: TextEditingController(text: _getDisplayCategory(context, _selectedCategory)),
           ),
-          child: Text(_getDisplayCategory(context, _selectedCategory), style: const TextStyle(fontSize: 16)),
         ),
       );
     } else {
       return DropdownButtonFormField<String>(
         value: _selectedCategory,
-        decoration: InputDecoration(labelText: l10n.lblCategory, border: const OutlineInputBorder()),
+        decoration: _buildInputDecoration(l10n.lblCategory, Icons.category_outlined, null),
+        icon: const Icon(Icons.arrow_drop_down),
+        dropdownColor: Colors.white,
+        borderRadius: BorderRadius.circular(16),
         items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(_getDisplayCategory(context, c)))).toList(),
         onChanged: (v) => setState(() => _selectedCategory = v!),
       );
@@ -341,7 +333,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   Widget _buildAttendeesInput() {
     final l10n = AppLocalizations.of(context)!;
     if (_attendeesOptions.isEmpty) return const SizedBox();
-
     String formatAttendees(int n) => "$n ${n > 1 ? l10n.personPlural : l10n.personSingular}";
 
     if (Platform.isIOS) {
@@ -354,29 +345,14 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
               color: Colors.white,
               child: Column(
                 children: [
-                  Container(
-                    color: Colors.grey[100],
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          child: Text(l10n.btnReady, style: TextStyle(color: _iosBtnColor, fontWeight: FontWeight.bold)),
-                          onPressed: () => Navigator.of(context).pop(),
-                        )
-                      ],
-                    ),
-                  ),
+                  _buildIosPickerHeader(context, l10n),
                   Expanded(
                     child: CupertinoPicker(
                       itemExtent: 32,
                       scrollController: FixedExtentScrollController(
                         initialItem: _attendeesOptions.indexOf(_maxAttendees) >= 0 ? _attendeesOptions.indexOf(_maxAttendees) : 0
                       ),
-                      onSelectedItemChanged: (index) {
-                        setState(() => _maxAttendees = _attendeesOptions[index]);
-                      },
+                      onSelectedItemChanged: (index) => setState(() => _maxAttendees = _attendeesOptions[index]),
                       children: _attendeesOptions.map((n) => Text(formatAttendees(n))).toList(),
                     ),
                   ),
@@ -385,20 +361,21 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
             ),
           );
         },
-        child: InputDecorator(
-          decoration: InputDecoration(
-            labelText: l10n.lblMaxAttendees,
-            border: const OutlineInputBorder(),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            suffixIcon: const Icon(Icons.people_outline),
+        child: AbsorbPointer(
+          child: TextFormField(
+            decoration: _buildInputDecoration(l10n.lblMaxAttendees, Icons.people_outline, null).copyWith(
+              suffixIcon: const Icon(Icons.arrow_drop_down),
+            ),
+            controller: TextEditingController(text: "$_maxAttendees"),
           ),
-          child: Text("$_maxAttendees", style: const TextStyle(fontSize: 16)),
         ),
       );
     } else {
       return DropdownButtonFormField<int>(
         value: _attendeesOptions.contains(_maxAttendees) ? _maxAttendees : _attendeesOptions.first,
-        decoration: InputDecoration(labelText: l10n.lblMaxAttendees, border: const OutlineInputBorder()),
+        decoration: _buildInputDecoration(l10n.lblMaxAttendees, Icons.people_outline, null),
+        dropdownColor: Colors.white,
+        borderRadius: BorderRadius.circular(16),
         items: _attendeesOptions.map((n) => DropdownMenuItem(value: n, child: Text("$n"))).toList(),
         onChanged: (v) => setState(() => _maxAttendees = v!),
       );
@@ -484,7 +461,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
             content: Text(shouldReset 
               ? l10n.msgActivityRenewed 
               : l10n.msgActivityUpdated),
-            backgroundColor: shouldReset ? Colors.green : _activeColor,
+            backgroundColor: shouldReset ? Colors.green : _brandColor,
           ),
         );
       }
@@ -504,46 +481,62 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.screenEditActivityTitle)),
+      backgroundColor: _bgScreenColor,
+      appBar: AppBar(
+        title: Text(l10n.screenEditActivityTitle, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
       body: _isSaving 
-        ? const Center(child: CircularProgressIndicator())
+        ? Center(child: CircularProgressIndicator(color: _brandColor))
         : Form(
           key: _formKey,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             children: [
-              Text(l10n.lblPhotoHeader, style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              // --- SECCIÓN FOTO (Tarjeta Aesthetic) ---
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
-                  height: 200,
+                  height: 220,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[300]!, width: 2),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))
+                    ],
                   ),
-                  child: _imageFile != null
-                    ? ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.file(_imageFile!, fit: BoxFit.cover))
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(widget.activity.imageUrl, fit: BoxFit.cover),
-                      ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        _imageFile != null
+                            ? Image.file(_imageFile!, fit: BoxFit.cover)
+                            : Image.network(widget.activity.imageUrl, fit: BoxFit.cover),
+                        Container(color: Colors.black26), // Overlay oscuro suave
+                        const Center(child: Icon(Icons.edit, color: Colors.white, size: 40)),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
+              // --- INPUTS ---
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(labelText: l10n.fieldTitle, border: const OutlineInputBorder()),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                decoration: _buildInputDecoration(l10n.fieldTitle, Icons.title, null),
                 validator: (v) => v!.isEmpty ? l10n.errorGeneric : null,
               ),
               const SizedBox(height: 16),
               
               TextFormField(
                 controller: _descController,
-                decoration: InputDecoration(labelText: l10n.fieldDesc, border: const OutlineInputBorder()),
+                decoration: _buildInputDecoration(l10n.fieldDesc, Icons.description_outlined, null),
                 maxLines: 4,
                 validator: (v) => v!.isEmpty ? l10n.errorGeneric : null,
               ),
@@ -552,23 +545,57 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
               _buildCategoryInput(),
               const SizedBox(height: 16),
 
+              // --- FECHA Y HORA (Tarjetas Visuales) ---
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _pickDate, 
-                      icon: const Icon(Icons.calendar_today),
-                      label: Text(DateFormat.yMd(Localizations.localeOf(context).toString()).format(_selectedDate)),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                    child: InkWell(
+                      onTap: _pickDate,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: _bgInputColor,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.calendar_today, color: _brandColor, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                DateFormat.MMMd(Localizations.localeOf(context).toString()).format(_selectedDate),
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _pickTime, 
-                      icon: const Icon(Icons.access_time),
-                      label: Text(_selectedTime.format(context)),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                    child: InkWell(
+                      onTap: _pickTime,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: _bgInputColor,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.access_time, color: _brandColor, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              _selectedTime.format(context),
+                              style: const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -579,31 +606,32 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                 controller: _locationController,
                 readOnly: true,
                 onTap: _openLocationSearch,
-                decoration: InputDecoration(
-                  labelText: l10n.fieldLocation, 
-                  border: const OutlineInputBorder(), 
-                  prefixIcon: const Icon(Icons.location_on_outlined),
-                  hintText: l10n.hintLocation
-                ),
+                decoration: _buildInputDecoration(l10n.fieldLocation, Icons.location_on_outlined, l10n.hintLocation),
                 validator: (v) => v!.isEmpty ? l10n.errorGeneric : null,
               ),
               const SizedBox(height: 16),
 
               _buildAttendeesInput(),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 40),
 
+              // --- BOTÓN PRINCIPAL ---
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 56,
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _activeColor,
+                    backgroundColor: _brandColor,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    elevation: 2,
+                    shadowColor: _brandColor.withOpacity(0.4),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: Text(l10n.btnSaveChanges, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    l10n.btnSaveChanges, 
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 0.5)
+                  ),
                 ),
               ),
               const SizedBox(height: 30),

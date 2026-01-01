@@ -196,17 +196,13 @@ class _AuthWrapperState extends State<AuthWrapper> {
     bool isInitialLoading = authService.isLoading || 
                             (authService.currentUser != null && dataService.isLoading && dataService.activities.isEmpty);
 
-    // 3. Mientras sea carga inicial, mantenemos el Logo Full Screen (idéntico al Splash)
+    // 3. Mientras sea carga inicial, retornamos BLANCO VACÍO.
+    //    Esto permite que el SplashScreen (que tiene el logo fijo) cubra este momento
+    //    hasta que la transición termine, evitando el "salto" del logo.
     if (isInitialLoading) {
-      return Scaffold(
+      return const Scaffold(
         backgroundColor: Colors.white,
-        body: Center(
-          child: Image.asset(
-            'assets/icons/pin.png', 
-            width: 150, 
-            height: 150,
-          ),
-        ),
+        body: SizedBox(), 
       );
     }
 

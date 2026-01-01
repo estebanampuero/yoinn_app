@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math; 
-import '../main.dart'; 
+import 'package:flutter/scheduler.dart';
+import 'dart:math' as math;
+import '../main.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -11,30 +12,35 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  
+  // Animaciones de ENTRADA
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
   late Animation<double> _rotateAnimation;
+  late Animation<double> _textOpacityAnimation;
+  
+  // NOTA: Hemos eliminado la animación de "Salida" (_exitOpacityAnimation).
+  // Esto hace que el logo y el texto se queden QUIETOS y SÓLIDOS
+  // hasta que la siguiente pantalla (Feed) termine de cargar y los cubra.
 
   @override
   void initState() {
     super.initState();
 
-    // 1. Duración: 1.8 segundos
-    // Suficiente tiempo para dar varias vueltas sin que sea eterno.
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1800), 
+      duration: const Duration(seconds: 2), 
     );
 
-    // 2. Escala (Aparición)
+    // 1. Escala (Rebote)
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: Curves.elasticOut, // Rebote al final para asentar el icono
+        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
       ),
     );
 
-    // 3. Opacidad
+    // 2. Opacidad Inicial
     _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
@@ -42,34 +48,57 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       ),
     );
 
-    // 4. EL EFECTO "MIXING" (MEZCLA) 🌪️
-    // Giramos 6 veces PI (equivalente a 3 vueltas completas 360°).
-    // Usamos 'easeOutQuart': Empieza rapidísimo (mezclando) y desacelera suavemente hasta parar.
+    // 3. Rotación
     _rotateAnimation = Tween<double>(begin: 0.0, end: 6 * math.pi).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: Curves.easeOutQuart, 
+        curve: const Interval(0.0, 0.7, curve: Curves.easeOutQuart),
       ),
     );
 
-    _controller.forward();
+    // 4. Texto "Yoinn"
+    _textOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.6, 0.8, curve: Curves.easeIn),
+      ),
+    );
 
-    // Navegamos al terminar
-    Future.delayed(const Duration(milliseconds: 2200), () {
-      _navigateToNext();
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        // Al terminar, damos una pequeña pausa con el logo completo y texto visible
+        // para asegurar que el usuario lea la marca y dar tiempo al Feed de prepararse.
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            _navigateToNext();
+          });
+        });
+      }
     });
+
+    _controller.forward();
   }
 
   void _navigateToNext() {
     if (!mounted) return;
+
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
+        // Mantenemos el fondo blanco por seguridad
+        barrierColor: Colors.white, 
         pageBuilder: (_, __, ___) => const AuthWrapper(),
+        transitionDuration: const Duration(milliseconds: 800),
         transitionsBuilder: (_, animation, __, child) {
-          // Transición suave al logo estático
-          return FadeTransition(opacity: animation, child: child);
+          // TRANSICIÓN CLAVE:
+          // La nueva pantalla (Feed/Auth) aparece suavemente (FadeIn)
+          // SOBRE este Splash Screen que se mantiene estático (con texto).
+          // Así, si el Feed tiene un logo de carga, el Splash lo tapa
+          // hasta que la opacidad es alta.
+          return FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+            child: child,
+          );
         },
-        transitionDuration: const Duration(milliseconds: 600),
       ),
     );
   }
@@ -88,20 +117,45 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
-            return Opacity(
-              opacity: _opacityAnimation.value,
-              child: Transform.scale(
-                scale: _scaleAnimation.value,
-                child: Transform.rotate(
-                  angle: _rotateAnimation.value,
-                  // IMPORTANTE: Asegúrate de que esta sea la imagen de las gotas
-                  child: Image.asset(
-                    'assets/icons/pin.png', 
-                    width: 150, 
-                    height: 150,
+            // Ya no hay Opacity global de salida. Todo se queda visible.
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // LOGO
+                Opacity(
+                  opacity: _opacityAnimation.value,
+                  child: Transform.scale(
+                    scale: _scaleAnimation.value,
+                    child: Transform.rotate(
+                      angle: _rotateAnimation.value,
+                      child: Image.asset(
+                        'assets/icons/pin.png',
+                        width: 150,
+                        height: 150,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.location_on, size: 120, color: Color(0xFF00BCD4));
+                        },
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                
+                const SizedBox(height: 20),
+
+                // TEXTO
+                Opacity(
+                  opacity: _textOpacityAnimation.value,
+                  child: const Text(
+                    "Yoinn",
+                    style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF00BCD4),
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                ),
+              ],
             );
           },
         ),
