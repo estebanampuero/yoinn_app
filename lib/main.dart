@@ -4,9 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-// IMPORTANTE: Paquete nativo de Flutter para localización
 import 'package:flutter_localizations/flutter_localizations.dart';
-// IMPORTANTE: Archivo generado automáticamente
 import 'package:yoinn_app/l10n/app_localizations.dart'; 
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
@@ -15,9 +13,8 @@ import 'services/notification_service.dart';
 import 'services/subscription_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
-import 'screens/splash_screen.dart'; // <--- Import del Splash Screen
+import 'screens/splash_screen.dart'; 
 
-// --- 1. MANEJADOR DE SEGUNDO PLANO (BACKGROUND) ---
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -61,7 +58,6 @@ class MyApp extends StatelessWidget {
         title: 'Yoinn',
         debugShowCheckedModeBanner: false,
         
-        // --- CONFIGURACIÓN DE INTERNACIONALIZACIÓN ---
         localizationsDelegates: const [
           AppLocalizations.delegate, 
           GlobalMaterialLocalizations.delegate, 
@@ -70,8 +66,8 @@ class MyApp extends StatelessWidget {
         ],
 
         supportedLocales: const [
-          Locale('en'), // Inglés
-          Locale('es'), // Español
+          Locale('en'), 
+          Locale('es'), 
         ],
 
         localeResolutionCallback: (locale, supportedLocales) {
@@ -84,7 +80,6 @@ class MyApp extends StatelessWidget {
           }
           return supportedLocales.first;
         },
-        // ----------------------------------------------------
 
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
@@ -117,7 +112,6 @@ class MyApp extends StatelessWidget {
           ),
         ),
         
-        // Iniciamos con el Splash Screen
         home: const SplashScreen(), 
       ),
     );
@@ -140,7 +134,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
     
     Purchases.addCustomerInfoUpdateListener((customerInfo) {
       bool isPro = customerInfo.entitlements.all["Yoinn Pro"]?.isActive ?? false;
-      
       if (!isPro) {
         print("⚠️ El estado de la suscripción cambió a: INACTIVO");
       } else {
@@ -174,30 +167,19 @@ class _AuthWrapperState extends State<AuthWrapper> {
           sound: true,
         );
 
-        print('🔔 Permiso de notificaciones estado: ${settings.authorizationStatus}');
-
         if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-          String? token = await messaging.getToken();
-          print("========================================");
-          print("🔥 TOKEN PARA FIREBASE CONSOLE:");
-          print(token);
-          print("========================================");
-
           NotificationService().init(authService, context);
-          
           await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
             alert: true, 
             badge: true,
             sound: true,
           );
-        } else {
-          print("⚠️ El usuario no autorizó las notificaciones");
         }
         
         _notificationsInitialized = true;
         
       } catch (e) {
-        print("⚠️ Error inicializando notificaciones (posible problema de red): $e");
+        print("⚠️ Error inicializando notificaciones: $e");
       }
     }
   }
@@ -205,28 +187,36 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    // 1. Escuchamos también al DataService para saber si ya bajó las actividades
+    final dataService = Provider.of<DataService>(context);
 
-    // --- CAMBIO CLAVE PARA TRANSICIÓN FLUIDA ---
-    // Si la app está cargando, mostramos el MISMO logo estático que en el Splash.
-    // Esto evita el círculo de carga y hace que la transición sea invisible.
-    if (authService.isLoading) {
+    // 2. Definimos "Cargando Inicial" como:
+    //    - Auth está cargando... O BIEN
+    //    - Ya hay usuario, PERO las actividades se están cargando Y la lista está vacía (arranque en frío)
+    bool isInitialLoading = authService.isLoading || 
+                            (authService.currentUser != null && dataService.isLoading && dataService.activities.isEmpty);
+
+    // 3. Mientras sea carga inicial, mantenemos el Logo Full Screen (idéntico al Splash)
+    if (isInitialLoading) {
       return Scaffold(
-        backgroundColor: Colors.white, // Mismo fondo que Splash
+        backgroundColor: Colors.white,
         body: Center(
           child: Image.asset(
-            'assets/icons/pin.png', // Misma imagen que Splash
-            width: 150, // Mismo tamaño que Splash
+            'assets/icons/pin.png', 
+            width: 150, 
             height: 150,
           ),
         ),
       );
     }
 
+    // 4. Si no hay usuario, Login
     if (authService.currentUser == null) {
       _notificationsInitialized = false;
       return const LoginScreen();
     }
 
+    // 5. ¡Listo! Ya tenemos Usuario y Actividades cargadas. Vamos al Home sin saltos visuales.
     return const HomeScreen(); 
   }
 }

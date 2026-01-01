@@ -116,7 +116,25 @@ class _FeedScreenState extends State<FeedScreen> {
     final l10n = AppLocalizations.of(context)!;
     final authService = Provider.of<AuthService>(context, listen: false);
     final dataService = Provider.of<DataService>(context);
+
+    // 🔥 TRUCO DE MAGIA VISUAL:
+    // Si estamos cargando y la lista está vacía (es decir, es el primer arranque),
+    // mostramos el logo estático en lugar del círculo.
+    // Esto extiende la ilusión del Splash Screen hasta que los datos estén listos.
+    if (dataService.isLoading && dataService.activities.isEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.white, 
+        body: Center(
+          child: Image.asset(
+            'assets/icons/pin.png', // Mismo logo que Splash y AuthWrapper
+            width: 150, 
+            height: 150,
+          ),
+        ),
+      );
+    }
     
+    // --- UI NORMAL DE LA APP ---
     return Scaffold(
       backgroundColor: const Color(0xFFF0F8FA),
       appBar: AppBar(

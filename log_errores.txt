@@ -523,3 +523,278 @@ flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsr
 flutter: ========================================
 flutter: ✅ Permiso de notificaciones concedido
 flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
+The following assertion was thrown while finalizing the widget tree:
+Looking up a deactivated widget's ancestor is unsafe.
+At this point the state of the widget's element tree is no longer stable.
+To safely refer to a widget's ancestor in its dispose() method, save a reference to the ancestor by
+calling dependOnInheritedWidgetOfExactType() in the widget's didChangeDependencies() method.
+
+When the exception was thrown, this was the stack:
+#0      Element._debugCheckStateIsActiveForAncestorLookup.<anonymous closure> (package:flutter/src/widgets/framework.dart:5052:9)
+#1      Element._debugCheckStateIsActiveForAncestorLookup (package:flutter/src/widgets/framework.dart:5066:6)
+#2      Element.getElementForInheritedWidgetOfExactType (package:flutter/src/widgets/framework.dart:5101:12)
+#3      Provider._inheritedElementOf (package:provider/src/provider.dart:373:38)
+#4      Provider.of (package:provider/src/provider.dart:327:30)
+#5      _ChatScreenState.dispose (package:yoinn_app/screens/chat_screen.dart:90:27)
+#6      StatefulElement.unmount (package:flutter/src/widgets/framework.dart:6033:11)
+#7      _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2117:13)
+#8      _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#9      SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#10     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#11     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#12     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#13     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#14     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#15     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#16     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#17     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#18     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#19     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#20     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#21     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#22     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#23     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#24     MultiChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7228:16)
+#25     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#26     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#27     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#28     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#29     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#30     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#31     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#32     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#33     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#34     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#35     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#36     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#37     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#38     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#39     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#40     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#41     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#42     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#43     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#44     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#45     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#46     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#47     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#48     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#49     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#50     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#51     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#52     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#53     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#54     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#55     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#56     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#57     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#58     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#59     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#60     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#61     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#62     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#63     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#64     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#65     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#66     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#67     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#68     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#69     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#70     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#71     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#72     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#73     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#74     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#75     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#76     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#77     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#78     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#79     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#80     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#81     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#82     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#83     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#84     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#85     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#86     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#87     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#88     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#89     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#90     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#91     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#92     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#93     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#94     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#95     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#96     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#97     _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#98     _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#99     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#100    _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#101    _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#102    SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#103    _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#104    _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#105    ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#106    _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#107    _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#108    ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#109    _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#110    _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#111    ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#112    _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#113    _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#114    ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#115    _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#116    _InactiveElements._unmount.<anonymous closure> (package:flutter/src/widgets/framework.dart:2115:7)
+#117    ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#118    _InactiveElements._unmount (package:flutter/src/widgets/framework.dart:2113:13)
+#119    ListIterable.forEach (dart:_internal/iterable.dart:49:13)
+#120    _InactiveElements._unmountAll (package:flutter/src/widgets/framework.dart:2126:25)
+#121    BuildOwner.lockState (package:flutter/src/widgets/framework.dart:3020:15)
+#122    BuildOwner.finalizeTree (package:flutter/src/widgets/framework.dart:3344:7)
+#123    WidgetsBinding.drawFrame (package:flutter/src/widgets/binding.dart:1269:19)
+#124    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#125    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#126    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#127    SchedulerBinding._handleDrawFrame (package:flutter/src/scheduler/binding.dart:1200:5)
+#128    _invoke (dart:ui/hooks.dart:356:13)
+#129    PlatformDispatcher._drawFrame (dart:ui/platform_dispatcher.dart:444:5)
+#130    _drawFrame (dart:ui/hooks.dart:328:31)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+
+Another exception was thrown: initial date 2026-01-01 11:21:00.000 is not less than or equal to maximumDate 2026-01-01 00:00:00.000
+
+Performing hot restart...                                       
+Restarted application in 1.229ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 780ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 1.042ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 814ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: 🔔 Permiso de notificaciones estado: AuthorizationStatus.authorized
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: 🔥 TOKEN PARA FIREBASE CONSOLE:
+flutter: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ========================================
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 767ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 658ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+
+Performing hot restart...                                       
+Restarted application in 664ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: r9ezBIUMvAhmtKgkeRw04WeHTCi2
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>
+flutter: ✅ Permiso de notificaciones concedido
+flutter: 📲 FCM TOKEN ACTUALIZADO: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8

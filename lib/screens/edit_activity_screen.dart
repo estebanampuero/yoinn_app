@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+import 'package:yoinn_app/l10n/app_localizations.dart'; 
 
 import '../models/activity_model.dart';
 import '../services/data_service.dart';
@@ -48,7 +48,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     'Deportes', 'Comida', 'Arte', 'Fiestas', 'Viajes', 'Musica', 'Tecnología', 'Bienestar', 'Otros'
   ];
   
-  // Lista dinámica de acompañantes
   List<int> _attendeesOptions = [];
 
   @override
@@ -64,7 +63,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     _selectedLat = a.lat;
     _selectedLng = a.lng;
 
-    // Mapeo inverso básico por si viene en inglés desde la BD antigua
     String incomingCategory = a.category;
     Map<String, String> translationMap = {
       'Sports': 'Deportes', 'Food': 'Comida', 'Art': 'Arte', 'Party': 'Fiestas',
@@ -80,7 +78,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     }
   }
 
-  // Función auxiliar para mostrar el nombre traducido en el Dropdown
   String _getDisplayCategory(BuildContext context, String key) {
     final l10n = AppLocalizations.of(context)!;
     switch (key) {
@@ -89,8 +86,8 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
       case 'Arte': return l10n.catArt;
       case 'Fiestas': return l10n.catParty;
       case 'Viajes': return l10n.catOutdoor; 
-      case 'Musica': return l10n.hobbyMusic; // Reutilizamos hobbyMusic
-      case 'Tecnología': return l10n.catOther; // O hobbyTech si existe
+      case 'Musica': return l10n.hobbyMusic;
+      case 'Tecnología': return l10n.catOther;
       case 'Bienestar': return l10n.hobbyWellness;
       case 'Otros': return l10n.catOther;
       default: return key;
@@ -100,16 +97,13 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // --- LÓGICA DE LÍMITES FREEMIUM ---
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
     final isPremium = user?.isPremium ?? false;
 
-    // Definir límite según plan
     final int maxLimit = isPremium 
         ? SubscriptionLimits.proMaxAttendees 
         : SubscriptionLimits.freeMaxAttendees;
 
-    // Generar la lista
     _attendeesOptions = List.generate(maxLimit, (index) => index + 1);
 
     if (_maxAttendees > maxLimit) {
@@ -155,9 +149,14 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     }
   }
 
-  // --- FECHA NATIVA ---
+  // --- FECHA NATIVA (CORREGIDA) ---
   Future<void> _pickDate() async {
     final l10n = AppLocalizations.of(context)!;
+    
+    // DEFINIMOS LÍMITES SEGUROS PARA EVITAR CRASH
+    final safeMinDate = DateTime(2020, 1, 1);
+    final safeMaxDate = DateTime(2030, 12, 31); // Aumentado hasta 2030
+
     if (Platform.isIOS) {
       showCupertinoModalPopup(
         context: context,
@@ -185,8 +184,8 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                   child: CupertinoDatePicker(
                     mode: CupertinoDatePickerMode.date,
                     initialDateTime: _selectedDate,
-                    minimumDate: DateTime.now().subtract(const Duration(days: 365)), 
-                    maximumDate: DateTime(2026),
+                    minimumDate: safeMinDate, // Límite seguro
+                    maximumDate: safeMaxDate, // Límite seguro extendido
                     onDateTimeChanged: (DateTime newDate) {
                       setState(() => _selectedDate = newDate);
                     },
@@ -201,8 +200,8 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
       final picked = await showDatePicker(
         context: context,
         initialDate: _selectedDate,
-        firstDate: DateTime.now().subtract(const Duration(days: 365)),
-        lastDate: DateTime(2026),
+        firstDate: safeMinDate,
+        lastDate: safeMaxDate,
       );
       if (picked != null) setState(() => _selectedDate = picked);
     }
@@ -451,6 +450,9 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
       );
 
       final now = DateTime.now();
+      
+      // LÓGICA DE RECICLAJE (RENEWAL):
+      // Si la actividad era antigua (antes de hoy) y se mueve al futuro, se resetea.
       bool shouldReset = false;
       if (widget.activity.dateTime.isBefore(now) && finalDateTime.isAfter(now)) {
         shouldReset = true;
@@ -471,6 +473,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
       await dataService.updateActivity(widget.activity.id, updatedData);
 
       if (shouldReset) {
+        // Borramos participantes y chat porque es un "evento nuevo"
         await dataService.resetActivityData(widget.activity.id);
       }
 
