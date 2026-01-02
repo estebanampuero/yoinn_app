@@ -15,6 +15,9 @@ import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/splash_screen.dart'; 
 
+// 1. LLAVE GLOBAL PARA NAVEGACIÓN
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -55,6 +58,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DataService()),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey, // <--- 2. VINCULADA AQUÍ
         title: 'Yoinn',
         debugShowCheckedModeBanner: false,
         
@@ -187,18 +191,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
-    // 1. Escuchamos también al DataService para saber si ya bajó las actividades
     final dataService = Provider.of<DataService>(context);
 
-    // 2. Definimos "Cargando Inicial" como:
-    //    - Auth está cargando... O BIEN
-    //    - Ya hay usuario, PERO las actividades se están cargando Y la lista está vacía (arranque en frío)
     bool isInitialLoading = authService.isLoading || 
                             (authService.currentUser != null && dataService.isLoading && dataService.activities.isEmpty);
 
-    // 3. Mientras sea carga inicial, retornamos BLANCO VACÍO.
-    //    Esto permite que el SplashScreen (que tiene el logo fijo) cubra este momento
-    //    hasta que la transición termine, evitando el "salto" del logo.
     if (isInitialLoading) {
       return const Scaffold(
         backgroundColor: Colors.white,
@@ -206,13 +203,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
       );
     }
 
-    // 4. Si no hay usuario, Login
     if (authService.currentUser == null) {
       _notificationsInitialized = false;
       return const LoginScreen();
     }
 
-    // 5. ¡Listo! Ya tenemos Usuario y Actividades cargadas. Vamos al Home sin saltos visuales.
     return const HomeScreen(); 
   }
 }
