@@ -1,6 +1,7 @@
 /**
  * Lógica de Notificaciones Yoinn - SOPORTE MULTI-IDIOMA
- * Fecha: 01 Ene 2026
+ * Fecha: 02 Ene 2026
+ * MODIFICADO: Configuración robusta de Sonido/Prioridad para iOS y Android
  */
 
 const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
@@ -23,7 +24,7 @@ exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{
     const messageData = snapshot.data();
     const activityId = event.params.activityId;
     const senderUid = messageData.senderUid;
-    const text = messageData.text || "📷 Imagen enviada"; // Fallback por defecto, se traducirá abajo si es imagen
+    const text = messageData.text || "📷 Imagen enviada"; 
 
     try {
         const activityDoc = await admin.firestore().collection('activities').doc(activityId).get();
@@ -33,7 +34,6 @@ exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{
         const hostUid = activityData.hostUid;
         const activityTitle = activityData.title || "Actividad";
 
-        // Buscar a quién notificar (Host + Participantes Aceptados)
         const appsSnapshot = await admin.firestore().collection('applications')
             .where('activityId', '==', activityId)
             .where('status', '==', 'accepted').get();
@@ -47,17 +47,14 @@ exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{
 
         const promises = [];
         
-        // Iteramos usuarios para detectar su idioma individualmente
         for (let uid of uidsToNotify) {
-            // Obtenemos el usuario ANTES para saber su idioma
             const userDocPromise = admin.firestore().collection('users').doc(uid).get().then(userDoc => {
                 if (!userDoc.exists) return;
 
                 const userData = userDoc.data();
                 const token = userData.fcmToken;
-                const lang = userData.languageCode || 'es'; // Por defecto Español
+                const lang = userData.languageCode || 'es'; 
 
-                // Definir textos según idioma
                 let notifTitle, notifBody;
                 
                 if (lang === 'en') {
@@ -68,7 +65,7 @@ exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{
                     notifBody = messageData.text || "📷 Imagen enviada";
                 }
 
-                // A. Guardar en "Campanita" (Firestore)
+                // Guardar en Firestore (Campanita)
                 const dbPromise = admin.firestore().collection('users').doc(uid).collection('notifications').add({
                     title: notifTitle,
                     body: notifBody,
@@ -78,11 +75,12 @@ exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{
                     timestamp: admin.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // B. Enviar Push (FCM) si tiene token
+                // Enviar Push (FCM)
                 let pushPromise = Promise.resolve();
                 if (token) {
                     const message = {
                         token: token, 
+                        // General (Visualización básica)
                         notification: {
                             title: `💬 ${activityTitle}`,
                             body: notifBody,
@@ -91,6 +89,26 @@ exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{
                             type: "chat",
                             activityId: activityId,
                             click_action: "FLUTTER_NOTIFICATION_CLICK"
+                        },
+                        // Configuración ANDROID (Canal y Prioridad)
+                        android: {
+                            priority: "high",
+                            notification: {
+                                sound: "default",
+                                channelId: "high_importance_channel_v2",
+                                clickAction: "FLUTTER_NOTIFICATION_CLICK"
+                            }
+                        },
+                        // Configuración iOS (Prioridad Máxima y Sonido)
+                        apns: {
+                            headers: {
+                                "apns-priority": "10" // Crítico para que suene en segundo plano
+                            },
+                            payload: {
+                                aps: {
+                                    sound: "default"
+                                }
+                            }
                         }
                     };
                     pushPromise = admin.messaging().send(message);
@@ -110,7 +128,7 @@ exports.onNewChatMessage = onDocumentCreated("activities/{activityId}/messages/{
     }
 });
 
-// --- 2. NUEVA SOLICITUD (Alguien quiere unirse) ---
+// --- 2. NUEVA SOLICITUD ---
 exports.onNewApplication = onDocumentCreated("applications/{applicationId}", async (event) => {
     const snapshot = event.data;
     if (!snapshot) return;
@@ -129,7 +147,6 @@ exports.onNewApplication = onDocumentCreated("applications/{applicationId}", asy
 
         if (hostUid === applicantUid) return;
 
-        // Obtener datos del Host para saber idioma
         const hostUserDoc = await admin.firestore().collection('users').doc(hostUid).get();
         if (!hostUserDoc.exists) return;
 
@@ -137,7 +154,6 @@ exports.onNewApplication = onDocumentCreated("applications/{applicationId}", asy
         const lang = hostData.languageCode || 'es';
         const token = hostData.fcmToken;
 
-        // Definir textos
         let titleDB, bodyDB, titlePush, bodyPush;
 
         if (lang === 'en') {
@@ -152,7 +168,7 @@ exports.onNewApplication = onDocumentCreated("applications/{applicationId}", asy
             bodyPush = `${applicantName} quiere unirse a tu actividad`;
         }
 
-        // A. Guardar en Campanita
+        // Guardar en Firestore
         await admin.firestore().collection('users').doc(hostUid).collection('notifications').add({
             title: titleDB,
             body: bodyDB,
@@ -163,7 +179,7 @@ exports.onNewApplication = onDocumentCreated("applications/{applicationId}", asy
             timestamp: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        // B. Enviar Push
+        // Enviar Push
         if (token) {
             const message = {
                 token: token,
@@ -175,6 +191,24 @@ exports.onNewApplication = onDocumentCreated("applications/{applicationId}", asy
                     type: "request_join",
                     activityId: activityId,
                     click_action: "FLUTTER_NOTIFICATION_CLICK"
+                },
+                // Configuración ANDROID
+                android: {
+                    priority: "high",
+                    notification: {
+                        sound: "default",
+                        channelId: "high_importance_channel_v2",
+                        clickAction: "FLUTTER_NOTIFICATION_CLICK"
+                    }
+                },
+                // Configuración iOS
+                apns: {
+                    headers: { "apns-priority": "10" },
+                    payload: {
+                        aps: {
+                            sound: "default"
+                        }
+                    }
                 }
             };
             await admin.messaging().send(message);
@@ -184,7 +218,7 @@ exports.onNewApplication = onDocumentCreated("applications/{applicationId}", asy
     }
 });
 
-// --- 3. SOLICITUD ACEPTADA (Notificar al participante) ---
+// --- 3. SOLICITUD ACEPTADA ---
 exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}", async (event) => {
     const before = event.data.before.data();
     const after = event.data.after.data();
@@ -197,7 +231,6 @@ exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}"
             const activityDoc = await admin.firestore().collection('activities').doc(activityId).get();
             const activityTitle = activityDoc.data()?.title || "Actividad";
 
-            // Obtener datos del Participante para saber idioma
             const userDoc = await admin.firestore().collection('users').doc(applicantUid).get();
             if (!userDoc.exists) return;
 
@@ -205,7 +238,6 @@ exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}"
             const lang = userData.languageCode || 'es';
             const token = userData.fcmToken;
 
-            // Definir textos
             let titleDB, bodyDB, titlePush, bodyPush;
 
             if (lang === 'en') {
@@ -220,7 +252,7 @@ exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}"
                 bodyPush = `Te aceptaron en "${activityTitle}"`;
             }
 
-            // A. Guardar en Campanita
+            // Guardar en Firestore
             await admin.firestore().collection('users').doc(applicantUid).collection('notifications').add({
                 title: titleDB,
                 body: bodyDB,
@@ -230,7 +262,7 @@ exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}"
                 timestamp: admin.firestore.FieldValue.serverTimestamp()
             });
 
-            // B. Enviar Push
+            // Enviar Push
             if (token) {
                 const message = {
                     token: token,
@@ -242,6 +274,24 @@ exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}"
                         type: "request_accepted",
                         activityId: activityId,
                         click_action: "FLUTTER_NOTIFICATION_CLICK"
+                    },
+                    // Configuración ANDROID
+                    android: {
+                        priority: "high",
+                        notification: {
+                            sound: "default",
+                            channelId: "high_importance_channel_v2",
+                            clickAction: "FLUTTER_NOTIFICATION_CLICK"
+                        }
+                    },
+                    // Configuración iOS
+                    apns: {
+                        headers: { "apns-priority": "10" },
+                        payload: {
+                            aps: {
+                                sound: "default"
+                            }
+                        }
                     }
                 };
                 await admin.messaging().send(message);
