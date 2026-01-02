@@ -20593,3 +20593,18 @@ Another exception was thrown: Looking up a deactivated widget's ancestor is unsa
 flutter: 👆 Tocado en segundo plano/background
 flutter: 🚀 Intentando navegar. Tipo: chat, ID: 79HsFmmKdamqmPiBHtLE
 flutter: 💬 Navegando al CHAT de SD se
+
+Performing hot restart...                                       
+Restarted application in 1.926ms.
+flutter: ✅ Firebase inicializado correctamente en main()
+flutter: ✅ RevenueCat inicializado correctamente
+flutter: ⚠️ El estado de la suscripción cambió a: INACTIVO
+flutter: Auth State Changed: 5Kvvs8gJ9VNs653xIcCXlvImSl93
+flutter: 🔥 FCM TOKEN INICIAL: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+flutter: ✅ Permiso de notificaciones concedido
+flutter: FCM Token obtenido: dKi8nJZB70lupjNtAbAsoI:APA91bHLR4QjOZ2HkicYuFb9tTBNwdbvpM6gz_uFaMLKaQsrFQYiFAXmYijLzbeTMrSg7I-3_QynuQgIDXH_AQBImdd4tDBg7VCgpDBqfyBbAYaOARUW4f8
+[ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: dependOnInheritedWidgetOfExactType<_LocalizationsScope>() or dependOnInheritedElement() was called before _FeedScreenState.initState() completed.
+When an inherited widget changes, for example if the value of Theme.of() changes, its dependent widgets are rebuilt. If the dependent widget's reference to the inherited widget is in a constructor or an initState() method, then the rebuilt dependent widget will not reflect the changes in the inherited widget.
+Typically references to inherited widgets should occur in widget build() methods. Alternatively, initialization based on inherited widgets can be placed in the didChangeDependencies method, which is called after initState and whenever the dependencies change thereafter.
+#0      StatefulElement.dependOnInheritedElement.<anonymous closure> (package:flutter/src/widgets/framework.dart:6057:9)
+#1      StatefulElement.dependOnInheritedElement (package:flutter/src/widgets/framework.dart:6<…>

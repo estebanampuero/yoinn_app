@@ -1,7 +1,7 @@
 /**
  * Lógica de Notificaciones Yoinn - SOPORTE MULTI-IDIOMA
  * Fecha: 02 Ene 2026
- * MODIFICADO: Configuración robusta de Sonido/Prioridad para iOS y Android
+ * MODIFICADO: Agregada función de RECHAZO (onApplicationRejected)
  */
 
 const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
@@ -298,6 +298,92 @@ exports.onApplicationAccepted = onDocumentUpdated("applications/{applicationId}"
             }
         } catch (error) {
             console.error("Error en accepted notification:", error);
+        }
+    }
+});
+
+// --- 4. SOLICITUD RECHAZADA (NUEVO) ---
+exports.onApplicationRejected = onDocumentUpdated("applications/{applicationId}", async (event) => {
+    const before = event.data.before.data();
+    const after = event.data.after.data();
+
+    // Solo si cambia de CUALQUIER estado a 'rejected'
+    if (before.status !== 'rejected' && after.status === 'rejected') {
+        const applicantUid = after.applicantUid;
+        const activityId = after.activityId;
+
+        try {
+            const activityDoc = await admin.firestore().collection('activities').doc(activityId).get();
+            const activityTitle = activityDoc.data()?.title || "Actividad";
+
+            // Buscamos al usuario que fue rechazado para notificarle
+            const userDoc = await admin.firestore().collection('users').doc(applicantUid).get();
+            if (!userDoc.exists) return;
+
+            const userData = userDoc.data();
+            const lang = userData.languageCode || 'es';
+            const token = userData.fcmToken;
+
+            let titleDB, bodyDB, titlePush, bodyPush;
+
+            if (lang === 'en') {
+                titleDB = "Request Declined";
+                bodyDB = `The host declined your request to join "${activityTitle}".`;
+                titlePush = "❌ Request Declined";
+                bodyPush = `The host declined your request for "${activityTitle}"`;
+            } else {
+                titleDB = "Solicitud Rechazada";
+                bodyDB = `El anfitrión rechazó tu solicitud para "${activityTitle}".`;
+                titlePush = "❌ Solicitud Rechazada";
+                bodyPush = `El anfitrión rechazó tu solicitud para "${activityTitle}"`;
+            }
+
+            // Guardar en Firestore
+            await admin.firestore().collection('users').doc(applicantUid).collection('notifications').add({
+                title: titleDB,
+                body: bodyDB,
+                type: 'request_rejected', // Usamos este tipo nuevo
+                activityId: activityId,
+                read: false,
+                timestamp: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Enviar Push
+            if (token) {
+                const message = {
+                    token: token,
+                    notification: {
+                        title: titlePush,
+                        body: bodyPush,
+                    },
+                    data: {
+                        type: "request_rejected", // Tu app lo manejará con el 'else' y llevará al detalle
+                        activityId: activityId,
+                        click_action: "FLUTTER_NOTIFICATION_CLICK"
+                    },
+                    // Configuración ANDROID
+                    android: {
+                        priority: "high",
+                        notification: {
+                            sound: "default",
+                            channelId: "high_importance_channel_v2",
+                            clickAction: "FLUTTER_NOTIFICATION_CLICK"
+                        }
+                    },
+                    // Configuración iOS
+                    apns: {
+                        headers: { "apns-priority": "10" },
+                        payload: {
+                            aps: {
+                                sound: "default"
+                            }
+                        }
+                    }
+                };
+                await admin.messaging().send(message);
+            }
+        } catch (error) {
+            console.error("Error en rejected notification:", error);
         }
     }
 });
