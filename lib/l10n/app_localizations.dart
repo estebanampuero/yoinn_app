@@ -251,7 +251,7 @@ abstract class AppLocalizations {
   /// No description provided for @catOutdoor.
   ///
   /// In en, this message translates to:
-  /// **'Outdoor'**
+  /// **'Travel'**
   String get catOutdoor;
 
   /// No description provided for @catGames.
@@ -263,7 +263,7 @@ abstract class AppLocalizations {
   /// No description provided for @catOther.
   ///
   /// In en, this message translates to:
-  /// **'Others'**
+  /// **'Other'**
   String get catOther;
 
   /// No description provided for @hostedBy.

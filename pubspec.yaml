@@ -36,6 +36,7 @@ dependencies:
 
   # --- MAPAS Y UBICACIÓN ---
   google_maps_flutter: ^2.10.0
+  custom_info_window: ^1.0.1 # <--- LIBRERÍA AGREGADA
   geolocator: ^13.0.1 
   geocoding: ^3.0.0
   geoflutterfire_plus: ^0.0.26 

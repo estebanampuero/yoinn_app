@@ -34,6 +34,21 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   final Color _brandColor = const Color(0xFF00BCD4);
   final Color _bgScreenColor = const Color(0xFFF0F8FA);
 
+  // Helper para traducir la categoría visualmente
+  String _getCategoryName(String key) {
+    final l10n = AppLocalizations.of(context)!;
+    if (key == 'Todas') return l10n.catAll;
+    if (key == 'Deporte') return l10n.catSport;
+    if (key == 'Comida') return l10n.catFood;
+    if (key == 'Arte') return l10n.catArt;
+    if (key == 'Fiesta') return l10n.catParty;
+    if (key == 'Viaje') return l10n.catOutdoor; 
+    if (key == 'Musica') return l10n.hobbyMusic;
+    if (key == 'Tecnología') return l10n.hobbyTech;
+    if (key == 'Bienestar') return l10n.hobbyWellness;
+    return l10n.catOther;
+  }
+
   void _confirmAndJoin() async {
     final l10n = AppLocalizations.of(context)!;
     final dataService = Provider.of<DataService>(context, listen: false);
@@ -463,7 +478,7 @@ $deepLink
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- CABECERA (BADGE + TÍTULO) ---
+                  // --- CABECERA (BADGE TRADUCIDO + TÍTULO) ---
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -478,7 +493,8 @@ $deepLink
                               blurRadius: 8,
                               offset: const Offset(0, 2))
                         ]),
-                    child: Text(widget.activity.category.toUpperCase(),
+                    // USA EL HELPER PARA TRADUCIR
+                    child: Text(_getCategoryName(widget.activity.category).toUpperCase(),
                         style: TextStyle(
                             color: _brandColor,
                             fontWeight: FontWeight.bold,
@@ -518,10 +534,10 @@ $deepLink
 
                   const SizedBox(height: 32),
 
-                  // 4. ORGANIZADOR
-                  const Text("Organizador",
+                  // 4. ORGANIZADOR (Traducido)
+                  Text(l10n.lblOrganizer,
                       style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   HostInfoTile(hostUid: widget.activity.hostUid),
 

@@ -286,6 +286,16 @@
   "msgRequestSent": "Request sent! Ticket used.",
   "msgGoPro": "Go PRO to join more activities.",
   "shareMessageIntro": "Hey! 🌟 I found this activity on Yoinn and thought you'd like it:",
-  "shareMessageCta": "👇 Tap here to see details or download the app:"
-    
+  "shareMessageCta": "👇 Tap here to see details or download the app:",
+  "lblOrganizer": "Organizer",
+  "catOther": "Other",
+  "catAll": "All",
+  "catSport": "Sport",
+  "catFood": "Food",
+  "catArt": "Art",
+  "catParty": "Party",
+  "catOutdoor": "Travel",
+  "hobbyMusic": "Music",
+  "hobbyTech": "Tech",
+  "hobbyWellness": "Wellness"   
 }

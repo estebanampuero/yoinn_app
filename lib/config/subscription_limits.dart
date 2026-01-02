@@ -16,7 +16,7 @@ class SubscriptionLimits {
   // --- LÍMITES DE CREACIÓN ---
   // Cuántas actividades activas puedes tener al mismo tiempo
   static const int freeMaxActiveActivities = 1;
-  static const int proMaxActiveActivities = 10;
+  static const int proMaxActiveActivities = 20;
 
   // --- LÍMITES DE UNIÓN (JOIN) ---
   // A cuántas actividades puedes postular por semana (Tickets de apuesta)

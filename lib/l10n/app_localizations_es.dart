@@ -88,7 +88,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get catParty => 'Fiesta';
 
   @override
-  String get catOutdoor => 'Outdoor';
+  String get catOutdoor => 'Viaje';
 
   @override
   String get catGames => 'Juegos';

@@ -88,13 +88,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catParty => 'Party';
 
   @override
-  String get catOutdoor => 'Outdoor';
+  String get catOutdoor => 'Travel';
 
   @override
   String get catGames => 'Games';
 
   @override
-  String get catOther => 'Others';
+  String get catOther => 'Other';
 
   @override
   String get hostedBy => 'Hosted by:';

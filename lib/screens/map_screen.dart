@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:yoinn_app/l10n/app_localizations.dart'; // <--- IMPORTANTE
+import 'package:custom_info_window/custom_info_window.dart'; 
+import 'package:yoinn_app/l10n/app_localizations.dart'; 
 
 import '../models/activity_model.dart';
 import '../services/data_service.dart';
@@ -25,14 +26,14 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   GoogleMapController? _mapController;
+  final CustomInfoWindowController _customInfoWindowController = CustomInfoWindowController(); 
   BitmapDescriptor? _customPinIcon; 
   
   static const CameraPosition _initialPosition = CameraPosition(
-    target: LatLng(-41.469, -72.942), // Default Puerto Montt
+    target: LatLng(-41.469, -72.942), 
     zoom: 12,
   );
 
-  Activity? _selectedActivity;
   bool _isPremium = false;
   LatLng? _currentCenter; 
   
@@ -60,7 +61,12 @@ class _MapScreenState extends State<MapScreen> {
     _checkPremiumAndLocation();
   }
 
-  // Helper para traducir la categoría en la tarjeta del mapa
+  @override
+  void dispose() {
+    _customInfoWindowController.dispose();
+    super.dispose();
+  }
+
   String _getCategoryName(BuildContext context, String key) {
     final l10n = AppLocalizations.of(context)!;
     switch (key) {
@@ -155,11 +161,94 @@ class _MapScreenState extends State<MapScreen> {
           return Marker(
             markerId: MarkerId(activity.id),
             position: LatLng(activity.lat, activity.lng),
-            onTap: () {
-              setState(() => _selectedActivity = activity);
-              _moveCameraSafe(CameraUpdate.newLatLng(LatLng(activity.lat, activity.lng)));
-            },
             icon: _customPinIcon ?? BitmapDescriptor.defaultMarker,
+            onTap: () {
+              // --- ANIMACIÓN "POP" DESDE EL PIN ---
+              _customInfoWindowController.addInfoWindow!(
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutBack, // Efecto de rebote suave al salir
+                  builder: (context, value, child) {
+                    return Transform.scale(
+                      scale: value,
+                      alignment: Alignment.bottomCenter, // Crece desde la base (desde el pin)
+                      child: child,
+                    );
+                  },
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ActivityDetailScreen(activity: activity)));
+                    },
+                    child: Column(
+                      children: [
+                        // CONTENEDOR PRINCIPAL (CARD)
+                        Container(
+                          width: 240, 
+                          height: 90, 
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 10, offset: const Offset(0, 4))
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              // IMAGEN
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: CachedNetworkImage(
+                                  imageUrl: activity.imageUrl.isNotEmpty ? activity.imageUrl : 'https://via.placeholder.com/150',
+                                  width: 70, height: 70, fit: BoxFit.cover,
+                                  errorWidget: (context, url, error) => Container(color: Colors.grey[200], child: const Icon(Icons.broken_image, size: 20, color: Colors.grey)),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              // TEXTOS
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      _getCategoryName(context, activity.category).toUpperCase(), 
+                                      style: const TextStyle(color: Color(0xFF29B6F6), fontSize: 9, fontWeight: FontWeight.bold)
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      activity.title, 
+                                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF006064)), 
+                                      maxLines: 1, 
+                                      overflow: TextOverflow.ellipsis
+                                    ),
+                                    Text(
+                                      DateFormat('d MMM, h:mm a', Localizations.localeOf(context).toString()).format(activity.dateTime), 
+                                      style: const TextStyle(fontSize: 10, color: Colors.grey)
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // TRIANGULO (COLITA) - Con sombra simulada si se desea, aquí simple
+                        ClipPath(
+                          clipper: _TriangleClipper(),
+                          child: Container(
+                            color: Colors.white,
+                            width: 20,
+                            height: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                LatLng(activity.lat, activity.lng),
+              );
+            },
           );
         }).toSet();
 
@@ -189,21 +278,33 @@ class _MapScreenState extends State<MapScreen> {
                 myLocationButtonEnabled: false,
                 zoomControlsEnabled: false,
                 compassEnabled: false, 
-                padding: const EdgeInsets.only(bottom: 120, top: 50),
+                padding: const EdgeInsets.only(bottom: 20, top: 50),
                 
                 onMapCreated: (GoogleMapController controller) {
                   _mapController = controller;
+                  _customInfoWindowController.googleMapController = controller; 
                   _mapController?.setMapStyle(_mapStyle);
                   if (_currentCenter != null) {
                     _moveCameraSafe(CameraUpdate.newLatLng(_currentCenter!));
                   }
                 },
-                onTap: (_) {
-                  if (_selectedActivity != null) setState(() => _selectedActivity = null);
+                onTap: (position) {
+                  _customInfoWindowController.hideInfoWindow!();
+                },
+                onCameraMove: (position) {
+                  _customInfoWindowController.onCameraMove!();
                 },
               ),
 
-              // 2. BOTONES FLOTANTES
+              // 2. LAYER DE LA BURBUJA FLOTANTE (Optimizado)
+              CustomInfoWindow(
+                controller: _customInfoWindowController,
+                height: 110, 
+                width: 240,
+                offset: 35, // <--- AJUSTE CRÍTICO: Más cerca del pin (antes 50)
+              ),
+
+              // 3. BOTONES FLOTANTES (GPS)
               Positioned(
                 top: 50, right: 20, 
                 child: FloatingActionButton.small(
@@ -215,7 +316,7 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
 
-              // 3. SLIDER DE DISTANCIA
+              // 4. SLIDER DE DISTANCIA
               Positioned(
                 bottom: 40, left: 20, 
                 child: Container(
@@ -231,7 +332,6 @@ class _MapScreenState extends State<MapScreen> {
                       Row(children: [
                         const Icon(Icons.radar, size: 14, color: Colors.grey),
                         const SizedBox(width: 4),
-                        // TRADUCCIÓN: "${valor} km"
                         Text(
                           "${dataService.filterRadius.toInt()} ${l10n.kmUnit}", 
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF00BCD4))
@@ -270,68 +370,25 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ),
               ),
-
-              // 4. TARJETA DE ACTIVIDAD
-              if (_selectedActivity != null)
-                Positioned(
-                  bottom: 20, left: 20, right: 20,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => ActivityDetailScreen(activity: _selectedActivity!)));
-                    },
-                    child: Container(
-                      height: 110,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [BoxShadow(color: const Color(0xFF00BCD4).withOpacity(0.2), blurRadius: 15, offset: const Offset(0, 5))],
-                      ),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), bottomLeft: Radius.circular(16)),
-                            child: CachedNetworkImage(
-                              imageUrl: _selectedActivity!.imageUrl.isNotEmpty ? _selectedActivity!.imageUrl : 'https://via.placeholder.com/150',
-                              width: 110, height: 110, fit: BoxFit.cover,
-                              errorWidget: (context, url, error) => Container(color: Colors.grey[200], child: const Icon(Icons.broken_image, color: Colors.grey)),
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // CATEGORÍA TRADUCIDA
-                                  Text(
-                                    _getCategoryName(context, _selectedActivity!.category).toUpperCase(), 
-                                    style: const TextStyle(color: Color(0xFF29B6F6), fontSize: 10, fontWeight: FontWeight.bold)
-                                  ),
-                                  Text(_selectedActivity!.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF006064)), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                  
-                                  // FECHA LOCALIZADA AUTOMÁTICAMENTE
-                                  Text(
-                                    DateFormat(
-                                      'd MMM, h:mm a', 
-                                      Localizations.localeOf(context).toString()
-                                    ).format(_selectedActivity!.dateTime), 
-                                    style: const TextStyle(fontSize: 12, color: Colors.grey)
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const Padding(padding: EdgeInsets.only(right: 12.0), child: Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF26C6DA))),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
             ],
           ),
         );
       },
     );
   }
+}
+
+// Clipper para la colita de la burbuja
+class _TriangleClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(size.width / 2, size.height);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

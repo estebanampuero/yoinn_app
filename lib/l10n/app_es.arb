@@ -302,5 +302,16 @@
   "msgRequestSent": "¡Solicitud enviada! Ticket usado.",
   "msgGoPro": "Hazte PRO para unirte a más actividades.",
   "shareMessageIntro": "¡Hey! 🌟 Encontré esta actividad en Yoinn y pensé que te gustaría:",
-  "shareMessageCta": "👇 Toca aquí para ver detalles o descargar la app:"
+  "shareMessageCta": "👇 Toca aquí para ver detalles o descargar la app:",
+  "lblOrganizer": "Organizador",
+  "catOther": "Otros",
+  "catAll": "Todas",
+  "catSport": "Deporte",
+  "catFood": "Comida",
+  "catArt": "Arte",
+  "catParty": "Fiesta",
+  "catOutdoor": "Viaje",
+  "hobbyMusic": "Música",
+  "hobbyTech": "Tecnología",
+  "hobbyWellness": "Bienestar"
 }
